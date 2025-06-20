@@ -1,0 +1,23 @@
+# Usar UTF-8 por defecto
+AddDefaultCharset UTF-8
+
+# Redirigir www a no-www (opcional)
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.aliciavdev\.com [NC]
+RewriteRule ^(.*)$ https://aliciavdev.com/$1 [L,R=301]
+
+# Evitar listar directorios
+Options -Indexes
+
+# Compresión gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript
+</IfModule>
+
+# Cache control (mejorar velocidad)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/png "access plus 1 year"
+</IfModule>
