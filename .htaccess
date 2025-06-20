@@ -1,10 +1,14 @@
 # Usar UTF-8 por defecto
 AddDefaultCharset UTF-8
 
-# Redirigir www a no-www (opcional)
+# Redirigir www a no-www
 RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\.aliciavdev\.com [NC]
 RewriteRule ^(.*)$ https://aliciavdev.com/$1 [L,R=301]
+
+# Redirigir a HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Evitar listar directorios
 Options -Indexes
@@ -14,10 +18,23 @@ Options -Indexes
   AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript
 </IfModule>
 
-# Cache control (mejorar velocidad)
+# Cache control
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
   ExpiresByType image/png "access plus 1 year"
 </IfModule>
+
+# Seguridad básica
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "interest-cohort=()"
+</IfModule>
+
+# Bloquear acceso a archivos ocultos
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
