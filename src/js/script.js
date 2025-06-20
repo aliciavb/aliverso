@@ -47,3 +47,27 @@ const observer = new IntersectionObserver(
 );
 
 if (glassCard) observer.observe(glassCard);
+
+
+//word toggle
+document.addEventListener("DOMContentLoaded", () => {
+  const words = [
+    "AI enthusiast",
+    "cat person",
+    "web diver",
+    "movie nerd",
+    "beatlemaniac",
+    "3D dabbler"
+  ];
+
+  const wordEl = document.querySelector(".word-toggle");
+  let index = 0;
+
+  const changeWord = () => {
+    index = (index + 1) % words.length;
+    wordEl.textContent = words[index];
+  };
+
+  wordEl.addEventListener("click", changeWord);
+  wordEl.addEventListener("mouseenter", changeWord);
+});
