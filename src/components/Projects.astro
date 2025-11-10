@@ -1,0 +1,24 @@
+---
+// src/components/Projects.astro
+import ProjectCard from './ProjectCard.astro';
+
+const professionalProjects = [
+  {
+    url: "https://taiarts.com",
+    image: "/assets/projects/taiarts-home.webp",
+    alt: "Taiarts website screenshot",
+    title: "taiarts.com",
+    roles: "Web Developer",
+    tech: "WordPress, CSS, UX improvements",
+  },
+  // ...otros proyectos
+];
+---
+<section class="projects">
+  <h2 class="section-title">Work for brands & professionals</h2>
+  <div class="project-grid">
+    {professionalProjects.map(project => (
+      <ProjectCard {...project} />
+    ))}
+  </div>
+</section>

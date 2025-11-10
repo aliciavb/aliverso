@@ -69,8 +69,9 @@ main.visible {
 
 /* HERO */
 .hero.fullscreen {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: 1;
   height: 100vh;
   width: 100%;
@@ -227,6 +228,7 @@ main.visible {
   z-index: 3;
   background-color: var(--color-bg);
   padding: 3rem 1.5rem;
+  margin-top: 100vh;
 }
 
 .section-title {

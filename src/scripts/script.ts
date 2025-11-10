@@ -1,12 +1,13 @@
-// Forzar scroll al inicio en cada recarga
+// src/scripts/script.ts
+
 window.onbeforeunload = () => {
   window.scrollTo(0, 0);
 };
 
-// PARALLAX
+// Parallax
 document.addEventListener("scroll", () => {
   const scrollY = window.scrollY;
-  document.querySelectorAll(".layer").forEach(layer => {
+  document.querySelectorAll<HTMLElement>(".layer").forEach(layer => {
     const depth = {
       background: 0.1,
       middle: 0.3,
@@ -20,36 +21,36 @@ document.addEventListener("scroll", () => {
   });
 });
 
-// ENTRADA SUAVE
+// Loader y entrada suave
 window.addEventListener("load", () => {
   const loader = document.getElementById("loader");
   const main = document.getElementById("main-content");
 
   setTimeout(() => {
-    loader.classList.add("hidden");
-    main.classList.add("visible");
+    loader?.classList.add("hidden");
+    main?.classList.add("visible");
 
     const heroContent = document.querySelector(".hero-content");
-    if (heroContent) heroContent.classList.add("visible");
+    heroContent?.classList.add("visible");
   }, 1000);
 });
 
-// Fade in de la tarjeta glass al hacer scroll
+// Fade-in de tarjeta con IntersectionObserver
 const glassCard = document.querySelector(".glass-card");
+if (glassCard) {
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        glassCard.classList.add("visible");
+      }
+    },
+    { threshold: 0.3 }
+  );
 
-const observer = new IntersectionObserver(
-  ([entry]) => {
-    if (entry.isIntersecting) {
-      glassCard.classList.add("visible");
-    }
-  },
-  { threshold: 0.3 }
-);
+  observer.observe(glassCard);
+}
 
-if (glassCard) observer.observe(glassCard);
-
-
-//word toggle
+// Cambio de palabras
 document.addEventListener("DOMContentLoaded", () => {
   const words = [
     "AI enthusiast",
@@ -65,9 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const changeWord = () => {
     index = (index + 1) % words.length;
-    wordEl.textContent = words[index];
+    if (wordEl) wordEl.textContent = words[index];
   };
 
-  wordEl.addEventListener("click", changeWord);
-  wordEl.addEventListener("mouseenter", changeWord);
+  wordEl?.addEventListener("click", changeWord);
+  wordEl?.addEventListener("mouseenter", changeWord);
 });

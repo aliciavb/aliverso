@@ -1,0 +1,12 @@
+---
+// src/components/ProjectCard.astro
+const { url, image, alt, title, roles, tech } = Astro.props;
+---
+<a href={url} class="project-card" target="_blank" rel="noopener">
+  <img src={image} alt={alt} />
+  <div class="card-info">
+    <h3>{title}</h3>
+    <p class="roles">{roles}</p>
+    <p class="tech">{tech}</p>
+  </div>
+</a>
