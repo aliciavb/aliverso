@@ -1,20 +1,115 @@
 ---
 // src/components/Hero.astro
 ---
+
 <section class="hero fullscreen">
   <div class="hero-content visible">
-    <p class="hero-greeting">Hi, I’m
-      <span class="egg" data-key="in Madrid with my cat Ringo." aria-describedby="tooltip-ringo">Alicia</span>
+    <p class="hero-greeting">
+      Hi, I'm
+      <span
+        class="egg"
+        data-key="in Madrid with my cat Ringo."
+        aria-describedby="tooltip-ringo">Alicia</span
+      >
     </p>
-    <span id="tooltip-ringo" class="visually-hidden">in Madrid with my cat Ringo.</span>
+    <span id="tooltip-ringo" class="visually-hidden"
+      >in Madrid with my cat Ringo.</span
+    >
+
     <h1 class="hero-title">
       Designer <span class="amp">&&</span> Developer,
       <span class="word-toggle" tabindex="0">AI enthusiast</span>
     </h1>
+
     <hr class="hero-divider" />
+
     <p class="hero-subtitle">
       Uniting the worlds of <span class="strong purple">creativity</span> and
       <span class="strong purple">logic</span>.
     </p>
+
+    <div class="hero-ctas">
+      <a href="/work" class="btn btn-primary">See my work</a>
+      <a href="/about" class="btn btn-secondary">About me</a>
+    </div>
   </div>
 </section>
+
+<style>
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity 1s ease,
+      transform 1s ease;
+    transition-delay: 1s;
+  }
+
+  .hero-content.visible .hero-ctas {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 2px solid transparent;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-primary {
+    background: var(--color-green);
+    color: var(--color-bg);
+  }
+
+  .btn-primary:hover,
+  .btn-primary:focus-visible {
+    background: transparent;
+    border-color: var(--color-green);
+    color: var(--color-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(134, 235, 79, 0.2);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--color-purple);
+    color: var(--color-purple);
+  }
+
+  .btn-secondary:hover,
+  .btn-secondary:focus-visible {
+    background: var(--color-purple);
+    color: var(--color-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(177, 126, 210, 0.2);
+  }
+
+  @media (max-width: 600px) {
+    .hero-ctas {
+      flex-direction: column;
+      width: 100%;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

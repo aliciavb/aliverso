@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- [A] Logo in white, no background, optimized spacing and centering -->
+  <text x="52" y="75" font-family="'Courier New', monospace" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff">
+    <tspan dx="0">[</tspan><tspan dx="-8">A</tspan><tspan dx="-12">]</tspan>
+  </text>
+</svg>

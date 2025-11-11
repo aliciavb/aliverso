@@ -1,12 +1,16 @@
 ---
 // src/pages/index.astro
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Loader from '../components/Loader.astro';
-import Hero from '../components/Hero.astro';
-import Projects from '../components/Projects.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+// import Loader from "../components/Loader.astro"; // Commented out for now, keep for future use
+import Hero from "../components/Hero.astro";
+
+const pageTitle = "Alicia V — Designer & Developer";
+const pageDescription =
+  "Where creativity meets logic. Portfolio of Alicia V, designer and full-stack developer based in Madrid.";
 ---
-<BaseLayout>
-  <Loader />
+
+<BaseLayout title={pageTitle} description={pageDescription} showHeader={false}>
+  <!-- <Loader /> -->
   <main id="main-content">
     <Hero />
   </main>

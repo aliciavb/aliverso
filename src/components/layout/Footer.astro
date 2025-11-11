@@ -1,0 +1,162 @@
+---
+// Footer component with social links and info
+const currentYear = new Date().getFullYear();
+
+const socialLinks = [
+  {
+    href: "mailto:tu@email.com",
+    label: "Email",
+    ariaLabel: "Send me an email",
+  },
+  {
+    href: "https://linkedin.com/in/tu-perfil",
+    label: "LinkedIn",
+    ariaLabel: "Visit my LinkedIn profile",
+  },
+  {
+    href: "https://github.com/aliciavb",
+    label: "GitHub",
+    ariaLabel: "Visit my GitHub profile",
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-info">
+      <p class="footer-text">
+        © {currentYear} Alicia V.
+      </p>
+      <p class="footer-tagline">Where creativity meets logic</p>
+    </div>
+
+    <nav aria-label="Social links">
+      <ul class="social-list" role="list">
+        {
+          socialLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-label={link.ariaLabel}
+                target={link.href.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  link.href.startsWith("http")
+                    ? "noopener noreferrer"
+                    : undefined
+                }
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem 2rem;
+    margin-top: auto;
+  }
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .footer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-text {
+    margin: 0;
+    color: var(--color-text);
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+  }
+
+  .footer-tagline {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  .footer-egg {
+    display: inline-block;
+    cursor: help;
+    transition: transform 0.3s ease;
+  }
+
+  .footer-egg:hover {
+    transform: scale(1.2) rotate(15deg);
+  }
+
+  .social-list {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .social-list a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+
+  .social-list a::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-purple);
+    transition: width 0.3s ease;
+  }
+
+  .social-list a:hover,
+  .social-list a:focus-visible {
+    color: var(--color-purple);
+  }
+
+  .social-list a:hover::after,
+  .social-list a:focus-visible::after {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .site-footer {
+      padding: 2rem 1rem;
+    }
+
+    .footer-container {
+      flex-direction: column;
+      text-align: center;
+      gap: 1.5rem;
+    }
+
+    .footer-info {
+      align-items: center;
+    }
+
+    .social-list {
+      gap: 1.5rem;
+    }
+  }
+</style>

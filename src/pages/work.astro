@@ -1,0 +1,351 @@
+---
+// src/pages/work.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const pageTitle = "Work — Alicia V";
+const pageDescription =
+  "Selected projects showcasing design, development, and creative problem-solving.";
+
+const brandProjects = [
+  {
+    title: "TAI Arts",
+    category: "UX and Web Development",
+    description: "WordPress site with UX improvements focused on lead acquisition",
+    tags: ["WordPress", "CSS", "UX"],
+    link: "https://taiarts.com",
+    image: "/assets/projects/taiarts-home.webp",
+  },
+  {
+    title: "Festival WE:NOW",
+    category: "Web Design and E-Commerce",
+    description: "Art festival website with WooCommerce integration",
+    tags: ["Figma", "WooCommerce", "UI"],
+    link: "https://wenow.art/",
+    image: "/assets/projects/wenow-home.webp",
+  },
+  {
+    title: "Galería i23",
+    category: "Web Design and Development",
+    description: "Art gallery with Custom Post Types and Advanced Custom Fields",
+    tags: ["ACF", "CPT", "WordPress"],
+    link: "https://i23.art/",
+    image: "/assets/projects/i23-art.webp",
+  },
+];
+
+const myProjects = [
+  {
+    title: "Letterboxd Copycat",
+    category: "MERN Stack Application",
+    description: "Replication of the Letterboxd CRUD using React and Node.js",
+    tags: ["React", "Node.js", "MongoDB", "Express.js", "CRUD"],
+    link: "https://github.com/aliciavb/letterboxd-copycat",
+    image: "/assets/projects/letterboxd.webp",
+  },
+  {
+    title: "So_long",
+    category: "2D Game in C",
+    description: "A 2D game developed in C in 42 Madrid",
+    tags: ["C", "Game Dev", "Graphics", "Algorithms", "Events"],
+    link: "https://github.com/aliciavb/so_long",
+    image: "/assets/projects/so_long.png",
+  },
+  {
+    title: "Trazaria",
+    category: "PWA to keep track of daily meals",
+    description: "Open source progressive web application for meal tracking",
+    tags: ["React", "TypeScript", "Vite", "Tailwind CSS", "Sonnet"],
+    link: "https://github.com/aliciavb/trazaria",
+    image: "#",
+  },
+];
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main id="main-content" class="page-work">
+    <!-- Hero -->
+    <section class="work-hero">
+      <h1 class="page-title">Work</h1>
+      <p class="page-intro">
+        A selection of projects that blend creativity with technical precision.
+        Each one tells a story of problem-solving, learning, and iteration.
+      </p>
+    </section>
+
+    <!-- Section title -->
+    <section class="work-section">
+      <h2 class="section-label">Work for brands & professionals</h2>
+
+      <!-- Projects Grid -->
+      <div class="projects-grid">
+        {
+          brandProjects.map((project) => (
+            <a
+              href={project.link}
+              class="project-card"
+              target={project.link.startsWith("http") ? "_blank" : undefined}
+              rel={
+                project.link.startsWith("http")
+                  ? "noopener noreferrer"
+                  : undefined
+              }
+            >
+              <div class="project-image">
+                <img src={project.image} alt={project.title} loading="lazy" />
+              </div>
+              <div class="project-content">
+                <div class="project-meta">
+                  <span class="project-category">{project.category}</span>
+                </div>
+                <h3 class="project-title">{project.title}</h3>
+                <p class="project-description">{project.description}</p>
+                <div class="project-tags">
+                  {project.tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+	<!-- Section title -->
+    <section class="work-section">
+      <h2 class="section-label">My projects on GitHub</h2>
+
+      <!-- Projects Grid -->
+      <div class="projects-grid">
+        {
+          myProjects.map((project) => (
+            <a
+              href={project.link}
+              class="project-card"
+              target={project.link.startsWith("http") ? "_blank" : undefined}
+              rel={
+                project.link.startsWith("http")
+                  ? "noopener noreferrer"
+                  : undefined
+              }
+            >
+              <div class="project-content">
+                <h3 class="project-title">{project.title}</h3>
+                <p class="project-description">{project.description}</p>
+                <div class="project-tags">
+                  {project.tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .page-work {
+    min-height: 100vh;
+    padding-top: 6rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  /* Hero */
+  .work-hero {
+    padding: 3rem 0 2rem;
+  }
+
+  .page-title {
+    font-size: 3.5rem;
+    margin: 0 0 1rem;
+    color: var(--color-green);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .page-intro {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+  }
+
+  /* Section */
+  .work-section {
+    padding: 2rem 0 4rem;
+  }
+
+  .section-label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-purple);
+    font-weight: 600;
+    margin: 0 0 2rem;
+  }
+
+  /* Projects Grid */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-green);
+    box-shadow: 0 8px 24px rgba(134, 235, 79, 0.1);
+  }
+
+  .project-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .project-card:hover .project-image img {
+    transform: scale(1.05);
+  }
+
+  .project-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+  }
+
+  .project-category {
+    color: var(--color-purple);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .project-year {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-mono);
+  }
+
+  .project-title {
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  .project-card:hover .project-title {
+    color: var(--color-green);
+  }
+
+  .project-description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(134, 235, 79, 0.1);
+    color: var(--color-green);
+    border: 1px solid rgba(134, 235, 79, 0.2);
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+  }
+
+  /* Responsive */
+  @media (max-width: 1400px) {
+    .projects-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-work {
+      padding-top: 5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .work-hero {
+      padding: 2rem 0 1.5rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .page-intro {
+      font-size: 1rem;
+    }
+
+    .work-section {
+      padding: 1.5rem 0 3rem;
+    }
+
+    .projects-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .project-image {
+      height: 180px;
+    }
+
+    .project-content {
+      padding: 1.25rem;
+    }
+
+    .project-title {
+      font-size: 1.25rem;
+    }
+  }
+</style>

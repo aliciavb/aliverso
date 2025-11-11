@@ -21,18 +21,27 @@ document.addEventListener("scroll", () => {
   });
 });
 
-// Loader y entrada suave
+// Loader y entrada suave (commented out - loader not in use)
+// window.addEventListener("load", () => {
+//   const loader = document.getElementById("loader");
+//   const main = document.getElementById("main-content");
+
+//   setTimeout(() => {
+//     loader?.classList.add("hidden");
+//     main?.classList.add("visible");
+
+//     const heroContent = document.querySelector(".hero-content");
+//     heroContent?.classList.add("visible");
+//   }, 1000);
+// });
+
+// Direct visibility without loader
 window.addEventListener("load", () => {
-  const loader = document.getElementById("loader");
   const main = document.getElementById("main-content");
-
-  setTimeout(() => {
-    loader?.classList.add("hidden");
-    main?.classList.add("visible");
-
-    const heroContent = document.querySelector(".hero-content");
-    heroContent?.classList.add("visible");
-  }, 1000);
+  const heroContent = document.querySelector(".hero-content");
+  
+  main?.classList.add("visible");
+  heroContent?.classList.add("visible");
 });
 
 // Fade-in de tarjeta con IntersectionObserver
