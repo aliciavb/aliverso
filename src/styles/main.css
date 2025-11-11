@@ -310,6 +310,10 @@ main {
   transform: translateY(0);
 }
 
+.main-title {
+  white-space: nowrap;
+}
+
 .amp {
   color: var(--color-purple);
   margin: 0 0.3rem;
@@ -324,6 +328,7 @@ main {
   cursor: pointer;
   white-space: nowrap;
   transition: color var(--transition-base);
+  font-size: 0.7em; /* Smaller than Designer && Developer */
 }
 
 .word-toggle:hover,
