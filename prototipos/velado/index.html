@@ -1,0 +1,328 @@
+<title>Velado aliciavdev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Solo oscuro (decidido 2026-09-16) */
+  :root {
+    --ground: #12241c;
+    --ground-deep: #0a1410;
+    --ink: #f1e6d0;
+    --ink-soft: #b7b09c;
+    --accent: #ef7a5a;
+    --line: rgba(241, 230, 208, 0.18);
+    --btn-ink: #12241c;
+    --leak-1: #e2553a;
+    --leak-2: #e07a3a;
+    --leak-3: #e8c95a;
+    --leak-4: #4fb89a;
+    --leak-strength: 1.0;
+    --grain: 0;
+    --vignette: 0.6;
+    --dust: 0;
+    --noise-opacity: .55;
+    --noise-blend: screen;
+    --noise-filter: invert(1);
+    color-scheme: dark;
+  }
+
+  html { background: var(--ground-deep); }
+  body {
+    background-color: var(--ground);
+    background-image:
+      radial-gradient(60rem 40rem at 100% 100%, color-mix(in srgb, var(--leak-1) 22%, transparent), transparent 70%),
+      radial-gradient(50rem 36rem at 0% 70%, color-mix(in srgb, var(--leak-4) 16%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--ground) 0%, var(--ground-deep) 100%);
+    background-attachment: fixed;
+  }
+  /* Textura de papel de aliverso.me (hecha por Alicia) */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: url("bg-noise.jpg") repeat 0 0 / 323px auto;
+    opacity: var(--noise-opacity); mix-blend-mode: var(--noise-blend); filter: var(--noise-filter);
+  }
+  body {
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding-inline: clamp(16px, 5vw, 64px);
+    padding-block: 0 96px;
+    position: relative;
+    transition: color .4s ease;
+  }
+  .top {
+    position: relative; isolation: isolate;
+    margin-inline: calc(-1 * clamp(16px, 5vw, 64px));
+    padding-inline: clamp(16px, 5vw, 64px);
+  }
+  .top > .wrap { position: relative; z-index: 1; }
+  #bg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 0; pointer-events: none; display: block;
+    -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+            mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+  }
+  .hero h1, .hero p { text-shadow: 0 1px 24px color-mix(in srgb, var(--ground-deep) 45%, transparent); }
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+    font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .wrap { max-width: 72rem; margin-inline: auto; }
+
+  header.site {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-block: 28px; flex-wrap: wrap;
+  }
+  .brand { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 700; font-size: 1.125rem; color: var(--ink); text-decoration: none; }
+  nav.site { display: flex; gap: 24px; flex-wrap: wrap; }
+  nav.site a { color: var(--ink-soft); text-decoration: none; font-size: .95rem; }
+  nav.site a:hover { color: var(--ink); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  .hero { padding-block: clamp(72px, 16vh, 180px) clamp(96px, 16vh, 180px); display: grid; gap: 28px; }
+  .hero h1 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 700; font-optical-sizing: auto;
+    font-size: clamp(2.75rem, 8.5vw, 6.5rem); line-height: .95; letter-spacing: -.03em;
+    margin: 0; max-width: 12ch; text-wrap: balance;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { margin: 0; max-width: 44ch; color: var(--ink-soft); font-size: clamp(1.0625rem, 1.6vw, 1.25rem); }
+  .cta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; padding-top: 8px; }
+  .btn {
+    display: inline-block; background: var(--ink); color: var(--btn-ink);
+    padding: 14px 22px; border-radius: 999px; text-decoration: none; font-weight: 500;
+  }
+  .link { color: var(--ink); text-underline-offset: 4px; }
+
+  section.block { border-top: 1px solid var(--line); padding-block: 40px; display: grid; gap: 24px; }
+  .block-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--ink-soft); }
+  .work { list-style: none; margin: 0; padding: 0; display: grid; }
+  .work li {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: baseline;
+    padding-block: 18px; border-bottom: 1px solid var(--line);
+  }
+  .work h3 { margin: 0; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 500; font-size: clamp(1.5rem, 3.4vw, 2.25rem); letter-spacing: -.02em; line-height: 1.1; }
+  .work .mono { color: var(--ink-soft); }
+
+  .talk { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+  .talk h2 { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 700; font-size: clamp(2.25rem, 6vw, 4rem); letter-spacing: -.03em; line-height: 1; margin: 0 0 16px; }
+  .talk p { margin: 0 0 24px; color: var(--ink-soft); max-width: 40ch; }
+  .photo-slot {
+    aspect-ratio: 3 / 2; max-width: 100%;
+    border: 1.5px dashed var(--line); display: grid; place-items: center; text-align: center;
+    padding: 24px; color: var(--ink-soft);
+  }
+  .photo-slot strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 6px; }
+
+  footer.site { padding-block: 40px 16px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+
+  @media (max-width: 720px) {
+    .talk { grid-template-columns: 1fr; }
+    .work li { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="top">
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="site">
+    <a class="brand" href="#">Alicia Viñals</a>
+    <nav class="site" aria-label="Principal">
+      <a href="#trabajo">Trabajo</a>
+      <a href="#">Sobre mí</a>
+      <a href="#hablemos">Hablemos</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="mono">Texto provisional · se reescribe en el front door</span>
+      <h1>Diseño interfaces y las <em>construyo.</em></h1>
+      <p>Webs que hacen que tu proyecto se entienda y se tome en serio, y que puedas llevar tú.</p>
+      <div class="cta">
+        <a class="btn" href="#hablemos">Cuéntame tu proyecto</a>
+        <a class="link" href="#trabajo">Ver trabajo</a>
+      </div>
+    </section>
+  </main>
+</div>
+</div>
+
+<div class="wrap">
+  <div>
+    <section class="block" id="trabajo">
+      <div class="block-head"><span class="mono">Trabajo</span><span class="mono">3 casos</span></div>
+      <ul class="work">
+        <li><h3>Galería i23</h3><span class="mono">Rediseño · WordPress</span></li>
+        <li><h3>Escuela TAI</h3><span class="mono">Web · maquetación</span></li>
+        <li><h3>Festival WE:NOW</h3><span class="mono">Ecommerce · WooCommerce</span></li>
+      </ul>
+    </section>
+
+    <section class="block" id="hablemos">
+      <div class="talk">
+        <div>
+          <h2>Hablemos</h2>
+          <p>Cuéntame qué tienes y qué te gustaría que pasara con tu web. Respondo rápido.</p>
+          <a class="btn" href="#">hola@aliverso.me</a>
+        </div>
+        <div class="photo-slot">
+          <div>
+            <strong>Tu foto analógica va aquí</strong>
+            <span class="mono">La de las nubes, desechable</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site">
+    <span class="mono">© 2026 Alicia Viñals</span>
+    <span class="mono">Madrid</span>
+  </footer>
+</div>
+
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const canvas = document.getElementById('bg');
+  const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: false });
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let moving = false; // quieto por defecto
+
+
+  if (!gl) return;
+
+  const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
+  const fs = `
+precision mediump float;
+uniform vec2 r; uniform float t; uniform float gt;
+uniform vec3 g0; uniform vec3 g1;
+uniform vec3 c1; uniform vec3 c2; uniform vec3 c3; uniform vec3 c4;
+uniform float strength; uniform float grain; uniform float vig; uniform float dust;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p); vec2 u = f*f*(3.-2.*f);
+  return mix(mix(hash(i), hash(i+vec2(1,0)), u.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y);
+}
+float fbm(vec2 p){ float v=0., a=.55; for(int i=0;i<4;i++){ v+=a*noise(p); p*=2.03; a*=.5; } return v; }
+
+// mancha de luz: elipse estirada en horizontal, deformada por ruido
+float leak(vec2 p, vec2 c, vec2 s, float seed){
+  vec2 d = (p - c) / s;
+  float warp = fbm(vec2(p.x*1.1 + t*.35 + seed, p.y*4.0 - t*.12)) - .5;
+  float e = length(d + vec2(warp*.9, warp*.35));
+  return smoothstep(1.0, 0.0, e);
+}
+
+void main(){
+  vec2 uv = gl_FragCoord.xy / r;
+  float asp = r.x / r.y;
+  vec2 p = vec2(uv.x * asp, uv.y);
+
+  // suelo: degradado vertical
+  vec3 col = mix(g1, g0, smoothstep(0., 1., uv.y*.8 + .2));
+
+  // bandas horizontales de velado
+  float streak = fbm(vec2(p.x*.6 - t*.5, p.y*5.5));
+
+  float m1 = leak(p, vec2(asp*.80 + .08*sin(t*.7), .78), vec2(.85, .42), 1.3);
+  float m2 = leak(p, vec2(asp*.55 + .10*cos(t*.5), .30), vec2(1.10, .30), 4.1) * (.55 + .8*streak);
+  float m3 = leak(p, vec2(asp*.12 + .06*sin(t*.4), .02), vec2(.85, .34), 7.7);
+  float m4 = leak(p, vec2(asp*.0, .70 + .04*cos(t*.6)), vec2(.60, .30), 2.9);
+
+  // protege la columna de texto: menos velado arriba a la izquierda-centro
+  float calm = smoothstep(.05, .8, distance(uv, vec2(.30, .55)) * 1.5);
+
+  col = mix(col, c4, clamp(m4 * .7 * strength, 0., 1.));
+  col = mix(col, c3, clamp(m3 * .85 * strength, 0., 1.));
+  col = mix(col, c2, clamp(m2 * (.55 + .45*calm) * strength, 0., 1.));
+  col = mix(col, c1, clamp(m1 * (.65 + .35*calm) * strength, 0., 1.));
+  // núcleo quemado: casi crema donde el velado es más intenso
+  col = mix(col, vec3(.97,.92,.82), clamp(pow(m1*m2*2.2 + m3*m3*.35, 2.) * strength * .6, 0., 1.));
+
+  // viñeta
+  float v = smoothstep(1.15, .25, length((uv - .5) * vec2(1.25, 1.1)));
+  col *= mix(1. - vig, 1., v);
+
+  // grano (provisional: se cambia por el del escaneo)
+  float n = hash(floor(gl_FragCoord.xy) + gt * 17.13) - .5;
+  col += n * grain;
+
+  // polvo y motas (solo oscuro)
+  vec2 cell = floor(gl_FragCoord.xy / 2.);
+  float speck = step(.9978, hash(cell + floor(gt / 5.) * 3.71));
+  col = mix(col, mix(vec3(.95,.92,.85), c4, hash(cell)), speck * dust * .8);
+
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+  function sh(type, src){ const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+  const aLoc = gl.getAttribLocation(prog, 'a');
+  gl.enableVertexAttribArray(aLoc);
+  gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const U = n => gl.getUniformLocation(prog, n);
+  const u = { r: U('r'), t: U('t'), gt: U('gt'), g0: U('g0'), g1: U('g1'), c1: U('c1'), c2: U('c2'), c3: U('c3'), c4: U('c4'), strength: U('strength'), grain: U('grain'), vig: U('vig'), dust: U('dust') };
+
+  const hex = h => { h = h.trim().replace('#',''); return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)/255); };
+  function readTokens(){
+    const cs = getComputedStyle(root);
+    const v = n => cs.getPropertyValue(n);
+    gl.uniform3fv(u.g0, hex(v('--ground')));
+    gl.uniform3fv(u.g1, hex(v('--ground-deep')));
+    gl.uniform3fv(u.c1, hex(v('--leak-1')));
+    gl.uniform3fv(u.c2, hex(v('--leak-2')));
+    gl.uniform3fv(u.c3, hex(v('--leak-3')));
+    gl.uniform3fv(u.c4, hex(v('--leak-4')));
+    gl.uniform1f(u.strength, parseFloat(v('--leak-strength')));
+    gl.uniform1f(u.grain, parseFloat(v('--grain')));
+    gl.uniform1f(u.vig, parseFloat(v('--vignette')));
+    gl.uniform1f(u.dust, parseFloat(v('--dust')) || 0);
+    if (!moving) draw(last);
+  }
+
+  const SCALE = 0.6; // resolución interna: suaviza el velado y abarata el render
+  function resize(){
+    const w = Math.max(1, Math.round(canvas.clientWidth * SCALE));
+    const h = Math.max(1, Math.round(canvas.clientHeight * SCALE));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+    gl.uniform2f(u.r, w, h);
+  }
+
+  let last = 8.0;
+  function draw(ms){
+    resize();
+    const s = ms / 1000;
+    gl.uniform1f(u.t, s * 0.12);
+    gl.uniform1f(u.gt, Math.floor(s * 24) % 997); // grano a 24 fps, como película
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+  const start = performance.now() - 8000;
+  function loop(now){
+    if (!moving) return;
+    last = now - start;
+    if (!document.hidden) draw(last);
+    requestAnimationFrame(loop);
+  }
+
+  readTokens();
+  draw(last);
+  if (moving) requestAnimationFrame(loop);
+
+  addEventListener('resize', () => { if (!moving) draw(last); });
+})();
+</script>
