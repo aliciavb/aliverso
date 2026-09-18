@@ -1,4 +1,4 @@
-<title>Velado aliciavdev</title>
+<title>Velado v7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -78,7 +78,10 @@
   nav.site a:hover { color: var(--ink); }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
-  .hero { padding-block: clamp(72px, 16vh, 180px) clamp(96px, 16vh, 180px); display: grid; gap: 28px; }
+  /* Hero a pantalla completa con el texto abajo (v7, 2026-09-18) */
+  .top > .wrap { min-height: 100svh; display: flex; flex-direction: column; }
+  main { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero { padding-block: 48px clamp(40px, 8vh, 88px); display: grid; gap: 28px; }
   .hero h1 {
     font-family: "Bricolage Grotesque", system-ui, sans-serif;
     font-weight: 700; font-optical-sizing: auto;
@@ -105,14 +108,12 @@
     background: var(--ground-deep) url("perfil.png") 0 0 / 800% 100% no-repeat;
   }
   .cam .frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  @media (min-width: 861px) {
-    .hero { grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(32px, 5vw, 80px); }
-    .hero > :not(.cam) { grid-column: 1; }
-    .hero > .cam { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
-  }
-  @media (max-width: 860px) {
-    .hero > .cam { width: min(260px, 70vw); margin-top: 16px; }
-  }
+  /* Sobre mí: cámara a la izquierda, texto a la derecha (Hablemos lo invierte) */
+  .about { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
+  .about .cam { width: clamp(200px, 20vw, 280px); }
+  .about h2 { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 700; font-size: clamp(2.25rem, 6vw, 4rem); letter-spacing: -.03em; line-height: 1; margin: 0 0 16px; }
+  .about p { margin: 0 0 16px; color: var(--ink-soft); max-width: 48ch; }
+  .about p:last-child { margin-bottom: 0; }
 
   section.block { border-top: 1px solid var(--line); padding-block: 40px; display: grid; gap: 24px; }
   .block-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--ink-soft); }
@@ -139,6 +140,8 @@
 
   @media (max-width: 720px) {
     .talk { grid-template-columns: 1fr; }
+    .about { grid-template-columns: 1fr; }
+    .about .cam { width: min(220px, 60vw); }
     .work li { grid-template-columns: 1fr; }
   }
 </style>
@@ -150,7 +153,7 @@
     <a class="brand" href="#">Alicia Viñals</a>
     <nav class="site" aria-label="Principal">
       <a href="#trabajo">Trabajo</a>
-      <a href="#">Sobre mí</a>
+      <a href="#sobre-mi">Sobre mí</a>
       <a href="#hablemos">Hablemos</a>
     </nav>
   </header>
@@ -163,10 +166,6 @@
       <div class="cta">
         <a class="btn" href="#hablemos">Cuéntame tu proyecto</a>
         <a class="link" href="#trabajo">Ver trabajo</a>
-      </div>
-      <div class="cam" data-frames="8" data-ms-in="40" data-ms-out="55" data-intro-delay="1200">
-        <div class="screen" role="img" aria-label="Alicia Viñals"></div>
-        <img class="frame" src="perfil-camara.png" alt="">
       </div>
     </section>
   </main>
@@ -182,6 +181,21 @@
         <li><h3>Escuela TAI</h3><span class="mono">Web · maquetación</span></li>
         <li><h3>Festival WE:NOW</h3><span class="mono">Ecommerce · WooCommerce</span></li>
       </ul>
+    </section>
+
+    <section class="block" id="sobre-mi">
+      <div class="block-head"><span class="mono">Sobre mí</span><span class="mono">Madrid</span></div>
+      <div class="about">
+        <div class="cam" data-frames="8" data-ms-in="40" data-ms-out="55" data-intro-delay="1200">
+          <div class="screen" role="img" aria-label="Alicia Viñals"></div>
+          <img class="frame" src="perfil-camara.png" alt="">
+        </div>
+        <div>
+          <h2>Alicia Viñals</h2>
+          <p>Diseño la interfaz y la programo yo, sin pasar el diseño a otra persona para que lo construya.</p>
+          <p class="mono">Texto provisional · se escribe con el front door</p>
+        </div>
+      </div>
     </section>
 
     <section class="block" id="hablemos">
@@ -255,11 +269,12 @@ void main(){
 
   float m1 = leak(p, vec2(asp*.80 + .08*sin(t*.7), .78), vec2(.85, .42), 1.3);
   float m2 = leak(p, vec2(asp*.55 + .10*cos(t*.5), .30), vec2(1.10, .30), 4.1) * (.55 + .8*streak);
-  float m3 = leak(p, vec2(asp*.12 + .06*sin(t*.4), .02), vec2(.85, .34), 7.7);
+  // amarilla: más pequeña y desplazada a la derecha para dejar verde oscuro detrás del texto
+  float m3 = leak(p, vec2(asp*.66 + .06*sin(t*.4), .02), vec2(.50, .22), 7.7);
   float m4 = leak(p, vec2(asp*.0, .70 + .04*cos(t*.6)), vec2(.60, .30), 2.9);
 
-  // protege la columna de texto: menos velado arriba a la izquierda-centro
-  float calm = smoothstep(.05, .8, distance(uv, vec2(.30, .55)) * 1.5);
+  // protege la columna de texto: abajo a la izquierda
+  float calm = smoothstep(.05, .8, distance(uv, vec2(.30, .18)) * 1.5);
 
   col = mix(col, c4, clamp(m4 * .7 * strength, 0., 1.));
   col = mix(col, c3, clamp(m3 * .85 * strength, 0., 1.));
