@@ -127,18 +127,22 @@ h2.title {
 .after { margin: 0; max-width: 60ch; }
 
 /* Trabajo */
-.cases { display: grid; }
-.case {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px 48px;
-  padding-block: 32px; border-bottom: 1px solid var(--line);
-}
-.case:first-child { padding-top: 0; }
-.case h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3.4vw, 2.5rem); letter-spacing: -.02em; line-height: 1.1; }
+/* Imagen primero, resultado en grande, el resto plegado en "Cómo fue" */
+.cases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 40px; }
+.case { display: grid; gap: 16px; align-content: start; }
+.case-img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 4px; background: var(--ground-deep); }
+.case-img.slot { border: 1.5px dashed var(--line); display: grid; place-items: center; color: var(--ink-soft); }
+.case-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; }
+.case h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3.4vw, 2.5rem); letter-spacing: -.02em; line-height: 1.1; }
 .case .mono { color: var(--ink-soft); }
-.case dl { margin: 0; display: grid; gap: 16px; }
-.case dt { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-.case dd { margin: 4px 0 0; max-width: 60ch; }
-.case.pending { border: 1.5px dashed var(--line); padding: 24px; color: var(--ink-soft); }
+.case-result { margin: 0; font-size: clamp(1.125rem, 1.8vw, 1.375rem); line-height: 1.4; max-width: 40ch; }
+.case summary { cursor: pointer; color: var(--accent); width: fit-content; padding-block: 4px; }
+.case summary::marker { content: "+ "; }
+.case details[open] summary::marker { content: "− "; }
+.case dl { margin: 16px 0 0; display: grid; gap: 16px; }
+.case dt { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.case dd { margin: 4px 0 0; max-width: 60ch; color: var(--ink-soft); }
+.case.pending { grid-column: 1 / -1; border: 1.5px dashed var(--line); padding: 24px; color: var(--ink-soft); }
 
 /* Cómo trabajo */
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 48px; counter-reset: step; }
@@ -184,7 +188,7 @@ footer.site { padding-block: 40px 16px; color: var(--ink-soft); display: flex; j
 @media (max-width: 860px) {
   .reasons { grid-template-columns: 1fr; gap: 24px; }
   .steps { grid-template-columns: 1fr; gap: 28px; }
-  .case { grid-template-columns: 1fr; }
+  .cases { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
   .talk { grid-template-columns: 1fr; }

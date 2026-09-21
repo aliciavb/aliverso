@@ -25,6 +25,7 @@ const cases = [
   {
     name: "Galería i23",
     meta: "Web de apertura · WordPress",
+    image: null, // pendiente: captura de la web de su época (Wayback Machine o archivo propio)
     problem:
       "La galería aún no existía. Tenían el local en la calle Ibiza 23, la identidad de marca hecha y un Instagram que anunciaba la apertura. Necesitaban la web para abrir.",
     decision:
@@ -34,6 +35,7 @@ const cases = [
   {
     name: "Escuela TAI",
     meta: "Mantenimiento y diseño · 2022–2024",
+    image: "/assets/projects/taiarts-home.webp",
     problem:
       "Es la web de una escuela universitaria de artes: fichas de cada carrera, páginas de cada departamento, formularios de captación, campañas. La visitan a diario futuros alumnos y alumnos actuales, así que tiene que estar siempre al día y bien cuidada.",
     decision:
@@ -122,15 +124,23 @@ const email = "hola@aliverso.me";
       <div class="cases">
         {cases.map((c) => (
           <article class="case">
-            <div>
+            {c.image ? (
+              <img class="case-img" src={c.image} alt={`Web de ${c.name}`} loading="lazy" />
+            ) : (
+              <div class="case-img slot"><span class="mono">Imagen pendiente · {c.name}</span></div>
+            )}
+            <div class="case-head">
               <h3>{c.name}</h3>
               <span class="mono">{c.meta}</span>
             </div>
-            <dl>
-              <div><dt>Problema</dt><dd>{c.problem}</dd></div>
-              <div><dt>Decisión</dt><dd>{c.decision}</dd></div>
-              <div><dt>Resultado</dt><dd>{c.result}</dd></div>
-            </dl>
+            <p class="case-result">{c.result}</p>
+            <details>
+              <summary class="mono">Cómo fue</summary>
+              <dl>
+                <div><dt>Problema</dt><dd>{c.problem}</dd></div>
+                <div><dt>Decisión</dt><dd>{c.decision}</dd></div>
+              </dl>
+            </details>
           </article>
         ))}
         <!-- Tercer caso: pendiente de elegir (web personal de creativo; Carmen Lillo por delante). Quitar antes de publicar. -->
