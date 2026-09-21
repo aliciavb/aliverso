@@ -1,0 +1,193 @@
+/* Front door — dirección visual "velado" (prototipo v7, prototipos/velado/index.html) */
+
+/* Solo oscuro (decidido 2026-09-16) */
+:root {
+  --ground: #12241c;
+  --ground-deep: #0a1410;
+  --ink: #f1e6d0;
+  --ink-soft: #b7b09c;
+  --accent: #ef7a5a;
+  --line: rgba(241, 230, 208, 0.18);
+  --btn-ink: #12241c;
+  --leak-1: #e2553a;
+  --leak-2: #e07a3a;
+  --leak-3: #e8c95a;
+  --leak-4: #4fb89a;
+  --leak-strength: 1.0;
+  --grain: 0;
+  --vignette: 0.6;
+  --dust: 0;
+  --noise-opacity: .55;
+  --noise-blend: screen;
+  --noise-filter: invert(1);
+  --gutter: clamp(16px, 5vw, 64px);
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--ground-deep); scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background-color: var(--ground);
+  background-image:
+    radial-gradient(60rem 40rem at 100% 100%, color-mix(in srgb, var(--leak-1) 22%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 0% 70%, color-mix(in srgb, var(--leak-4) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--ground) 0%, var(--ground-deep) 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-inline: var(--gutter);
+  padding-block: 0 96px;
+  position: relative;
+}
+/* Textura de papel de aliverso.me (hecha por Alicia) */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+  background: url("/assets/bg-noise.jpg") repeat 0 0 / 323px auto;
+  opacity: var(--noise-opacity); mix-blend-mode: var(--noise-blend); filter: var(--noise-filter);
+}
+
+.top {
+  position: relative; isolation: isolate;
+  margin-inline: calc(-1 * var(--gutter));
+  padding-inline: var(--gutter);
+}
+.top > .wrap { position: relative; z-index: 1; }
+#bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; display: block;
+  -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 78%, transparent 100%);
+}
+.hero h1, .hero p, .hero .mono { text-shadow: 0 1px 24px color-mix(in srgb, var(--ground-deep) 45%, transparent); }
+
+.mono {
+  font-family: var(--mono);
+  font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+}
+.wrap { max-width: 72rem; margin-inline: auto; }
+
+header.site {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-block: 28px; flex-wrap: wrap;
+}
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.125rem; color: var(--ink); text-decoration: none; }
+nav.site { display: flex; gap: 24px; flex-wrap: wrap; }
+nav.site a { color: var(--ink-soft); text-decoration: none; font-size: .95rem; }
+nav.site a:hover { color: var(--ink); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+/* Hero a pantalla completa con el texto abajo (v7, 2026-09-18) */
+.top > .wrap { min-height: 100svh; display: flex; flex-direction: column; }
+.top main { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+.hero { padding-block: 48px clamp(40px, 8vh, 88px); display: grid; gap: 28px; }
+.hero .mono { color: var(--ink-soft); }
+.hero h1 {
+  font-family: var(--display);
+  font-weight: 700; font-optical-sizing: auto;
+  font-size: clamp(2.75rem, 8.5vw, 6.5rem); line-height: .95; letter-spacing: -.03em;
+  margin: 0; max-width: 15ch; text-wrap: balance;
+}
+.hero h1 em, .lead em { font-style: normal; color: var(--accent); }
+.hero p { margin: 0; max-width: 44ch; color: var(--ink-soft); font-size: clamp(1.0625rem, 1.6vw, 1.25rem); }
+.cta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; padding-top: 8px; }
+.btn {
+  display: inline-block; background: var(--ink); color: var(--btn-ink);
+  padding: 14px 22px; border-radius: 999px; text-decoration: none; font-weight: 500;
+}
+.link { color: var(--ink); text-underline-offset: 4px; }
+
+/* Bloques */
+section.block { border-top: 1px solid var(--line); padding-block: 40px 56px; display: grid; gap: 32px; }
+.block-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--ink-soft); }
+h2.title {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2.25rem, 6vw, 4rem); letter-spacing: -.03em; line-height: 1; margin: 0;
+}
+.soft { color: var(--ink-soft); }
+
+/* Bajo el hero */
+.lead { display: grid; gap: 20px; padding-block: 24px 56px; }
+.lead h2 {
+  font-family: var(--display); font-weight: 500;
+  font-size: clamp(1.75rem, 4.2vw, 3rem); letter-spacing: -.02em; line-height: 1.1;
+  margin: 0; max-width: 24ch; text-wrap: balance;
+}
+.lead p { margin: 0; max-width: 56ch; color: var(--ink-soft); }
+
+/* Con qué me suelen llamar */
+.reasons { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.reasons h3, .steps h3 { font-family: var(--display); font-weight: 500; font-size: 1.375rem; letter-spacing: -.01em; line-height: 1.2; margin: 0 0 8px; }
+.reasons p, .steps p { margin: 0; color: var(--ink-soft); }
+.after { margin: 0; max-width: 60ch; }
+
+/* Trabajo */
+.cases { display: grid; }
+.case {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px 48px;
+  padding-block: 32px; border-bottom: 1px solid var(--line);
+}
+.case:first-child { padding-top: 0; }
+.case h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3.4vw, 2.5rem); letter-spacing: -.02em; line-height: 1.1; }
+.case .mono { color: var(--ink-soft); }
+.case dl { margin: 0; display: grid; gap: 16px; }
+.case dt { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.case dd { margin: 4px 0 0; max-width: 60ch; }
+.case.pending { border: 1.5px dashed var(--line); padding: 24px; color: var(--ink-soft); }
+
+/* Cómo trabajo */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 48px; counter-reset: step; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; }
+.steps li::before { content: counter(step, decimal-leading-zero); font-family: var(--mono); font-size: .75rem; color: var(--accent); padding-top: 6px; }
+.note { border-left: 2px solid var(--accent); padding-left: 20px; max-width: 64ch; }
+.note p { margin: 0; color: var(--ink-soft); }
+.note strong { color: var(--ink); font-weight: 500; }
+
+/* Foto de perfil: sprite de fotogramas dentro del marco de cámara */
+.cam {
+  position: relative; width: clamp(220px, 24vw, 320px); aspect-ratio: 408 / 611;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+/* hueco de la pantalla en perfil-camara.png: x 61–328, y 55–417 sobre 408×611 */
+.cam .screen {
+  position: absolute; left: 14.7%; top: 8.8%; width: 66.4%; height: 59.8%;
+  background: var(--ground-deep) url("/assets/perfil.png") 0 0 / 800% 100% no-repeat;
+}
+.cam .frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Sobre mí: cámara a la izquierda, texto a la derecha (Hablemos lo invierte) */
+.about { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
+.about .cam { width: clamp(200px, 20vw, 280px); }
+.about h2 { margin-bottom: 16px; }
+.about p { margin: 0; color: var(--ink-soft); max-width: 52ch; }
+
+/* Hablemos */
+.talk { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.talk h2 { margin-bottom: 16px; }
+.talk p { margin: 0 0 16px; color: var(--ink-soft); max-width: 40ch; }
+.talk ul { margin: 0 0 16px; padding-left: 1.2em; color: var(--ink-soft); }
+.talk .btn { margin-block: 8px 24px; }
+.photo-slot {
+  aspect-ratio: 3 / 2; max-width: 100%;
+  border: 1.5px dashed var(--line); display: grid; place-items: center; text-align: center;
+  padding: 24px; color: var(--ink-soft);
+}
+.photo-slot strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 6px; }
+
+footer.site { padding-block: 40px 16px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 860px) {
+  .reasons { grid-template-columns: 1fr; gap: 24px; }
+  .steps { grid-template-columns: 1fr; gap: 28px; }
+  .case { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .talk { grid-template-columns: 1fr; }
+  .about { grid-template-columns: 1fr; }
+  .about .cam { width: min(220px, 60vw); }
+}
