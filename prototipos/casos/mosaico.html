@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casos: mosaico vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Linden+Hill&family=Montserrat:wght@400;700&display=swap">
+<style>
+/* Prototipo "mosaico vivo" de la sección Trabajo (2026-09-22). Fuera de src/: no entra en el build.
+   Todo funciona con el dedo; el hover solo añade en escritorio. */
+:root {
+  --ground: #12241c; --ground-deep: #0a1410; --ink: #f1e6d0; --ink-soft: #b7b09c;
+  --accent: #ef7a5a; --line: rgba(241, 230, 208, 0.16); --tile: rgba(10, 20, 16, .72);
+  --gutter: clamp(16px, 5vw, 64px);
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --spring: cubic-bezier(.34, 1.4, .64, 1);
+  --out: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--ground-deep); }
+body {
+  margin: 0; color: var(--ink);
+  background: linear-gradient(180deg, var(--ground), var(--ground-deep)) fixed;
+  font: 400 1.0625rem/1.6 "Instrument Sans", system-ui, sans-serif;
+  padding: 0 var(--gutter) 96px;
+}
+.wrap { max-width: 72rem; margin-inline: auto; }
+.mono { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+.soft { color: var(--ink-soft); }
+.pending { color: var(--ink-soft); border: 1.5px dashed var(--line); padding: 4px 10px; display: inline-block; }
+.top-note { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 24px 0; color: var(--ink-soft); }
+.top-note a { color: var(--ink); }
+
+/* Cabecera de caso */
+.case { padding-block: 48px; border-top: 1px solid var(--line); }
+.head { display: flex; justify-content: space-between; align-items: end; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 20px; }
+.head h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3.4vw, 2.5rem); letter-spacing: -.02em; line-height: 1.1; }
+.open {
+  font: inherit; font-size: .95rem; color: var(--ink); background: none; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; display: inline-flex; gap: 8px; align-items: center;
+  transition: background .2s, color .2s, transform .15s;
+}
+.open:active { transform: scale(.96); }
+.open .arr { display: inline-block; transition: transform .3s var(--spring); }
+
+/* Mosaico */
+.bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(140px, auto); gap: 12px; }
+.tile {
+  position: relative; border-radius: 10px; overflow: hidden; min-width: 0;
+  background: var(--tile); border: 1px solid var(--line); padding: 16px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+  /* entrada escalonada */
+  opacity: 0; transform: translateY(18px) scale(.98);
+  transition: opacity .6s var(--out) calc(var(--i, 0) * 70ms), transform .7s var(--out) calc(var(--i, 0) * 70ms),
+              border-color .25s, box-shadow .35s var(--out);
+}
+.case.in .tile { opacity: 1; transform: none; }
+.tile .label { color: var(--ink-soft); }
+.tile.big { grid-column: span 2; grid-row: span 2; padding: 0; }
+.tile.wide { grid-column: span 2; }
+.tile:active { transform: scale(.985); }
+
+/* Captura en marco de navegador; si es larga, se desplaza sola */
+.browser { display: flex; flex-direction: column; height: 100%; min-height: 280px; }
+.bar { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line); background: rgba(0,0,0,.25); }
+.bar i { width: 9px; height: 9px; border-radius: 50%; background: rgba(241,230,208,.22); }
+.bar span { margin-left: 8px; font-family: var(--mono); font-size: .6875rem; color: var(--ink-soft); background: rgba(241,230,208,.06); border-radius: 999px; padding: 2px 10px; }
+.viewport { position: relative; flex: 1; overflow: hidden; cursor: zoom-in; }
+.viewport img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; transform: scale(1.06); transition: transform 1.4s var(--out); }
+.case.in .viewport img { transform: scale(1); }
+.viewport.pan img { height: auto; object-fit: initial; }
+.case.in .viewport.pan img { animation: pan var(--dur, 14s) ease-in-out 1s infinite alternate; }
+@keyframes pan { to { transform: translateY(calc(-100% + var(--vh, 300px))); } }
+
+/* Tipografía que se puede escribir */
+.type-sample {
+  font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1; outline: none; overflow-wrap: anywhere;
+  border-bottom: 1px dashed transparent; transition: border-color .2s; min-height: 1em; caret-color: var(--accent);
+}
+.type-sample:focus { border-bottom-color: var(--accent); }
+.type-sample:empty::before { content: attr(data-ph); opacity: .35; }
+.type-names { font-size: .9rem; color: var(--ink-soft); }
+.type-hint { color: var(--ink-soft); }
+
+/* Paleta: tocar copia el color */
+.swatches { display: flex; gap: 6px; flex: 1; min-height: 72px; }
+.swatches button {
+  flex: 1; border-radius: 6px; position: relative; cursor: copy; border: 1px solid rgba(255,255,255,.08); padding: 0;
+  transition: flex-grow .45s var(--spring);
+}
+.swatches button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.swatches button.copied { flex-grow: 2.2; }
+.swatches small { position: absolute; left: 6px; bottom: 5px; font-family: var(--mono); font-size: .5625rem; letter-spacing: .06em; mix-blend-mode: difference; color: #fff; }
+.toast { color: var(--accent); min-height: 1.2em; }
+
+/* Resultado con número que cuenta */
+.big-num { font-family: var(--display); font-weight: 700; font-size: clamp(3.5rem, 7vw, 5.5rem); line-height: .9; letter-spacing: -.04em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.tile.result p { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.0625rem, 1.6vw, 1.25rem); line-height: 1.25; }
+
+/* Solo con ratón: la pieza se levanta y las demás se apagan */
+@media (hover: hover) and (pointer: fine) {
+  .case.in .bento:has(.tile:hover) .tile:not(:hover) { opacity: .55; }
+  .case.in .tile:hover { transform: translateY(-3px) scale(1.01); border-color: rgba(241,230,208,.32); box-shadow: 0 18px 40px -18px rgba(0,0,0,.7); }
+  .open:hover { background: var(--ink); color: var(--ground); }
+  .open:hover .arr { transform: translateX(4px); }
+}
+
+/* Caso abierto a pantalla completa */
+dialog.detail {
+  width: min(64rem, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0 0 0 auto; padding: 0;
+  border: 0; border-left: 1px solid var(--line); background: var(--ground-deep); color: var(--ink);
+}
+dialog.detail::backdrop { background: rgba(5, 10, 8, .6); backdrop-filter: blur(3px); }
+dialog.detail[open] { animation: slide .5s var(--out); }
+@keyframes slide { from { transform: translateX(40px); opacity: 0; } }
+.detail-in { padding: 24px var(--gutter) 64px; display: grid; gap: 24px; }
+.detail-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: sticky; top: 0; padding-block: 12px; background: var(--ground-deep); z-index: 1; }
+.detail h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.03em; line-height: 1; }
+.close { font: inherit; background: none; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; width: 44px; height: 44px; cursor: pointer; font-size: 1.25rem; }
+.detail dl { margin: 0; display: grid; gap: 20px; max-width: 62ch; }
+.detail dt { color: var(--accent); }
+.detail dd { margin: 4px 0 0; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.gallery img { width: 100%; border-radius: 8px; display: block; border: 1px solid var(--line); }
+
+@media (max-width: 860px) {
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile.big { grid-column: span 2; grid-row: span 1; }
+  .browser { min-height: 240px; aspect-ratio: 4 / 3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile, .viewport img { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
+  dialog.detail[open] { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono">
+    <span>Prototipo · mosaico vivo · solo para decidir</span>
+    <a href="./">← versiones A y B</a>
+  </div>
+  <div id="cases"></div>
+</div>
+
+<dialog class="detail" id="detail" aria-labelledby="d-title">
+  <div class="detail-in">
+    <div class="detail-top"><span class="mono soft" id="d-meta"></span><button class="close" type="button" aria-label="Cerrar">×</button></div>
+    <h2 id="d-title"></h2>
+    <div id="d-body"></div>
+    <div class="gallery" id="d-gallery"></div>
+  </div>
+</dialog>
+
+<script>
+const IMG = '../../public/assets/projects/';
+// Solo datos con fuente. null = por confirmar.
+const CASES = [
+  {
+    name: 'Galería i23', meta: 'Web de apertura · WordPress', url: 'i23.art',
+    frames: ['i23/portada.webp'],
+    num: { n: 3, label: 'temporadas de exposiciones publicadas por su cuenta, sin mí' },
+    result: 'La galería lleva tres temporadas de exposiciones publicadas por su cuenta, sin mí.',
+    problem: 'La galería aún no existía. Tenían el local en la calle Ibiza 23, la identidad de marca hecha y un Instagram que anunciaba la apertura. Necesitaban la web para abrir.',
+    decision: 'Pasé su identidad a la web y la programé en WordPress. Podía montar cada exposición como una página suelta, pero preparé una estructura para que publicar una nueva fuera rellenar una ficha, tanto para mí como para quien la editara después.',
+    type: { names: 'Graphik + Tiempos Headline', note: 'archivos en curro TAI/04.i23', css: 'font-family: Georgia, serif; font-weight: 700', ph: 'i23' },
+    palette: ['#607a9c', '#e0ddd4', '#111111'], paletteNote: 'medido de la foto'
+  },
+  {
+    name: 'Escuela TAI', meta: 'Mantenimiento y diseño · 2022–2024', url: 'taiarts.com',
+    frames: ['tai/degrees-in-english.webp', 'tai/portada.webp'],
+    result: 'Sigue online y la editan ellos. En diciembre de 2025, un año después de irme, me volvieron a llamar para cubrir una baja.',
+    problem: 'Es la web de una escuela universitaria de artes: fichas de cada carrera, páginas de cada departamento, formularios de captación, campañas. La visitan a diario futuros alumnos y alumnos actuales, así que tiene que estar siempre al día y bien cuidada.',
+    decision: 'De 2022 a 2024 fui quien la mantenía. Recogía en reunión lo que pedía cada departamento y lo llevaba a la web: formularios, portada, fechas, módulos nuevos y rediseños de los que ya había. Diseñé una landing que después sirvió de referencia para las siguientes.',
+    type: { names: 'Lausanne (por confirmar)', note: 'hay un Lausanne-300.ttf en curro TAI', css: 'font-family: "Helvetica Neue", Arial, sans-serif; font-weight: 300', ph: 'Artes' },
+    palette: ['#0d151d', '#877f77', '#c6c4c3'], paletteNote: 'medido de la captura'
+  },
+  {
+    name: 'Factoría de Creación', meta: 'Diseño y web', url: 'factoriadecreacion.com',
+    frames: ['factoria/pagina-2.webp', 'factoria/portada-mockup.webp', 'factoria/pagina-1.webp', 'factoria/pagina-3.webp', 'factoria/pagina-4.webp'],
+    type: { names: 'Linden Hill + Montserrat', note: 'dato de Alicia', css: 'font-family: "Linden Hill", serif', ph: 'Amanece', sub: 'PRODUCCIONES', subcss: 'font-family: Montserrat, sans-serif; font-weight: 700; letter-spacing: .08em; font-size: .9rem' },
+    palette: ['#16110f', '#8c8077', '#ffffff'], paletteNote: 'medido de la captura'
+  },
+  {
+    name: 'Festival WE:NOW', meta: 'Web y ecommerce · WordPress', url: 'wenow.art',
+    frames: ['wenow/portada-2024.webp', 'wenow/expos.webp'],
+    type: null,
+    palette: ['#f6dc00', '#0766bf', '#070f1b'], paletteNote: 'medido de la captura'
+  },
+  {
+    name: 'AI Wrapped', meta: 'Diseño y desarrollo', url: 'ai-wrapped.entaina.ai',
+    frames: ['aiwrapped/detalle-3.webp', 'aiwrapped/detalle-4.webp', 'aiwrapped/detalle-5.webp'],
+    type: null,
+    palette: ['#122143', '#163b4b', '#61798d'], paletteNote: 'medido de la captura'
+  }
+];
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function tile(html, cls, i) { return `<div class="tile ${cls}" style="--i:${i}">${html}</div>`; }
+
+document.getElementById('cases').innerHTML = CASES.map((c, ci) => {
+  let i = 0;
+  const shot = tile(`<div class="browser"><div class="bar"><i></i><i></i><i></i><span>${esc(c.url)}</span></div>
+      <div class="viewport" data-open="${ci}" role="button" tabindex="0" aria-label="Abrir ${esc(c.name)}"><img src="${IMG + c.frames[0]}" alt="${esc(c.name)}" loading="lazy"></div></div>`, 'big', i++);
+  const type = c.type
+    ? tile(`<span class="mono label">Tipografía · escribe</span>
+        <div><div class="type-sample" contenteditable="plaintext-only" spellcheck="false" data-ph="${esc(c.type.ph)}" style='${c.type.css}' aria-label="Prueba la tipografía"></div>
+        ${c.type.sub ? `<div style='${c.type.subcss}'>${esc(c.type.sub)}</div>` : ''}</div>
+        <span class="type-names">${esc(c.type.names)} · <span class="mono">${esc(c.type.note)}</span></span>`, 'wide', i++)
+    : tile(`<span class="mono label">Tipografía</span><span class="mono pending">Por confirmar</span>`, 'wide', i++);
+  const pal = tile(`<span class="mono label">Color · toca para copiar</span>
+      <div class="swatches">${c.palette.map(h => `<button type="button" style="background:${h}" data-hex="${h}" aria-label="Copiar ${h}"><small>${h}</small></button>`).join('')}</div>
+      <span class="mono toast" aria-live="polite">${esc(c.paletteNote)}</span>`, '', i++);
+  const res = c.num
+    ? tile(`<span class="mono label">Resultado</span><div class="big-num" data-count="${c.num.n}">0</div><p>${esc(c.num.label)}</p>`, 'result', i++)
+    : c.result
+      ? tile(`<span class="mono label">Resultado</span><p>${esc(c.result)}</p>`, 'result', i++)
+      : tile(`<span class="mono label">Resultado</span><span class="mono pending">Pendiente</span>`, 'result', i++);
+  const extra = c.frames[1]
+    ? tile(`<div class="viewport" data-open="${ci}" role="button" tabindex="0" aria-label="Ver más de ${esc(c.name)}" style="position:absolute;inset:0"><img src="${IMG + c.frames[1]}" alt="" loading="lazy"></div>`, '', i++)
+    : '';
+  return `<article class="case" data-case="${ci}">
+    <div class="head"><div><h3>${esc(c.name)}</h3><span class="mono soft">${esc(c.meta)}</span></div>
+      <button class="open" type="button" data-open="${ci}">Ver el caso <span class="arr">→</span></button></div>
+    <div class="bento">${shot}${type}${pal}${res}${extra}</div></article>`;
+}).join('');
+
+// Capturas largas: se desplazan solas dentro del marco
+document.querySelectorAll('.tile.big .viewport img').forEach(img => {
+  const setup = () => {
+    const vp = img.parentElement;
+    const ratio = img.naturalHeight / img.naturalWidth;
+    if (ratio > 1.1) {
+      vp.classList.add('pan');
+      vp.style.setProperty('--vh', vp.clientHeight + 'px');
+      vp.style.setProperty('--dur', Math.min(40, 6 + ratio * 4) + 's');
+    }
+  };
+  img.complete ? setup() : img.addEventListener('load', setup);
+});
+
+// Entrada escalonada y contador al llegar con el scroll
+const count = el => {
+  const to = +el.dataset.count;
+  if (reduce) { el.textContent = to; return; }
+  const t0 = performance.now(), dur = 1100;
+  const step = t => { const p = Math.min(1, (t - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+};
+const io = new IntersectionObserver(entries => entries.forEach(e => {
+  if (!e.isIntersecting) return;
+  e.target.classList.add('in');
+  e.target.querySelectorAll('[data-count]').forEach(count);
+  io.unobserve(e.target);
+}), { threshold: .2 });
+document.querySelectorAll('.case').forEach(el => io.observe(el));
+
+// Paleta: copiar al tocar
+document.addEventListener('click', async e => {
+  const b = e.target.closest('.swatches button'); if (!b) return;
+  const hex = b.dataset.hex, toast = b.closest('.tile').querySelector('.toast');
+  let ok = false; try { await navigator.clipboard.writeText(hex); ok = true; } catch {}
+  b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('copied', x === b));
+  const prev = toast.dataset.prev || toast.textContent; toast.dataset.prev = prev;
+  toast.textContent = ok ? `${hex} copiado` : hex;
+  clearTimeout(b._t); b._t = setTimeout(() => { toast.textContent = prev; b.classList.remove('copied'); }, 1600);
+});
+
+// Caso a pantalla completa
+const dlg = document.getElementById('detail');
+function openCase(ci) {
+  const c = CASES[ci];
+  document.getElementById('d-meta').textContent = c.meta;
+  document.getElementById('d-title').textContent = c.name;
+  document.getElementById('d-body').innerHTML = c.problem
+    ? `<dl><div><dt class="mono">Problema</dt><dd>${esc(c.problem)}</dd></div>
+        <div><dt class="mono">Decisión</dt><dd>${esc(c.decision)}</dd></div>
+        <div><dt class="mono">Resultado</dt><dd>${esc(c.result)}</dd></div></dl>`
+    : '<span class="mono pending">Texto pendiente · problema, decisión y resultado</span>';
+  document.getElementById('d-gallery').innerHTML = c.frames.map(f => `<a href="${IMG + f}" target="_blank" rel="noopener"><img src="${IMG + f}" alt="" loading="lazy"></a>`).join('');
+  const show = () => dlg.showModal();
+  document.startViewTransition && !reduce ? document.startViewTransition(show) : show();
+}
+document.addEventListener('click', e => { const t = e.target.closest('[data-open]'); if (t) openCase(+t.dataset.open); });
+document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.viewport[data-open]')) { e.preventDefault(); openCase(+e.target.dataset.open); } });
+dlg.querySelector('.close').addEventListener('click', () => dlg.close());
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+</script>
+</body>
+</html>

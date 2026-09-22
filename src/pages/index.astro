@@ -6,26 +6,20 @@ const pageTitle = "Alicia Viñals — Diseño y desarrollo web";
 const pageDescription =
   "Diseño y programo webs completas para proyectos pequeños y profesionales creativos, desde 2022.";
 
+// Solo los titulares; las explicaciones completas siguen en ESTADO.md (coach personal)
 const reasons = [
-  {
-    title: "Lo que haces está repartido.",
-    text: "Un Instagram, un PDF, un enlace en la bio. Necesitas un sitio que lo reúna todo y lo enseñe como se merece.",
-  },
-  {
-    title: "Tu web se ha quedado vieja.",
-    text: "Funciona, pero ya no se parece a lo que haces hoy.",
-  },
-  {
-    title: "Tienes web, pero no la tocas.",
-    text: "No sabes, no tienes tiempo o no tienes a quién pedírselo, y se queda desactualizada.",
-  },
+  "Lo que haces está repartido.",
+  "Tu web se ha quedado vieja.",
+  "Tienes web, pero no la tocas.",
 ];
 
-const cases = [
+type Case = { name: string; meta: string; image: string | null; problem?: string; decision?: string; result?: string };
+
+const cases: Case[] = [
   {
     name: "Galería i23",
     meta: "Web de apertura · WordPress",
-    image: null, // pendiente: captura de la web de su época (Wayback Machine o archivo propio)
+    image: "/assets/projects/i23/portada.webp", // provisional: enseña la marca, no la web. Cambiar por captura de su época (Wayback Machine)
     problem:
       "La galería aún no existía. Tenían el local en la calle Ibiza 23, la identidad de marca hecha y un Instagram que anunciaba la apertura. Necesitaban la web para abrir.",
     decision:
@@ -35,13 +29,30 @@ const cases = [
   {
     name: "Escuela TAI",
     meta: "Mantenimiento y diseño · 2022–2024",
-    image: "/assets/projects/taiarts-home.webp",
+    image: "/assets/projects/tai/portada.webp",
     problem:
       "Es la web de una escuela universitaria de artes: fichas de cada carrera, páginas de cada departamento, formularios de captación, campañas. La visitan a diario futuros alumnos y alumnos actuales, así que tiene que estar siempre al día y bien cuidada.",
     decision:
       "De 2022 a 2024 fui quien la mantenía. Recogía en reunión lo que pedía cada departamento y lo llevaba a la web: formularios, portada, fechas, módulos nuevos y rediseños de los que ya había. Diseñé una landing que después sirvió de referencia para las siguientes.",
     result:
       "Sigue online y la editan ellos. En diciembre de 2025, un año después de irme, me volvieron a llamar para cubrir una baja.",
+  },
+  // Textos pendientes: problema, decisión y resultado los da Alicia. No inventar.
+  {
+    name: "Factoría de Creación",
+    meta: "Diseño y web",
+    image: "/assets/projects/factoria/portada-mockup.webp",
+  },
+  {
+    name: "Festival WE:NOW",
+    meta: "Web y ecommerce · WordPress",
+    image: "/assets/projects/wenow/portada-2024.webp",
+  },
+  // Producto de Entaina: confirmar qué se puede enseñar y firmar antes de publicar.
+  {
+    name: "AI Wrapped",
+    meta: "Diseño y desarrollo",
+    image: "/assets/projects/aiwrapped/detalle-3.webp",
   },
 ];
 
@@ -95,30 +106,6 @@ const email = "hola@aliverso.me";
   </div>
 
   <div class="wrap">
-    <section class="lead">
-      <h2>Tú ya tienes una marca. Yo le doy el espacio que merece en internet.</h2>
-      <p>
-        Llegas con tu identidad hecha: tu logo, tus colores, tu forma de contar lo que haces. Mi trabajo es llevar eso
-        a una web que esté a su altura, no inventarte una marca nueva.
-      </p>
-    </section>
-
-    <section class="block" id="servicios">
-      <div class="block-head"><span class="mono">Con qué me suelen llamar</span></div>
-      <ul class="reasons">
-        {reasons.map((r) => (
-          <li>
-            <h3>{r.title}</h3>
-            <p>{r.text}</p>
-          </li>
-        ))}
-      </ul>
-      <p class="after">
-        A partir de ahí, lo que haga falta: una web entera, una landing de evento, una sección nueva dentro de algo que
-        ya existe, o rehacer cómo se ve todo.
-      </p>
-    </section>
-
     <section class="block" id="trabajo">
       <div class="block-head"><span class="mono">Trabajo</span><span class="mono">{cases.length} casos</span></div>
       <div class="cases">
@@ -133,21 +120,35 @@ const email = "hola@aliverso.me";
               <h3>{c.name}</h3>
               <span class="mono">{c.meta}</span>
             </div>
-            <p class="case-result">{c.result}</p>
-            <details>
-              <summary class="mono">Cómo fue</summary>
-              <dl>
-                <div><dt>Problema</dt><dd>{c.problem}</dd></div>
-                <div><dt>Decisión</dt><dd>{c.decision}</dd></div>
-              </dl>
-            </details>
+            {c.result ? (
+              <p class="case-result">{c.result}</p>
+            ) : (
+              <p class="case-result pending-text mono">Texto pendiente · problema, decisión y resultado</p>
+            )}
+            {c.problem && (
+              <details>
+                <summary class="mono">Cómo fue</summary>
+                <dl>
+                  <div><dt>Problema</dt><dd>{c.problem}</dd></div>
+                  <div><dt>Decisión</dt><dd>{c.decision}</dd></div>
+                </dl>
+              </details>
+            )}
           </article>
         ))}
-        <!-- Tercer caso: pendiente de elegir (web personal de creativo; Carmen Lillo por delante). Quitar antes de publicar. -->
-        <article class="case pending">
-          <span class="mono">Tercer caso · pendiente de elegir</span>
-        </article>
       </div>
+    </section>
+
+    <section class="block" id="servicios">
+      <div class="block-head"><span class="mono">Con qué me suelen llamar</span></div>
+      <h2 class="lead-title">Tú ya tienes una marca. Yo le doy el espacio que merece en internet.</h2>
+      <ul class="reasons">
+        {reasons.map((r) => <li>{r}</li>)}
+      </ul>
+      <p class="after">
+        A partir de ahí, lo que haga falta: una web entera, una landing de evento, una sección nueva dentro de algo que
+        ya existe, o rehacer cómo se ve todo.
+      </p>
     </section>
 
     <section class="block" id="como-trabajo">
