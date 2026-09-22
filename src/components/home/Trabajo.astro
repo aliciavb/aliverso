@@ -1,0 +1,380 @@
+---
+// src/components/home/Trabajo.astro — sección Trabajo en formato carpetas (prototipo E, mesa libre).
+// Las carpetas se arrastran por la mesa y se abren al tocarlas. Regla del formato: una carpeta
+// no cambia de tamaño; lo que no cabe se hace scroll dentro.
+export interface TrabajoCase {
+  name: string;
+  meta: string;
+  image: string | null;
+  short: string;
+  color: string;
+  problem?: string;
+  decision?: string;
+  result?: string;
+}
+
+const { cases } = Astro.props as { cases: TrabajoCase[] };
+const no = (i: number) => String(i + 1).padStart(2, "0");
+---
+
+<section class="block" id="trabajo">
+  <div class="block-head">
+    <span class="mono">Trabajo</span>
+    <span class="mono" id="cp-hint">Arrástralas · toca para abrir</span>
+  </div>
+
+  <div class="cp-mat">
+    <div class="cp-ruler" aria-hidden="true"></div>
+    <div class="cp-desk" id="cp-desk">
+      {cases.map((c, i) => (
+        <div class="cp-item" style={`--i:${i};--c:var(${c.color})`}>
+          <button class="cp-fold" type="button" data-i={i} aria-label={`Abrir ${c.name}`}>
+            <span class="cp-back cp-pp"><span class="cp-tab">{c.short}</span></span>
+            <span class="cp-front cp-pp">
+              {c.image ? (
+                <img src={c.image} alt={`Portada de ${c.name}`} draggable="false" />
+              ) : (
+                <span class="mono cp-slot">Imagen pendiente</span>
+              )}
+            </span>
+          </button>
+
+          <div class="cp-data" hidden>
+            <span class="mono cp-no">Expediente {no(i)}</span>
+            <h3>{c.name}</h3>
+            <span class="mono cp-meta">{c.meta}</span>
+            {c.problem ? (
+              <dl>
+                <div><dt>Problema</dt><dd>{c.problem}</dd></div>
+                <div><dt>Decisión</dt><dd>{c.decision}</dd></div>
+                <div><dt>Resultado</dt><dd>{c.result}</dd></div>
+              </dl>
+            ) : (
+              <span class="cp-pending mono">Texto pendiente · problema, decisión y resultado</span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <dialog class="cp-open" id="cp-open" aria-label="Caso abierto">
+    <button class="cp-close" type="button" aria-label="Cerrar">×</button>
+    <div class="cp-zoom" id="cp-zoom">
+    <div class="cp-spread" id="cp-spread">
+      <div class="cp-left"></div>
+      <div class="cp-page cp-inside cp-pp" id="cp-inside">
+        <span class="cp-tab" id="cp-tab"></span>
+        <div id="cp-body"><div class="cp-sheet" id="cp-sheet"></div></div>
+        <div class="cp-cover" id="cp-cover">
+          <div class="cp-face cp-out cp-pp" id="cp-cover-out"></div>
+          <div class="cp-face cp-in cp-pp" id="cp-cover-in"><div class="cp-shot" id="cp-shot"></div></div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </dialog>
+</section>
+
+<style is:global>
+  /* Papel: los colores del velado pasados a papel, apagados, sin arcoíris */
+  #trabajo, .cp-open {
+    --p-crema: #e6dcc6; --p-salvia: #a9bfae; --p-kraft: #c4a277; --p-oliva: #cfc58c; --p-salmon: #dea38b;
+    --paper-ink: #1c2420;
+    --cp-noise: url("/assets/bg-noise.jpg");
+    --cp-out: cubic-bezier(.16, 1, .3, 1);
+    --cp-spring: cubic-bezier(.34, 1.4, .64, 1);
+    --cp-ease: cubic-bezier(.3, .1, .2, 1);
+  }
+  #trabajo .block-head .mono:last-child { color: var(--ink-soft); }
+
+  /* La mesa: alfombrilla de corte */
+  .cp-mat {
+    position: relative; border-radius: 14px; overflow: hidden;
+    padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 56px) clamp(28px, 4vw, 56px);
+    background-color: #16301f;
+    background-image:
+      linear-gradient(rgba(241, 230, 208, .11) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .11) 1px, transparent 1px),
+      linear-gradient(rgba(241, 230, 208, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .045) 1px, transparent 1px);
+    background-size: 190px 190px, 190px 190px, 38px 38px, 38px 38px; background-position: 18px 18px;
+    box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(241, 230, 208, .08), inset 0 -4px 0 rgba(0, 0, 0, .25);
+  }
+  .cp-mat::before {
+    content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 1px; pointer-events: none;
+    background: rgba(241, 230, 208, .07); transform-origin: 0 0; transform: rotate(35deg);
+  }
+  .cp-ruler { position: absolute; left: 18px; right: 0; top: 4px; height: 12px; pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgba(241, 230, 208, .3) 0 1px, transparent 1px 38px); }
+
+  .cp-desk { position: relative; height: 560px; transition: height .8s var(--cp-out); }
+  .cp-item {
+    position: absolute; left: 0; top: 0; width: var(--fw, 380px);
+    transform: translate(var(--x, 0px), var(--y, 0px)); transition: transform .8s var(--cp-spring);
+    -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+  }
+  .cp-item.held { transition: none; }
+  .cp-pp { background-color: var(--k, var(--c)); background-image: var(--cp-noise); background-size: 260px auto;
+    background-blend-mode: multiply; color: var(--paper-ink); }
+
+  .cp-fold {
+    position: relative; display: block; width: 100%; aspect-ratio: 16 / 11.2; border: 0; padding: 0; background: none; cursor: grab;
+    rotate: var(--r, 0deg); filter: drop-shadow(0 14px 14px rgba(0, 0, 0, .42));
+    opacity: 0; translate: 0 40px;
+    transition: rotate .5s var(--cp-spring), scale .35s var(--cp-spring), filter .35s, transform .45s var(--cp-spring),
+                translate .9s var(--cp-spring) calc(var(--i) * 90ms), opacity .6s var(--cp-out) calc(var(--i) * 90ms);
+  }
+  .cp-desk.in .cp-fold { opacity: 1; translate: 0 0; }
+  .cp-desk.phone .cp-fold { aspect-ratio: 16 / 13; }
+  .cp-item.held .cp-fold { rotate: 0deg; scale: 1.05; cursor: grabbing; filter: drop-shadow(0 30px 26px rgba(0, 0, 0, .5)); }
+  .cp-fold.lifted { visibility: hidden; }
+  .cp-fold:active { scale: .985; }
+  @media (hover: hover) and (pointer: fine) { .cp-item:not(.held) .cp-fold:hover { transform: translateY(-6px); } }
+
+  .cp-back { position: absolute; inset: 30px 0 0 0; border-radius: 0 6px 6px 6px; --k: color-mix(in srgb, var(--c) 80%, #1c2420); }
+  .cp-tab {
+    position: absolute; bottom: 100%; left: 0; width: max-content; min-width: 30%; white-space: nowrap; height: 30px;
+    border-radius: 9px 9px 0 0; display: flex; align-items: center; padding: 0 12px; background: inherit; background-blend-mode: multiply;
+    font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .cp-tab::after { content: ""; position: absolute; bottom: 0; right: -9px; width: 9px; height: 9px;
+    background: radial-gradient(circle at 100% 0, transparent 9px, var(--k) 9.5px); }
+
+  /* La portada va pegada sobre el cartón, entera: no recortada a sangre */
+  .cp-front, .cp-face.cp-out { display: flex; align-items: center; justify-content: center; }
+  .cp-front { position: absolute; left: 0; right: 0; bottom: 0; top: 44px; border-radius: 4px 4px 6px 6px; padding: 3%;
+    box-shadow: 0 -3px 8px rgba(0, 0, 0, .16); }
+  .cp-front img, .cp-face.cp-out img {
+    width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; display: block;
+    border-radius: 2px; rotate: -.7deg; box-shadow: 0 3px 10px rgba(0, 0, 0, .3);
+  }
+  .cp-front::after, .cp-face.cp-out::after { content: ""; position: absolute; inset: 3%; pointer-events: none;
+    background: var(--cp-noise) 0 0 / 260px auto; mix-blend-mode: multiply; opacity: .3; }
+  .cp-slot { opacity: .65; text-align: center; padding: 0 12px; }
+  .cp-fold img { -webkit-user-drag: none; pointer-events: none; }
+
+  /* ===== Carpeta abierta ===== */
+  /* La carpeta no cambia de tamaño: si sobra pantalla, nos acercamos a ella */
+  dialog.cp-open { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; padding: 0;
+    border: 0; background: transparent; color: var(--paper-ink); overflow: hidden; display: grid; place-items: center; }
+  .cp-zoom { scale: var(--z, 1); width: min(76rem, 92vw); }
+  dialog.cp-open::backdrop { background: rgba(5, 10, 8, .72); backdrop-filter: blur(4px); animation: cp-fade .4s; }
+  @keyframes cp-fade { from { opacity: 0; } }
+  dialog.cp-open.closing { animation: cp-out .35s var(--cp-out) forwards; }
+  @keyframes cp-out { to { opacity: 0; transform: translateY(16px); } }
+  .cp-close { position: fixed; top: 16px; right: 16px; z-index: 5; font: inherit; font-size: 1.25rem;
+    width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground-deep);
+    color: var(--ink); cursor: pointer; }
+  .cp-spread { display: grid; grid-template-columns: 1fr 1fr; perspective: 2400px; transform-origin: 0 0; }
+  .cp-page { padding: clamp(20px, 3vw, 36px); border-radius: 4px; }
+
+  /* Una carpeta no crece: cuerpo y tapa miden siempre lo mismo y lo que sobra se hace scroll */
+  .cp-inside { position: relative; height: var(--fold-h, 420px); --k: color-mix(in srgb, var(--c) 86%, #1c2420); }
+  #cp-body { height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+  .cp-inside::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; pointer-events: none;
+    border-radius: 0 0 4px 4px; background: linear-gradient(transparent, rgba(18, 28, 22, .22)); }
+  .cp-cover { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d;
+    transition: transform .8s var(--cp-ease); }
+  .cp-spread.opened .cp-cover { transform: rotateY(-180deg); }
+  .cp-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 4px; --k: var(--c); }
+  .cp-face.cp-out { padding: 3%; }
+  .cp-face.cp-in { transform: rotateY(180deg); padding: clamp(20px, 3vw, 36px); overflow: auto; }
+
+  .cp-sheet { background: #f4efe3; padding: clamp(18px, 3vw, 32px); box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transform: rotate(-.5deg); }
+  .cp-sheet h3 { font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: -.02em;
+    line-height: 1.05; margin: 6px 0 4px; color: var(--paper-ink); }
+  .cp-sheet .cp-no, .cp-sheet .cp-meta { opacity: .6; }
+  .cp-sheet dl { margin: 20px 0 0; display: grid; gap: 14px; }
+  .cp-sheet dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
+  .cp-sheet dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; color: var(--paper-ink); }
+  .cp-pending { display: inline-block; margin-top: 20px; border: 1.5px dashed currentColor; padding: 8px 12px; opacity: .7; }
+  .cp-shot img { display: block; width: 100%; border-radius: 3px; box-shadow: 0 3px 10px rgba(0, 0, 0, .3); rotate: -.5deg; }
+
+  @media (max-width: 760px) {
+    .cp-spread { grid-template-columns: 1fr; }
+    /* Abre hacia abajo: la pestaña se queda arriba, el cuerpo no se mueve y la tapa cae rígida */
+    .cp-spread .cp-left { order: 2; height: 0; transition: height .8s var(--cp-ease); }
+    .cp-spread.opened .cp-left { height: var(--fold-h, 420px); }
+    .cp-cover { inset: 0 0 auto 0; height: var(--fold-h, 420px); transform-origin: center bottom;
+      transition: transform .8s var(--cp-ease); }
+    .cp-spread.opened .cp-cover { transform: rotateX(-180deg); }
+    .cp-face.cp-in { transform: rotateX(180deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cp-fold, .cp-item, .cp-cover, .cp-left, .cp-desk { transition-duration: .01ms !important; }
+  }
+</style>
+
+<script>
+  const $ = (id: string) => document.getElementById(id)!;
+  const desk = $("cp-desk");
+  if (desk) {
+    const dlg = $("cp-open") as HTMLDialogElement;
+    const spread = $("cp-spread");
+    const inside = $("cp-inside");
+    const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, REDUCE ? 0 : ms));
+    const items = [...desk.querySelectorAll<HTMLElement>(".cp-item")];
+    const touch = matchMedia("(pointer: coarse)").matches;
+    $("cp-hint").textContent = touch ? "Mantén pulsado para moverlas · toca para abrir" : "Arrástralas · clic para abrir";
+
+    // Posiciones: montón un poco superpuesto. x e y en fracción del hueco libre.
+    const PILE: Record<string, number[][]> = {
+      desk: [[.02, .08, -3], [.5, 0, 2.4], [.98, .16, -1.6], [.2, 1, 1.8], [.8, .9, -2.6]],
+      phone: [[0, 0, -2.4], [1, .25, 2], [.12, .5, -1.4], [.9, .75, 2.6], [.3, 1, -2]],
+    };
+    function layout() {
+      const W = desk.clientWidth, phone = W < 600;
+      desk.classList.toggle("phone", phone);
+      const fw = phone ? W * .84 : Math.min(420, W * .38), fh = fw * (phone ? 13 : 11.2) / 16;
+      const H = phone ? fh * (1 + 4 * .62) : fh * 1.95;
+      const pos = PILE[phone ? "phone" : "desk"].map(([x, y, r]) => [x * (W - fw), y * (H - fh), r]);
+      desk.style.setProperty("--fw", fw + "px");
+      desk.style.height = H + "px";
+      items.forEach((it, i) => {
+        const p = pos[i % pos.length];
+        it.style.setProperty("--x", p[0] + "px");
+        it.style.setProperty("--y", p[1] + "px");
+        it.style.setProperty("--r", p[2] + "deg");
+        it.style.zIndex = String(i + 1);
+      });
+    }
+    layout();
+    let lastW = desk.clientWidth;
+    new ResizeObserver(() => {
+      if (Math.abs(desk.clientWidth - lastW) > 2) { lastW = desk.clientWidth; layout(); }
+    }).observe(desk);
+    new IntersectionObserver((es, io) => es.forEach((e) => {
+      if (e.isIntersecting) { desk.classList.add("in"); io.disconnect(); }
+    }), { threshold: .05 }).observe(desk);
+
+    // Coger, mover y soltar
+    let held: { it: HTMLElement; sx: number; sy: number; ox: number; oy: number } | null = null, z = 10;
+    const num = (it: HTMLElement, p: string) => parseFloat(it.style.getPropertyValue(p)) || 0;
+    function pick(it: HTMLElement, x: number, y: number) {
+      held = { it, sx: x, sy: y, ox: num(it, "--x"), oy: num(it, "--y") };
+      it.classList.add("held"); it.style.zIndex = String(++z);
+      navigator.vibrate?.(8);
+    }
+    function drag(x: number, y: number) {
+      if (!held) return;
+      const { it } = held, W = desk.clientWidth, H = desk.clientHeight, fw = it.offsetWidth, fh = it.offsetHeight;
+      it.style.setProperty("--x", Math.max(-fw * .2, Math.min(W - fw * .8, held.ox + x - held.sx)) + "px");
+      it.style.setProperty("--y", Math.max(-24, Math.min(H - fh * .5, held.oy + y - held.sy)) + "px");
+    }
+    function drop(swallowClick: boolean) {
+      if (!held) return;
+      held.it.classList.remove("held");
+      if (swallowClick) held.it.dataset.dragged = "1";
+      held = null;
+    }
+    desk.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch" || e.button !== 0) return;
+      const it = (e.target as HTMLElement).closest<HTMLElement>(".cp-item");
+      if (!it) return;
+      const sx = e.clientX, sy = e.clientY;
+      let started = false;
+      it.style.zIndex = String(++z);
+      const move = (ev: PointerEvent) => {
+        if (!started) { if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return; started = true; pick(it, sx, sy); }
+        drag(ev.clientX, ev.clientY);
+      };
+      const up = () => {
+        removeEventListener("pointermove", move); removeEventListener("pointerup", up);
+        if (started) drop(true);
+      };
+      addEventListener("pointermove", move); addEventListener("pointerup", up);
+    });
+    // Dedo: mantener pulsado 280 ms coge la carpeta; si se mueve antes, es scroll de la página
+    let lp: { sx: number; sy: number; picked: boolean; timer?: number } | null = null;
+    desk.addEventListener("touchstart", (e) => {
+      if (e.touches.length > 1) return;
+      const it = (e.target as HTMLElement).closest<HTMLElement>(".cp-item");
+      if (!it) return;
+      const t = e.touches[0];
+      lp = { sx: t.clientX, sy: t.clientY, picked: false };
+      lp.timer = window.setTimeout(() => { if (lp) { pick(it, lp.sx, lp.sy); lp.picked = true; } }, 280);
+    }, { passive: true });
+    desk.addEventListener("touchmove", (e) => {
+      if (!lp) return;
+      const t = e.touches[0];
+      if (lp.picked) { e.preventDefault(); drag(t.clientX, t.clientY); }
+      else if (Math.hypot(t.clientX - lp.sx, t.clientY - lp.sy) > 8) { clearTimeout(lp.timer); lp = null; }
+    }, { passive: false });
+    const endTouch = (e: TouchEvent) => {
+      if (!lp) return;
+      clearTimeout(lp.timer);
+      if (lp.picked) { drop(false); if (e.cancelable) e.preventDefault(); }
+      lp = null;
+    };
+    desk.addEventListener("touchend", endTouch, { passive: false });
+    desk.addEventListener("touchcancel", endTouch);
+    desk.addEventListener("contextmenu", (e) => { if ((e.target as HTMLElement).closest(".cp-item")) e.preventDefault(); });
+
+    // Abrir: la carpeta viene al centro con su proporción y ahí se abre
+    let current: HTMLElement | null = null;
+    async function openFolder(btn: HTMLElement) {
+      const item = btn.closest<HTMLElement>(".cp-item")!;
+      const data = item.querySelector<HTMLElement>(".cp-data")!;
+      const img = btn.querySelector("img");
+      const mob = matchMedia("(max-width: 760px)").matches;
+
+      spread.style.setProperty("--c", item.style.getPropertyValue("--c"));
+      $("cp-tab").textContent = item.querySelector(".cp-tab")?.textContent ?? "";
+      $("cp-sheet").innerHTML = data.innerHTML;
+      $("cp-cover-out").innerHTML = img ? `<img src="${img.getAttribute("src")}" alt="">` : "";
+      $("cp-shot").innerHTML = img ? `<img src="${img.getAttribute("src")}" alt="">` : "";
+      // Dos hojas del tamaño de la carpeta: en móvil el expediente va dentro y la captura en la
+      // cara interna de la tapa; en escritorio al revés, que ahí se abre como un libro.
+      $(mob ? "cp-body" : "cp-cover-in").appendChild($("cp-sheet"));
+      $(mob ? "cp-cover-in" : "cp-body").appendChild($("cp-shot"));
+
+      spread.classList.remove("opened"); dlg.classList.remove("closing");
+      dlg.showModal();
+
+      const zoom = $("cp-zoom");
+      zoom.style.setProperty("--z", "1");
+      const foldH = Math.round(inside.offsetWidth * (mob ? 13 / 16 : 11.2 / 16));
+      spread.style.setProperty("--fold-h", foldH + "px");
+      // La carpeta no crece: es la misma y nos acercamos a ella hasta donde permita la pantalla
+      const sr = spread.getBoundingClientRect();
+      const altoAbierto = mob ? foldH * 2 : foldH;
+      const margen = mob ? 24 : 96;
+      const z = Math.max(.55, Math.min(1.9, (innerWidth - margen) / sr.width, (innerHeight - margen) / altoAbierto));
+      zoom.style.setProperty("--z", String(z));
+      current = btn;
+
+      const S = btn.getBoundingClientRect(), R = inside.getBoundingClientRect(), P = spread.getBoundingClientRect();
+      btn.classList.add("lifted");
+      if (!REDUCE) {
+        const k = S.width / R.width;
+        const dx = (S.left - P.left - k * (R.left - P.left)) / z, dy = (S.top - P.top - k * (R.top - P.top)) / z;
+        const a = spread.animate(
+          [{ transform: `translate(${dx}px, ${dy}px) scale(${k}) rotate(${item.style.getPropertyValue("--r")})` }, { transform: "none" }],
+          { duration: 620, easing: "cubic-bezier(.16,1,.3,1)" },
+        );
+        await Promise.race([a.finished, wait(800)]);
+      }
+      spread.classList.add("opened");
+    }
+    async function closeFolder() {
+      if (!dlg.open) return;
+      spread.classList.remove("opened");
+      await wait(700);
+      dlg.classList.add("closing");
+      await wait(300);
+      dlg.close(); dlg.classList.remove("closing");
+      if (current) { current.classList.remove("lifted"); current = null; }
+    }
+    desk.addEventListener("click", (e) => {
+      const f = (e.target as HTMLElement).closest<HTMLElement>(".cp-fold");
+      if (!f) return;
+      const it = f.closest<HTMLElement>(".cp-item")!;
+      if (it.dataset.dragged) { delete it.dataset.dragged; return; }
+      openFolder(f);
+    });
+    dlg.addEventListener("click", (e) => {
+      if (e.target === dlg || (e.target as HTMLElement).closest(".cp-close")) closeFolder();
+    });
+    dlg.addEventListener("cancel", (e) => { e.preventDefault(); closeFolder(); });
+  }
+</script>

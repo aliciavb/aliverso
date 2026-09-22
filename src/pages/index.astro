@@ -1,6 +1,7 @@
 ---
 // src/pages/index.astro — front door (textos cerrados el 2026-09-21, diseño del prototipo velado v7)
 import VeladoLayout from "../layouts/VeladoLayout.astro";
+import Trabajo from "../components/home/Trabajo.astro";
 
 const pageTitle = "Alicia Viñals — Diseño y desarrollo web";
 const pageDescription =
@@ -13,12 +14,15 @@ const reasons = [
   "Tienes web, pero no la tocas.",
 ];
 
-type Case = { name: string; meta: string; image: string | null; problem?: string; decision?: string; result?: string };
+// short y color: la pestaña y el papel de cada carpeta en la sección Trabajo
+type Case = { name: string; meta: string; short: string; color: string; image: string | null; problem?: string; decision?: string; result?: string };
 
 const cases: Case[] = [
   {
     name: "Galería i23",
     meta: "Web de apertura · WordPress",
+    short: "i23",
+    color: "--p-crema",
     image: "/assets/projects/i23/portada.webp", // provisional: enseña la marca, no la web. Cambiar por captura de su época (Wayback Machine)
     problem:
       "La galería aún no existía. Tenían el local en la calle Ibiza 23, la identidad de marca hecha y un Instagram que anunciaba la apertura. Necesitaban la web para abrir.",
@@ -29,6 +33,8 @@ const cases: Case[] = [
   {
     name: "Escuela TAI",
     meta: "Mantenimiento y diseño · 2022–2024",
+    short: "TAI",
+    color: "--p-salvia",
     image: "/assets/projects/tai/portada.webp",
     problem:
       "Es la web de una escuela universitaria de artes: fichas de cada carrera, páginas de cada departamento, formularios de captación, campañas. La visitan a diario futuros alumnos y alumnos actuales, así que tiene que estar siempre al día y bien cuidada.",
@@ -41,17 +47,23 @@ const cases: Case[] = [
   {
     name: "Factoría de Creación",
     meta: "Diseño y web",
+    short: "Factoría",
+    color: "--p-kraft",
     image: "/assets/projects/factoria/portada-mockup.webp",
   },
   {
     name: "Festival WE:NOW",
     meta: "Web y ecommerce · WordPress",
+    short: "WE:NOW",
+    color: "--p-oliva",
     image: "/assets/projects/wenow/portada-2024.webp",
   },
   // Producto de Entaina: confirmar qué se puede enseñar y firmar antes de publicar.
   {
     name: "AI Wrapped",
     meta: "Diseño y desarrollo",
+    short: "AI Wrapped",
+    color: "--p-salmon",
     image: "/assets/projects/aiwrapped/detalle-3.webp",
   },
 ];
@@ -106,38 +118,7 @@ const email = "hola@aliverso.me";
   </div>
 
   <div class="wrap">
-    <section class="block" id="trabajo">
-      <div class="block-head"><span class="mono">Trabajo</span><span class="mono">{cases.length} casos</span></div>
-      <div class="cases">
-        {cases.map((c) => (
-          <article class="case">
-            {c.image ? (
-              <img class="case-img" src={c.image} alt={`Web de ${c.name}`} loading="lazy" />
-            ) : (
-              <div class="case-img slot"><span class="mono">Imagen pendiente · {c.name}</span></div>
-            )}
-            <div class="case-head">
-              <h3>{c.name}</h3>
-              <span class="mono">{c.meta}</span>
-            </div>
-            {c.result ? (
-              <p class="case-result">{c.result}</p>
-            ) : (
-              <p class="case-result pending-text mono">Texto pendiente · problema, decisión y resultado</p>
-            )}
-            {c.problem && (
-              <details>
-                <summary class="mono">Cómo fue</summary>
-                <dl>
-                  <div><dt>Problema</dt><dd>{c.problem}</dd></div>
-                  <div><dt>Decisión</dt><dd>{c.decision}</dd></div>
-                </dl>
-              </details>
-            )}
-          </article>
-        ))}
-      </div>
-    </section>
+    <Trabajo cases={cases} />
 
     <section class="block" id="servicios">
       <div class="block-head"><span class="mono">Con qué me suelen llamar</span></div>
