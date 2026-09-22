@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas: tres versiones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="base.css">
+<style>
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.25rem, 6vw, 4rem); letter-spacing: -.03em; line-height: 1; margin: 16px 0 12px; }
+.lede { color: var(--ink-soft); max-width: 56ch; margin: 0 0 40px; }
+.list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.list a { display: grid; gap: 10px; align-content: start; padding: 24px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; background: rgba(10, 20, 16, .5); transition: border-color .2s, transform .3s var(--spring); }
+.list a:active { transform: scale(.98); }
+.list strong { font-family: var(--display); font-weight: 500; font-size: 1.75rem; letter-spacing: -.02em; line-height: 1.1; }
+.list p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+@media (hover: hover) { .list a:hover { border-color: var(--accent); transform: translateY(-3px); } }
+.list .pick { grid-column: 1 / -1; border-color: var(--accent); }
+@media (max-width: 760px) { .list { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono"><span>Prototipo · Trabajo en carpetas · 2026-09-22</span><a href="../casos/mosaico.html">mosaico →</a></div>
+  <h1>Fuera, un objeto. Dentro, la web.</h1>
+  <p class="lead lede">Tres formas de guardar los cinco casos. Lo de dentro es igual en las tres (captura, resultado, cómo fue, color, tipo): solo cambia el envoltorio y cómo se abre. Todo funciona tocando.</p>
+  <nav class="list">
+    <a href="mesa-libre.html" class="pick"><span class="mono" style="color:var(--accent)">E · la D, suelta</span><strong>Mesa libre</strong><p>Las cinco carpetas del mismo tamaño y un poco superpuestas. Se arrastran (en móvil, manteniendo pulsado), se abren tocando y "Ordenar" las pone en rejilla.</p></a>
+    <a href="mezcla.html" class="pick"><span class="mono" style="color:var(--accent)">D · la mezcla</span><strong>Archivador en la mesa</strong><p>La alfombrilla de C, los colores y las pestañas de A, y la tapa que gira de C. La portada de cada caso ocupa casi toda la carpeta.</p></a>
+    <a href="archivador.html"><span class="mono soft">A</span><strong>Archivador</strong><p>Carpetas apiladas con pestañas escalonadas. Tocar una pestaña abre la carpeta y cierra la anterior.</p></a>
+    <a href="disquetes.html"><span class="mono soft">B</span><strong>Disquetes</strong><p>Cada caso es un disquete. Al tocarlo vuela a la disquetera, entra con la chapa por delante y la pantalla lo lee.</p></a>
+    <a href="mesa.html"><span class="mono soft">C</span><strong>Mesa</strong><p>Carpetas de cartón sobre una alfombrilla de corte. Al abrir, la tapa gira: a un lado el expediente, al otro la pantalla.</p></a>
+  </nav>
+</div>
+</body>
+</html>

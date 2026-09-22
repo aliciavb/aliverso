@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas E: mesa libre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="base.css">
+<style>
+/* E · Mesa libre: la D con las cinco carpetas iguales, un poco superpuestas y que se mueven.
+   Ratón: arrastrar mueve, clic abre. Dedo: mantener pulsado coge, tocar abre, deslizar hace scroll. */
+.intro .tidy { font: inherit; color: var(--ink); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; margin-left: 12px; }
+.intro .tidy:active { transform: scale(.96); }
+.mat {
+  position: relative; border-radius: 14px; padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 56px) clamp(28px, 4vw, 56px);
+  background-color: #16301f;
+  background-image:
+    linear-gradient(rgba(241, 230, 208, .11) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .11) 1px, transparent 1px),
+    linear-gradient(rgba(241, 230, 208, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .045) 1px, transparent 1px);
+  background-size: 190px 190px, 190px 190px, 38px 38px, 38px 38px; background-position: 18px 18px;
+  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(241, 230, 208, .08), inset 0 -4px 0 rgba(0, 0, 0, .25);
+  overflow: hidden;
+}
+.mat::before { content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 1px; background: rgba(241, 230, 208, .07); transform-origin: 0 0; transform: rotate(35deg); pointer-events: none; }
+.ruler { position: absolute; left: 18px; right: 0; top: 4px; display: flex; pointer-events: none; }
+.ruler span { flex: 0 0 38px; font-family: var(--mono); font-size: .5625rem; color: rgba(241, 230, 208, .3); }
+
+/* Mesa: cada carpeta va en su sitio con --x/--y; al ordenar se desliza con muelle */
+.desk { position: relative; height: 560px; transition: height .8s var(--out); }
+.item {
+  position: absolute; left: 0; top: 0; width: var(--fw, 380px);
+  transform: translate(var(--x, 0px), var(--y, 0px)); transition: transform .8s var(--spring);
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+}
+.item.held { transition: none; }
+.pp { background-color: var(--k, var(--c)); background-image: var(--noise); background-size: 260px auto; background-blend-mode: multiply; color: var(--paper-ink); }
+.fold {
+  position: relative; display: block; width: 100%; aspect-ratio: 16 / 11.2; border: 0; padding: 0; background: none; cursor: grab;
+  rotate: var(--r, 0deg); filter: drop-shadow(0 14px 14px rgba(0, 0, 0, .42));
+  opacity: 0; translate: 0 40px;
+  transition: rotate .5s var(--spring), scale .35s var(--spring), filter .35s, transform .45s var(--spring),
+              translate .9s var(--spring) calc(var(--i) * 90ms), opacity .6s var(--out) calc(var(--i) * 90ms);
+}
+.desk.in .fold { opacity: 1; translate: 0 0; }
+.item.held .fold { rotate: 0deg; scale: 1.05; cursor: grabbing; filter: drop-shadow(0 30px 26px rgba(0, 0, 0, .5)); }
+.fold.lifted { visibility: hidden; }
+.fold img { -webkit-user-drag: none; pointer-events: none; }
+.back { position: absolute; inset: 30px 0 0 0; border-radius: 0 6px 6px 6px; --k: color-mix(in srgb, var(--c) 80%, #1c2420); }
+.tab {
+  position: absolute; bottom: 100%; left: 0; width: max-content; min-width: 30%; white-space: nowrap; height: 30px; border-radius: 9px 9px 0 0;
+  display: flex; align-items: center; padding: 0 12px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase;
+  background: inherit; background-blend-mode: multiply;
+}
+.tab::after { content: ""; position: absolute; bottom: 0; right: -9px; width: 9px; height: 9px; background: radial-gradient(circle at 100% 0, transparent 9px, var(--k) 9.5px); }
+.front { position: absolute; left: 0; right: 0; bottom: 0; top: 44px; border-radius: 4px 4px 6px 6px; padding: 3%; box-shadow: 0 -3px 8px rgba(0, 0, 0, .16); }
+.front img, .face.out img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 2px; display: block; }
+.front::after, .face.out::after { content: ""; position: absolute; inset: 3%; background: var(--noise) 0 0 / 260px auto; mix-blend-mode: multiply; opacity: .3; pointer-events: none; }
+.fold:active { scale: .985; }
+@media (hover: hover) and (pointer: fine) { .item:not(.held) .fold:hover { transform: translateY(-6px); } }
+
+/* Carpeta abierta: igual que en la D */
+dialog.open { width: min(76rem, 100vw); max-width: 100vw; max-height: 100dvh; padding: clamp(16px, 3vw, 40px); border: 0; background: transparent; color: var(--paper-ink); overflow: auto; }
+dialog.open::backdrop { background: rgba(5, 10, 8, .72); backdrop-filter: blur(4px); animation: fade .4s; }
+@keyframes fade { from { opacity: 0; } }
+dialog.open.closing { animation: out .35s var(--out) forwards; }
+@keyframes out { to { opacity: 0; transform: translateY(16px); } }
+.close { position: sticky; top: 0; margin-left: auto; display: block; z-index: 5; font: inherit; font-size: 1.25rem; width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground-deep); color: var(--ink); cursor: pointer; }
+.spread { display: grid; grid-template-columns: 1fr 1fr; perspective: 2400px; margin-top: 8px; transform-origin: 0 0; }
+.page { min-height: 520px; padding: clamp(20px, 3vw, 36px); border-radius: 4px; }
+.inside { position: relative; --k: color-mix(in srgb, var(--c) 86%, #1c2420); }
+.inside .ficha { grid-template-columns: 1fr; }
+.inside .ficha .res, .inside .ficha details, .inside .ficha .pending, .inside .ficha .mono:first-child { display: none; }
+.cover { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3, .1, .2, 1); }
+.spread.opened .cover { transform: rotateY(-180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 4px; --k: var(--c); }
+.face.out { padding: 3%; }
+.face.in { transform: rotateY(180deg); padding: clamp(20px, 3vw, 36px); overflow: auto; }
+.sheet { background: #f4efe3; padding: clamp(18px, 3vw, 32px); min-height: 100%; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transform: rotate(-.6deg); }
+.sheet h3 { font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: -.02em; line-height: 1.05; margin: 6px 0 4px; }
+.sheet dl { margin: 20px 0 0; display: grid; gap: 14px; }
+.sheet dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
+.sheet dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; }
+.sheet .pending { display: inline-block; margin-top: 20px; border: 1.5px dashed currentColor; padding: 8px 12px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+
+@media (max-width: 760px) {
+  .spread { grid-template-columns: 1fr; }
+  .spread .left { height: 0; transition: height 1s cubic-bezier(.3, .1, .2, 1); }
+  .spread.opened .left { height: var(--cover-h, 520px); }
+  .cover { transform-origin: center top; }
+  .spread.opened .cover { transform: rotateX(180deg); }
+  .face.in { transform: rotateX(180deg); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono"><span>Prototipo · E · Mesa libre · solo para decidir</span><a href="./">← todas las versiones</a></div>
+  <div class="intro mono"><span>Trabajo</span><span><span id="hint"></span><button class="tidy mono" id="tidy" type="button">Ordenar</button></span></div>
+  <div class="mat"><div class="ruler" id="ruler"></div><div class="desk" id="desk"></div></div>
+</div>
+
+<dialog class="open" id="open" aria-labelledby="o-title">
+  <button class="close" type="button" aria-label="Cerrar">×</button>
+  <div class="spread" id="spread">
+    <div class="left"></div>
+    <div class="page inside pp" id="inside">
+      <div id="inside-content"></div>
+      <div class="cover" id="cover">
+        <div class="face out pp" id="cover-out"></div>
+        <div class="face in pp"><div class="sheet" id="sheet"></div></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script src="datos.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, REDUCE ? 0 : ms));
+const desk = $('desk');
+const touch = matchMedia('(pointer: coarse)').matches;
+$('hint').textContent = touch ? 'Mantén pulsado para moverlas · toca para abrir' : 'Arrástralas · clic para abrir';
+$('ruler').innerHTML = Array.from({ length: 40 }, (_, i) => `<span>${i + 1}</span>`).join('');
+
+desk.innerHTML = CASES.map((c, i) => `
+  <div class="item" style="--i:${i};--c:var(${c.color})">
+    <button class="fold" type="button" data-i="${i}" aria-label="Abrir ${esc(c.name)}">
+      <span class="back pp"><span class="tab">${esc(c.short)}</span></span>
+      <span class="front pp"><img src="${IMG + c.frames[0]}" alt="Portada de ${esc(c.name)}" draggable="false"></span>
+    </button>
+  </div>`).join('');
+const items = [...desk.querySelectorAll('.item')];
+
+// Posiciones: montón (un poco superpuestas) u ordenadas en rejilla. x e y en fracción del hueco libre.
+const PILE = { desk: [[.02, .08, -3], [.5, 0, 2.4], [.98, .16, -1.6], [.2, 1, 1.8], [.8, .9, -2.6]],
+               phone: [[0, 0, -2.4], [1, .25, 2], [.12, .5, -1.4], [.9, .75, 2.6], [.3, 1, -2]] };
+let mode = 'pile';
+function layout() {
+  const W = desk.clientWidth, phone = W < 600;
+  const fw = phone ? W * .84 : Math.min(420, W * .38), fh = fw * 11.2 / 16;
+  let pos, H;
+  if (mode === 'pile') {
+    H = phone ? fh * (1 + 4 * .62) : fh * 1.95;
+    pos = PILE[phone ? 'phone' : 'desk'].map(([x, y, r]) => [x * (W - fw), y * (H - fh), r]);
+  } else {
+    const cols = phone ? 1 : 2, gap = phone ? 28 : 48, x0 = (W - cols * fw - (cols - 1) * gap) / 2;
+    pos = items.map((_, i) => {
+      const c = i % cols, row = Math.floor(i / cols), alone = i === items.length - 1 && c === 0 && cols > 1;
+      return [alone ? (W - fw) / 2 : x0 + c * (fw + gap), row * (fh + gap), 0];
+    });
+    H = Math.ceil(items.length / cols) * (fh + gap) - gap;
+  }
+  desk.style.setProperty('--fw', fw + 'px'); desk.style.height = H + 'px';
+  items.forEach((it, i) => {
+    it.style.setProperty('--x', pos[i][0] + 'px'); it.style.setProperty('--y', pos[i][1] + 'px');
+    it.style.setProperty('--r', pos[i][2] + 'deg'); it.style.zIndex = i + 1;
+  });
+}
+layout();
+let lastW = desk.clientWidth;
+new ResizeObserver(() => { if (Math.abs(desk.clientWidth - lastW) > 2) { lastW = desk.clientWidth; layout(); } }).observe(desk);
+new IntersectionObserver((es, io) => es.forEach(e => { if (e.isIntersecting) { desk.classList.add('in'); io.disconnect(); } }), { threshold: .05 }).observe(desk);
+$('tidy').addEventListener('click', e => { mode = mode === 'pile' ? 'grid' : 'pile'; e.target.textContent = mode === 'pile' ? 'Ordenar' : 'Desordenar'; layout(); });
+
+// Coger, mover y soltar
+let held = null, z = 10;
+function pick(it, x, y) {
+  held = { it, sx: x, sy: y, ox: parseFloat(it.style.getPropertyValue('--x')), oy: parseFloat(it.style.getPropertyValue('--y')) };
+  it.classList.add('held'); it.style.zIndex = ++z;
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+function drag(x, y) {
+  if (!held) return;
+  const { it } = held, W = desk.clientWidth, H = desk.clientHeight, fw = it.offsetWidth, fh = it.offsetHeight;
+  const nx = Math.max(-fw * .2, Math.min(W - fw * .8, held.ox + x - held.sx));
+  const ny = Math.max(-24, Math.min(H - fh * .5, held.oy + y - held.sy));
+  it.style.setProperty('--x', nx + 'px'); it.style.setProperty('--y', ny + 'px');
+}
+function drop(swallowClick) {
+  if (!held) return;
+  held.it.classList.remove('held');
+  if (swallowClick) held.it.dataset.dragged = '1';
+  held = null;
+}
+// Ratón: arrastrar en cuanto se mueve 5 px
+desk.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'touch' || e.button !== 0) return;
+  const it = e.target.closest('.item'); if (!it) return;
+  const sx = e.clientX, sy = e.clientY; let started = false;
+  it.style.zIndex = ++z;
+  const move = ev => {
+    if (!started) { if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return; started = true; pick(it, sx, sy); }
+    drag(ev.clientX, ev.clientY);
+  };
+  const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); if (started) drop(true); };
+  addEventListener('pointermove', move); addEventListener('pointerup', up);
+});
+// Dedo: mantener pulsado 280 ms coge la carpeta; si el dedo se mueve antes, es scroll
+let lp = null;
+desk.addEventListener('touchstart', e => {
+  if (e.touches.length > 1) return;
+  const it = e.target.closest('.item'); if (!it) return;
+  const t = e.touches[0];
+  lp = { sx: t.clientX, sy: t.clientY, picked: false };
+  lp.timer = setTimeout(() => { if (lp) { pick(it, lp.sx, lp.sy); lp.picked = true; } }, 280);
+}, { passive: true });
+desk.addEventListener('touchmove', e => {
+  if (!lp) return;
+  const t = e.touches[0];
+  if (lp.picked) { e.preventDefault(); drag(t.clientX, t.clientY); }
+  else if (Math.hypot(t.clientX - lp.sx, t.clientY - lp.sy) > 8) { clearTimeout(lp.timer); lp = null; }
+}, { passive: false });
+const endTouch = e => {
+  if (!lp) return;
+  clearTimeout(lp.timer);
+  if (lp.picked) { drop(false); if (e.cancelable) e.preventDefault(); } // soltar no abre
+  lp = null;
+};
+desk.addEventListener('touchend', endTouch, { passive: false });
+desk.addEventListener('touchcancel', endTouch);
+desk.addEventListener('contextmenu', e => { if (e.target.closest('.item')) e.preventDefault(); });
+
+// Abrir: la carpeta sale de la mesa y viene al centro; luego gira la tapa
+const dlg = $('open'), spread = $('spread'), inside = $('inside');
+let current = null;
+async function openFolder(btn) {
+  const c = CASES[+btn.dataset.i], it = btn.closest('.item');
+  spread.style.setProperty('--c', `var(${c.color})`);
+  $('inside-content').innerHTML = ficha(c, { title: false });
+  $('cover-out').innerHTML = `<img src="${IMG + c.frames[0]}" alt="">`;
+  $('sheet').innerHTML = `
+    <span class="mono" style="opacity:.6">Expediente ${c.no} · ${esc(c.url)}</span>
+    <h3 id="o-title">${esc(c.name)}</h3><span class="mono" style="opacity:.6">${esc(c.meta)}</span>
+    ${c.problem ? `<dl><div><dt>Problema</dt><dd>${esc(c.problem)}</dd></div><div><dt>Decisión</dt><dd>${esc(c.decision)}</dd></div><div><dt>Resultado</dt><dd>${esc(c.result)}</dd></div></dl>`
+      : '<span class="pending">Texto pendiente · problema, decisión y resultado</span>'}`;
+  spread.classList.remove('opened'); dlg.classList.remove('closing');
+  dlg.showModal(); dlg.scrollTop = 0;
+  spread.style.setProperty('--cover-h', inside.offsetHeight + 'px');
+  current = btn;
+  const S = btn.querySelector('.front').getBoundingClientRect(), R = inside.getBoundingClientRect(), P = spread.getBoundingClientRect();
+  btn.classList.add('lifted');
+  if (!REDUCE) {
+    const k = S.width / R.width;
+    const dx = S.left - P.left - k * (R.left - P.left), dy = S.top - P.top - k * (R.top - P.top);
+    const a = spread.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${k}) rotate(${it.style.getPropertyValue('--r')})` }, { transform: 'none' }],
+      { duration: 620, easing: 'cubic-bezier(.16,1,.3,1)' });
+    await Promise.race([a.finished, wait(800)]);
+  }
+  spread.classList.add('opened');
+}
+async function closeFolder() {
+  if (!dlg.open) return;
+  spread.classList.remove('opened');
+  await wait(700);
+  dlg.classList.add('closing');
+  await wait(300);
+  dlg.close(); dlg.classList.remove('closing');
+  if (current) { current.classList.remove('lifted'); current = null; }
+}
+desk.addEventListener('click', e => {
+  const f = e.target.closest('.fold'); if (!f) return;
+  const it = f.closest('.item');
+  if (it.dataset.dragged) { delete it.dataset.dragged; return; }
+  openFolder(f);
+});
+dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.close')) closeFolder(); });
+dlg.addEventListener('cancel', e => { e.preventDefault(); closeFolder(); });
+</script>
+</body>
+</html>

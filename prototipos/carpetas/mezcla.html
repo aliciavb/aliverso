@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas D: archivador en la mesa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="base.css">
+<style>
+/* D · Mezcla: alfombrilla de corte (C) + colores y pestañas del archivador (A) + tapa que gira (C).
+   La portada del caso manda: va pegada en la tapa y ocupa casi toda la carpeta. */
+.mat {
+  position: relative; border-radius: 14px; padding: clamp(48px, 6vw, 80px) clamp(16px, 5vw, 64px) clamp(32px, 5vw, 64px);
+  background-color: #16301f;
+  background-image:
+    linear-gradient(rgba(241, 230, 208, .11) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .11) 1px, transparent 1px),
+    linear-gradient(rgba(241, 230, 208, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .045) 1px, transparent 1px);
+  background-size: 190px 190px, 190px 190px, 38px 38px, 38px 38px; background-position: 18px 18px;
+  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(241, 230, 208, .08), inset 0 -4px 0 rgba(0, 0, 0, .25);
+  overflow: hidden;
+}
+.mat::before { content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 1px; background: rgba(241, 230, 208, .07); transform-origin: 0 0; transform: rotate(35deg); pointer-events: none; }
+.ruler { position: absolute; left: 18px; right: 0; top: 4px; display: flex; pointer-events: none; }
+.ruler span { flex: 0 0 38px; font-family: var(--mono); font-size: .5625rem; color: rgba(241, 230, 208, .3); }
+
+/* Arriba, grandes, los dos casos con texto; abajo, los tres que aún no lo tienen */
+.desk { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(48px, 6vw, 80px) clamp(24px, 3.5vw, 48px); }
+.item { grid-column: span 2; display: grid; gap: 16px; align-content: start; opacity: 0; transform: translateY(40px) rotate(2deg); transition: opacity .6s var(--out) calc(var(--i) * 90ms), transform .9s var(--spring) calc(var(--i) * 90ms); }
+.desk.in .item { opacity: 1; transform: none; }
+.item.feature { grid-column: span 3; }
+
+.pp { background-color: var(--k, var(--c)); background-image: var(--noise); background-size: 260px auto; background-blend-mode: multiply; color: var(--paper-ink); }
+.fold {
+  position: relative; display: block; width: 100%; aspect-ratio: 16 / 11.2; border: 0; padding: 0; background: none; cursor: pointer;
+  transform: rotate(var(--r)); transition: transform .45s var(--spring); filter: drop-shadow(0 16px 16px rgba(0, 0, 0, .42));
+}
+.fold.lifted { visibility: hidden; }
+.fold.settle { animation: settle .5s var(--spring); }
+@keyframes settle { from { transform: rotate(var(--r)) translateY(-14px) scale(1.02); } }
+.back { position: absolute; inset: 30px 0 0 0; border-radius: 0 6px 6px 6px; --k: color-mix(in srgb, var(--c) 80%, #1c2420); }
+.tab {
+  position: absolute; bottom: 100%; width: max-content; min-width: 30%; white-space: nowrap; height: 30px; border-radius: 9px 9px 0 0;
+  display: flex; align-items: center; gap: 8px; padding: 0 12px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase;
+  background: inherit; background-blend-mode: multiply;
+}
+.tab .n { opacity: .55; }
+.tab::before, .tab::after { content: ""; position: absolute; bottom: 0; width: 9px; height: 9px; }
+.tab::before { left: -9px; background: radial-gradient(circle at 0 0, transparent 9px, var(--k) 9.5px); }
+.tab::after { right: -9px; background: radial-gradient(circle at 100% 0, transparent 9px, var(--k) 9.5px); }
+.tab { left: 0; }
+.tab::before { display: none; } /* todas la sacan por la izquierda */
+.back { border-radius: 0 6px 6px 6px; }
+.front { position: absolute; left: 0; right: 0; bottom: 0; top: 44px; border-radius: 4px 4px 6px 6px; padding: 3%; box-shadow: 0 -3px 8px rgba(0, 0, 0, .16); }
+.front img, .face.out img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 2px; display: block; }
+/* La imagen, como impresa en papel */
+.front::after, .face.out::after { content: ""; position: absolute; inset: 3%; background: var(--noise) 0 0 / 260px auto; mix-blend-mode: multiply; opacity: .3; pointer-events: none; }
+.fold:active { transform: rotate(var(--r)) scale(.985); }
+@media (hover: hover) and (pointer: fine) { .fold:hover { transform: rotate(0deg) translateY(-6px); } }
+.cap { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
+.cap strong { font-family: var(--display); font-weight: 500; font-size: clamp(1.25rem, 2.2vw, 1.75rem); letter-spacing: -.02em; line-height: 1.1; }
+.cap .mono { color: var(--ink-soft); }
+
+/* Carpeta abierta (la animación de C, con el color de cada caso) */
+dialog.open { width: min(76rem, 100vw); max-width: 100vw; max-height: 100dvh; padding: clamp(16px, 3vw, 40px); border: 0; background: transparent; color: var(--paper-ink); overflow: auto; }
+dialog.open::backdrop { background: rgba(5, 10, 8, .72); backdrop-filter: blur(4px); animation: fade .4s; }
+@keyframes fade { from { opacity: 0; } }
+dialog.open.closing { animation: out .35s var(--out) forwards; }
+@keyframes out { to { opacity: 0; transform: translateY(16px); } }
+.close { position: sticky; top: 0; margin-left: auto; display: block; z-index: 5; font: inherit; font-size: 1.25rem; width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground-deep); color: var(--ink); cursor: pointer; }
+.spread { display: grid; grid-template-columns: 1fr 1fr; perspective: 2400px; margin-top: 8px; transform-origin: 0 0; }
+.page { min-height: 520px; padding: clamp(20px, 3vw, 36px); border-radius: 4px; }
+.inside { position: relative; --k: color-mix(in srgb, var(--c) 86%, #1c2420); }
+.inside .ficha { grid-template-columns: 1fr; }
+.inside .ficha .res, .inside .ficha details, .inside .ficha .pending, .inside .ficha .mono:first-child { display: none; }
+.cover { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3, .1, .2, 1); }
+.spread.opened .cover { transform: rotateY(-180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 4px; --k: var(--c); }
+.face.out { padding: 3%; }
+.face.in { transform: rotateY(180deg); padding: clamp(20px, 3vw, 36px); overflow: auto; }
+.sheet { background: #f4efe3; padding: clamp(18px, 3vw, 32px); min-height: 100%; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transform: rotate(-.6deg); }
+.sheet h3 { font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: -.02em; line-height: 1.05; margin: 6px 0 4px; }
+.sheet dl { margin: 20px 0 0; display: grid; gap: 14px; }
+.sheet dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
+.sheet dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; }
+.sheet .pending { display: inline-block; margin-top: 20px; border: 1.5px dashed currentColor; padding: 8px 12px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+
+@media (max-width: 760px) {
+  .desk { grid-template-columns: 1fr; gap: 44px; }
+  .item, .item.feature { grid-column: auto; }
+  .spread { grid-template-columns: 1fr; }
+  .spread .left { height: 0; transition: height 1s cubic-bezier(.3, .1, .2, 1); }
+  .spread.opened .left { height: var(--cover-h, 520px); }
+  .cover { transform-origin: center top; }
+  .spread.opened .cover { transform: rotateX(180deg); }
+  .face.in { transform: rotateX(180deg); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono"><span>Prototipo · D · Archivador en la mesa · solo para decidir</span><a href="./">← todas las versiones</a></div>
+  <div class="intro mono"><span>Trabajo</span><span>5 casos · toca uno para abrirlo</span></div>
+  <div class="mat"><div class="ruler" id="ruler"></div><div class="desk" id="desk"></div></div>
+</div>
+
+<dialog class="open" id="open" aria-labelledby="o-title">
+  <button class="close" type="button" aria-label="Cerrar">×</button>
+  <div class="spread" id="spread">
+    <div class="left"></div>
+    <div class="page inside pp" id="inside">
+      <div id="inside-content"></div>
+      <div class="cover" id="cover">
+        <div class="face out pp" id="cover-out"></div>
+        <div class="face in pp"><div class="sheet" id="sheet"></div></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script src="datos.js"></script>
+<script>
+const rot = [-.8, 1.3, -1.6, .9, -1.1];
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, REDUCE ? 0 : ms));
+const desk = $('desk');
+$('ruler').innerHTML = Array.from({ length: 40 }, (_, i) => `<span>${i + 1}</span>`).join('');
+
+desk.innerHTML = CASES.map((c, i) => `
+  <div class="item${c.result ? ' feature' : ''}" style="--i:${i}">
+    <button class="fold" type="button" data-i="${i}" style="--r:${rot[i]}deg;--c:var(${c.color})" aria-label="Abrir ${esc(c.name)}">
+      <span class="back pp"><span class="tab">${esc(c.short)}</span></span>
+      <span class="front pp"><img src="${IMG + c.frames[0]}" alt="Portada de ${esc(c.name)}" loading="lazy"></span>
+    </button>
+    <div class="cap"><strong>${esc(c.name)}</strong><span class="mono">${esc(c.meta)}</span></div>
+  </div>`).join('');
+new IntersectionObserver((es, io) => es.forEach(e => { if (e.isIntersecting) { desk.classList.add('in'); io.disconnect(); } }), { threshold: .05 }).observe(desk);
+
+const dlg = $('open'), spread = $('spread'), inside = $('inside');
+let current = null;
+async function openFolder(btn) {
+  const c = CASES[+btn.dataset.i];
+  spread.style.setProperty('--c', `var(${c.color})`);
+  $('inside-content').innerHTML = ficha(c, { title: false });
+  $('cover-out').innerHTML = `<img src="${IMG + c.frames[0]}" alt="">`;
+  $('sheet').innerHTML = `
+    <span class="mono" style="opacity:.6">Expediente ${c.no} · ${esc(c.url)}</span>
+    <h3 id="o-title">${esc(c.name)}</h3><span class="mono" style="opacity:.6">${esc(c.meta)}</span>
+    ${c.problem ? `<dl><div><dt>Problema</dt><dd>${esc(c.problem)}</dd></div><div><dt>Decisión</dt><dd>${esc(c.decision)}</dd></div><div><dt>Resultado</dt><dd>${esc(c.result)}</dd></div></dl>`
+      : '<span class="pending">Texto pendiente · problema, decisión y resultado</span>'}`;
+  spread.classList.remove('opened'); dlg.classList.remove('closing');
+  dlg.showModal(); dlg.scrollTop = 0;
+  spread.style.setProperty('--cover-h', inside.offsetHeight + 'px');
+  current = btn;
+  // La carpeta sale de la mesa y viene hasta el centro; luego se abre la tapa
+  const S = btn.querySelector('.front').getBoundingClientRect(), R = inside.getBoundingClientRect(), P = spread.getBoundingClientRect();
+  btn.classList.add('lifted');
+  if (!REDUCE) {
+    const k = S.width / R.width;
+    const dx = S.left - P.left - k * (R.left - P.left), dy = S.top - P.top - k * (R.top - P.top);
+    const a = spread.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${k}) rotate(${btn.style.getPropertyValue('--r')})` }, { transform: 'none' }],
+      { duration: 620, easing: 'cubic-bezier(.16,1,.3,1)' });
+    await Promise.race([a.finished, wait(800)]);
+  }
+  spread.classList.add('opened');
+}
+async function closeFolder() {
+  if (!dlg.open) return;
+  spread.classList.remove('opened');
+  await wait(700);
+  dlg.classList.add('closing');
+  await wait(300);
+  dlg.close(); dlg.classList.remove('closing');
+  if (current) { current.classList.remove('lifted', 'settle'); void current.offsetWidth; current.classList.add('settle'); current = null; }
+}
+desk.addEventListener('click', e => { const f = e.target.closest('.fold'); if (f) openFolder(f); });
+dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.close')) closeFolder(); });
+dlg.addEventListener('cancel', e => { e.preventDefault(); closeFolder(); });
+</script>
+</body>
+</html>

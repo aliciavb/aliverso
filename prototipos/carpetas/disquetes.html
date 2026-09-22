@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas B: disquetes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="base.css">
+<style>
+/* B · Disquetes: cada proyecto es un disquete; al tocarlo entra en la disquetera y la pantalla lo lee. */
+.rack { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(12px, 2.4vw, 32px); padding: 8px 0 40px; }
+.bay { position: relative; aspect-ratio: 90 / 94; border-radius: 6px; }
+.bay.empty::before { content: ""; position: absolute; inset: 0; border: 1.5px dashed var(--line); border-radius: 6px; }
+.bay.empty::after { content: "en el lector"; position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--mono); font-size: .625rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.disk {
+  position: absolute; inset: 0; border: 0; padding: 0; background: none; cursor: pointer; container-type: inline-size;
+  transform: rotate(var(--r)); filter: drop-shadow(0 12px 12px rgba(0, 0, 0, .45));
+  transition: transform .45s var(--spring);
+}
+.bay.empty .disk { visibility: hidden; }
+.disk.pop { animation: pop .5s var(--spring); }
+@keyframes pop { from { transform: rotate(var(--r)) scale(.85); opacity: 0; } }
+.shell {
+  position: absolute; inset: 0; border-radius: 4px; overflow: hidden;
+  background: linear-gradient(165deg, rgba(255, 255, 255, .22), transparent 38%), linear-gradient(0deg, rgba(0, 0, 0, .12), transparent 30%), var(--c);
+  clip-path: polygon(0 0, 93% 0, 100% 6.5%, 100% 100%, 0 100%);
+}
+/* Disco magnético, visible cuando se abre la chapa */
+.shell::before { content: ""; position: absolute; top: 0; left: 22%; width: 56%; height: 38%; background: radial-gradient(circle at 60% 40%, #2c3a33, #0d1411 70%); }
+.shutter {
+  position: absolute; top: 0; left: 22%; width: 56%; height: 38%; border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, #858d89, #d3d8d4 32%, #aeb5b1 62%, #7d8581);
+  transition: transform .45s var(--out);
+}
+.shutter .win { position: absolute; right: 13%; top: 16%; width: 22%; height: 62%; background: #1b221e; border-radius: 1px; }
+.disk.reading .shutter { transform: translateX(-30%); }
+.label {
+  position: absolute; left: 8%; right: 8%; bottom: 0; height: 52%; border-radius: 3px 3px 0 0; padding: 7cqi 7cqi 5cqi;
+  display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+  background-color: #efe8d8; background-image: var(--noise); background-size: 200px auto; background-blend-mode: multiply; color: var(--paper-ink);
+}
+.label .top { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 5.5cqi; letter-spacing: .06em; opacity: .6; }
+.label strong {
+  font-family: var(--display); font-weight: 500; font-size: 10.5cqi; line-height: 1.12; letter-spacing: -.01em;
+  background-image: repeating-linear-gradient(transparent 0 calc(1.12em - 1px), rgba(28, 36, 32, .16) calc(1.12em - 1px) 1.12em);
+}
+.label .meta { font-family: var(--mono); font-size: 5cqi; letter-spacing: .04em; text-transform: uppercase; opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hole { position: absolute; left: 3%; bottom: 3%; width: 5%; aspect-ratio: 1; background: rgba(0, 0, 0, .5); border-radius: 1px; }
+
+/* Disquetera y pantalla: tapan el disquete cuando entra */
+.drive, .screen { position: relative; z-index: 31; }
+.drive {
+  display: flex; align-items: center; gap: 14px; padding: 14px clamp(14px, 3vw, 28px);
+  background: linear-gradient(180deg, #16211c, #0c1511); border: 1px solid rgba(241, 230, 208, .12); border-radius: 12px 12px 0 0;
+}
+/* La ranura está en el borde de arriba: el disquete desaparece justo ahí */
+.drive { padding-top: 22px; justify-content: space-between; }
+.mouth { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: min(360px, 62%); height: 9px; background: #020403; border-radius: 0 0 4px 4px; box-shadow: inset 0 3px 4px rgba(0, 0, 0, .9), 0 1px 0 rgba(241, 230, 208, .08); }
+.led { width: 8px; height: 8px; border-radius: 50%; background: #1d3a2e; transition: background .2s, box-shadow .2s; }
+.led.on { background: #4fb89a; box-shadow: 0 0 10px #4fb89a; }
+.drive .mono { color: var(--ink-soft); font-size: .6875rem; min-width: 11ch; }
+.drive .mono:last-child { text-align: right; }
+.screen { background: #0b1511; border: 1px solid rgba(241, 230, 208, .12); border-top: 0; border-radius: 0 0 12px 12px; padding: clamp(16px, 3vw, 32px); min-height: 460px; }
+.prompt { color: #4fb89a; margin: 0 0 20px; min-height: 1.4em; }
+.prompt .bar-p { display: inline-block; width: 12ch; height: .7em; margin-left: 10px; background: linear-gradient(90deg, #4fb89a var(--p, 0%), rgba(79, 184, 154, .15) 0); vertical-align: baseline; }
+.prompt .caret { display: inline-block; width: .6em; height: 1em; background: #4fb89a; vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+#body { transition: opacity .3s; }
+#body.out { opacity: 0; }
+.fly { position: fixed; z-index: 30; margin: 0; pointer-events: none; transform-origin: 0 0; }
+
+@media (max-width: 760px) {
+  .rack { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding: 12px 4px 32px; margin-inline: -4px; }
+  .bay { flex: 0 0 38vw; scroll-snap-align: start; }
+  .drive .mono:first-child { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono"><span>Prototipo · B · Disquetes · solo para decidir</span><a href="./">← las tres versiones</a></div>
+  <div class="intro mono"><span>Trabajo</span><span>5 disquetes · toca uno para leerlo</span></div>
+  <div class="rack" id="rack"></div>
+  <div class="drive" id="drive"><span class="mono" id="drive-id">A:</span><span class="led" id="led"></span><span class="mouth" id="mouth"></span><span class="mono">1,44 MB</span></div>
+  <div class="screen"><p class="prompt mono" id="prompt"></p><div id="body"></div></div>
+</div>
+<script src="datos.js"></script>
+<script>
+const rot = [-1.6, 1.1, -.7, 1.8, -1.2];
+const rack = document.getElementById('rack');
+rack.innerHTML = CASES.map((c, i) => `
+  <div class="bay" data-i="${i}">
+    <button class="disk" type="button" style="--c:var(${c.color});--r:${rot[i]}deg" aria-label="Leer ${esc(c.name)}">
+      <span class="shell"><span class="shutter"><span class="win"></span></span>
+        <span class="label"><span class="top"><span>${c.no}</span><span>HD</span></span><strong>${esc(c.name)}</strong><span class="meta">${esc(c.meta)}</span></span>
+        <span class="hole"></span></span>
+    </button>
+  </div>`).join('');
+
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, REDUCE ? 0 : ms));
+let loaded = -1, busy = false;
+
+function show(i) {
+  const c = CASES[i];
+  $('prompt').innerHTML = `A:\\&gt; abrir ${esc(c.url)} <span class="caret"></span>`;
+  $('body').innerHTML = ficha(c);
+  $('drive-id').textContent = `A: ${c.no} · ${c.short}`;
+}
+
+async function load(i) {
+  if (busy || i === loaded) return;
+  busy = true;
+  const bays = rack.querySelectorAll('.bay');
+  // Sacar el que estaba: vuelve a su sitio
+  if (loaded > -1) { bays[loaded].classList.remove('empty'); const d = bays[loaded].querySelector('.disk'); d.classList.remove('pop'); void d.offsetWidth; d.classList.add('pop'); }
+  const bay = bays[i], disk = bay.querySelector('.disk'), c = CASES[i];
+  const drive = $('drive');
+  if (drive.getBoundingClientRect().top > innerHeight - 120 || drive.getBoundingClientRect().top < 0) {
+    drive.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'center' }); await wait(450);
+  }
+  $('body').classList.add('out');
+  if (!REDUCE) {
+    disk.classList.add('reading'); await wait(350);
+    const from = bay.getBoundingClientRect(), mouth = $('mouth').getBoundingClientRect();
+    const fly = disk.cloneNode(true); fly.classList.add('fly');
+    fly.style.inset = 'auto';
+    Object.assign(fly.style, { transform: 'none', left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', height: from.height + 'px' });
+    document.body.appendChild(fly); bay.classList.add('empty');
+    const s = Math.min(1.25, (mouth.width * .92) / from.width), w = from.width * s, h = from.height * s;
+    const tx = mouth.left + mouth.width / 2 - from.left, ty = mouth.top - from.top;
+    // Vuela girando para entrar con la chapa por delante, y baja detrás de la disquetera
+    const anim = fly.animate([
+      { transform: `rotate(${rot[i]}deg)` },
+      { transform: `translate(${tx + w / 2}px, ${ty - 18}px) rotate(180deg) scale(${s})`, offset: .75 },
+      { transform: `translate(${tx + w / 2}px, ${ty + h + 8}px) rotate(180deg) scale(${s})` }
+    ], { duration: 1100, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' });
+    await Promise.race([anim.finished, wait(1400)]); // por si la pestaña está en segundo plano
+    fly.remove(); disk.classList.remove('reading');
+  } else bay.classList.add('empty');
+  loaded = i;
+  $('led').classList.add('on');
+  $('prompt').innerHTML = `A:\\&gt; abrir ${esc(c.url)} <span class="bar-p" id="bp"></span>`;
+  for (let p = 0; p <= 100; p += 20) { $('bp').style.setProperty('--p', p + '%'); await wait(90); }
+  show(i); $('body').classList.remove('out'); $('led').classList.remove('on');
+  busy = false;
+}
+
+rack.addEventListener('click', e => { const b = e.target.closest('.bay'); if (b) load(+b.dataset.i); });
+// Empieza con i23 ya leído: el contenido se ve sin tocar nada
+rack.querySelector('.bay').classList.add('empty'); loaded = 0; show(0);
+</script>
+</body>
+</html>

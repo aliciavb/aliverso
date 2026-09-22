@@ -1,0 +1,83 @@
+/* Base común de los prototipos "carpetas" (2026-09-22). Fuera de src/: no entra en el build.
+   Fuera físico (papel, plástico, alfombrilla de corte), dentro digital (la ficha del caso). */
+:root {
+  --ground: #12241c; --ground-deep: #0a1410; --ink: #f1e6d0; --ink-soft: #b7b09c;
+  --accent: #ef7a5a; --line: rgba(241, 230, 208, .16);
+  /* Colores del velado pasados a papel: apagados, sin arcoíris */
+  --p-crema: #e6dcc6; --p-salvia: #a9bfae; --p-kraft: #c4a277; --p-oliva: #cfc58c; --p-salmon: #dea38b;
+  --paper-ink: #1c2420; --paper-soft: #4c524a; --paper-line: rgba(28, 36, 32, .18);
+  --gutter: clamp(16px, 5vw, 64px);
+  --display: "Bricolage Grotesque", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --out: cubic-bezier(.16, 1, .3, 1);
+  --spring: cubic-bezier(.34, 1.4, .64, 1);
+  --noise: url("../../public/assets/bg-noise.jpg");
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--ground-deep); }
+body {
+  margin: 0; color: var(--ink); min-height: 100vh;
+  background:
+    radial-gradient(60rem 40rem at 100% 100%, color-mix(in srgb, #e2553a 14%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 0% 60%, color-mix(in srgb, #4fb89a 10%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--ground), var(--ground-deep)) fixed;
+  font: 400 1.0625rem/1.6 "Instrument Sans", system-ui, sans-serif;
+  padding: 0 var(--gutter) 96px;
+}
+/* Textura de Alicia (la de aliverso.me), igual que en la home */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40;
+  background: var(--noise) repeat 0 0 / 323px auto; opacity: .5; mix-blend-mode: screen; filter: invert(1);
+}
+.wrap { max-width: 72rem; margin-inline: auto; }
+.mono { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+.soft { color: var(--ink-soft); }
+.top-note { display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 24px 0; color: var(--ink-soft); }
+.top-note a { color: var(--ink); }
+.intro { padding: 24px 0 32px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--ink-soft); }
+
+/* Papel: su color + la textura de Alicia multiplicada encima */
+.paper {
+  background-color: var(--c, var(--p-crema));
+  background-image: var(--noise); background-size: 323px auto; background-blend-mode: multiply;
+  color: var(--paper-ink);
+}
+
+/* ===== Ficha del caso: lo digital que hay dentro ===== */
+.ficha { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px 32px; align-items: start; }
+.ficha h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3.2vw, 2.5rem); letter-spacing: -.02em; line-height: 1.05; }
+.ficha .res { margin: 12px 0 0; font-size: clamp(1.0625rem, 1.6vw, 1.25rem); line-height: 1.4; }
+.ficha dl { margin: 12px 0 0; display: grid; gap: 12px; }
+.ficha dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.ficha dd { margin: 2px 0 0; font-size: .95rem; }
+.ficha summary { cursor: pointer; font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; margin-top: 16px; width: fit-content; }
+.ficha .pending { display: inline-block; margin-top: 12px; border: 1.5px dashed currentColor; opacity: .7; padding: 6px 10px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; }
+.ficha .row { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
+
+/* Pantalla: captura en marco de navegador + miniaturas que se tocan */
+.browser { border-radius: 8px; overflow: hidden; background: #0b1511; border: 1px solid rgba(241, 230, 208, .14); box-shadow: 0 18px 40px -22px rgba(0, 0, 0, .8); }
+.bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #08100d; }
+.bar i { width: 8px; height: 8px; border-radius: 50%; background: rgba(241, 230, 208, .22); }
+.bar span { margin-left: 6px; font-family: var(--mono); font-size: .6875rem; color: var(--ink-soft); background: rgba(241, 230, 208, .06); border-radius: 999px; padding: 1px 10px; }
+.shot { aspect-ratio: 16 / 10; overflow: hidden; background: #0b1511; }
+.shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; transition: opacity .35s; }
+.thumbs { display: flex; gap: 6px; padding: 8px; background: #08100d; overflow-x: auto; }
+.thumbs button { flex: 0 0 56px; height: 40px; padding: 0; border: 1px solid rgba(241, 230, 208, .14); border-radius: 4px; overflow: hidden; cursor: pointer; background: none; opacity: .55; transition: opacity .2s, transform .2s var(--spring); }
+.thumbs button[aria-pressed="true"] { opacity: 1; border-color: var(--accent); }
+.thumbs button:active { transform: scale(.94); }
+.thumbs img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+
+/* Muestras de color como tiras de pintura: tocar copia */
+.chips { display: flex; gap: 8px; margin-top: 16px; }
+.chips button {
+  flex: 1; min-width: 0; height: 64px; border: 0; border-radius: 3px; cursor: copy; position: relative; padding: 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .18), 0 6px 14px -8px rgba(0, 0, 0, .5); transition: transform .3s var(--spring);
+}
+.chips button::after { content: attr(data-hex); position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 6px; background: #f4efe3; color: #1c2420; font-family: var(--mono); font-size: .5625rem; letter-spacing: .04em; text-align: left; }
+.chips button.copied { transform: translateY(-6px) rotate(-2deg); }
+.toast { min-height: 1.3em; margin-top: 6px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 760px) { .ficha { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

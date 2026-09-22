@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas A: archivador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="base.css">
+<style>
+/* A · Archivador: carpetas apiladas con pestañas escalonadas. Tocar una pestaña la abre. */
+.drawer { padding: 48px 0 120px; }
+.folder {
+  --tabw: clamp(104px, 19%, 200px); --tabh: 38px; --strip: 64px;
+  position: relative; scroll-margin-top: 72px;
+  opacity: 0; transform: translateY(48px);
+  transition: opacity .6s var(--out) calc(var(--i) * 90ms), transform .8s var(--out) calc(var(--i) * 90ms);
+}
+.drawer.in .folder { opacity: 1; transform: none; }
+.panel {
+  position: relative; border-radius: var(--rl, 10px) var(--rr, 10px) 0 0;
+  box-shadow: 0 -12px 20px -14px rgba(0, 0, 0, .6);
+}
+/* El papel sigue hacia abajo, escondido bajo la carpeta siguiente: el último cierra el archivador */
+.panel::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 110px;
+  background: inherit; background-blend-mode: inherit; border-radius: 0 0 10px 10px;
+}
+.tab {
+  position: absolute; bottom: 100%; left: calc(var(--t) * (100% - var(--tabw)) / 4);
+  width: var(--tabw); height: var(--tabh); border: 0; border-radius: 10px 10px 0 0; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--paper-ink);
+  background-color: var(--c); background-image: var(--noise); background-size: 323px auto; background-blend-mode: multiply;
+}
+.tab .n { opacity: .55; }
+/* Hombros cóncavos de la pestaña */
+.tab::before, .tab::after { content: ""; position: absolute; bottom: 0; width: 10px; height: 10px; }
+.tab::before { left: -10px; background: radial-gradient(circle at 0 0, transparent 10px, var(--c) 10.5px); }
+.tab::after { right: -10px; background: radial-gradient(circle at 100% 0, transparent 10px, var(--c) 10.5px); }
+.folder[style*="--t:0"] .tab::before, .folder[style*="--t:4"] .tab::after { display: none; }
+.strip { height: var(--strip); display: flex; justify-content: flex-end; padding: 10px 16px; color: var(--paper-soft); cursor: pointer; }
+.strip .mono { font-size: .6875rem; transition: opacity .3s; }
+.folder.open .strip .mono { opacity: 0; } /* abierta, el dato ya sale en la ficha */
+
+/* Abrir: el papel crece y enseña la ficha */
+.inside { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .7s var(--out); }
+.folder.open .inside { grid-template-rows: 1fr; }
+.inside-in { overflow: hidden; min-height: 0; }
+.inside-in > .ficha { padding: 0 clamp(16px, 3vw, 32px) 40px; opacity: 0; transform: translateY(12px); transition: opacity .4s, transform .6s var(--out); }
+.folder.open .inside-in > .ficha { opacity: 1; transform: none; transition-delay: .15s; }
+.folder.open .panel { animation: lift .6s var(--out); }
+@keyframes lift { 40% { transform: translateY(-8px); } }
+.ficha h3 { color: var(--paper-ink); }
+.ficha summary, .ficha dd { color: var(--paper-ink); }
+
+@media (hover: hover) and (pointer: fine) {
+  .drawer.in .folder:not(.open):hover { transform: translateY(-5px); transition-delay: 0s; }
+}
+@media (max-width: 760px) { .folder { --strip: 58px; } .strip { justify-content: flex-start; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono"><span>Prototipo · A · Archivador · solo para decidir</span><a href="./">← las tres versiones</a></div>
+  <div class="intro mono"><span>Trabajo</span><span>5 carpetas · toca una pestaña</span></div>
+  <div class="drawer" id="drawer"></div>
+</div>
+<script src="datos.js"></script>
+<script>
+const drawer = document.getElementById('drawer');
+drawer.innerHTML = CASES.map((c, i) => `
+  <section class="folder${i === 0 ? ' open' : ''}" style="--t:${i};--i:${i};--c:var(${c.color});${i === 0 ? '--rl:0;' : ''}${i === 4 ? '--rr:0;' : ''}">
+    <div class="panel paper">
+      <button class="tab" type="button" aria-expanded="${i === 0}" aria-controls="in-${i}"><span class="n">${c.no}</span>${esc(c.short)}</button>
+      <div class="strip"><span class="mono">${esc(c.meta)}</span></div>
+      <div class="inside" id="in-${i}"><div class="inside-in">${ficha(c)}</div></div>
+    </div>
+  </section>`).join('');
+
+function toggle(folder) {
+  const opening = !folder.classList.contains('open');
+  drawer.querySelectorAll('.folder').forEach(f => {
+    const on = opening && f === folder;
+    f.classList.toggle('open', on);
+    f.querySelector('.tab').setAttribute('aria-expanded', on);
+  });
+  if (opening) setTimeout(() => {
+    const top = folder.getBoundingClientRect().top;
+    if (top < 60 || top > innerHeight * .6) folder.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'start' });
+  }, 120);
+}
+drawer.addEventListener('click', e => {
+  const hit = e.target.closest('.tab, .strip');
+  if (hit) toggle(hit.closest('.folder'));
+});
+
+new IntersectionObserver((es, io) => es.forEach(e => { if (e.isIntersecting) { drawer.classList.add('in'); io.disconnect(); } }), { threshold: .05 }).observe(drawer);
+</script>
+</body>
+</html>

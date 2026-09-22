@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas C: mesa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="base.css">
+<style>
+/* C · Mesa: carpetas de cartón sobre una alfombrilla de corte verde. Tocar abre la carpeta. */
+.mat {
+  position: relative; border-radius: 14px; padding: clamp(40px, 6vw, 72px) clamp(20px, 5vw, 64px) clamp(32px, 5vw, 64px);
+  background-color: #16301f;
+  background-image:
+    linear-gradient(rgba(241, 230, 208, .11) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .11) 1px, transparent 1px),
+    linear-gradient(rgba(241, 230, 208, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .045) 1px, transparent 1px);
+  background-size: 190px 190px, 190px 190px, 38px 38px, 38px 38px; background-position: 18px 18px;
+  box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(241, 230, 208, .08), inset 0 -4px 0 rgba(0, 0, 0, .25);
+  overflow: hidden;
+}
+/* Diagonal de 45° y regla, como en una alfombrilla de verdad */
+.mat::before { content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 1px; background: rgba(241, 230, 208, .07); transform-origin: 0 0; transform: rotate(35deg); pointer-events: none; }
+.ruler { position: absolute; left: 18px; right: 0; top: 4px; display: flex; pointer-events: none; }
+.ruler span { flex: 0 0 38px; font-family: var(--mono); font-size: .5625rem; color: rgba(241, 230, 208, .3); }
+.desk { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 56px); }
+
+.fold {
+  position: relative; aspect-ratio: 4 / 3.3; border: 0; padding: 0; background: none; cursor: pointer; text-align: left; color: var(--paper-ink);
+  transform: translate(var(--x, 0), var(--y, 0)) rotate(var(--r)); transition: transform .5s var(--spring); touch-action: manipulation;
+  filter: drop-shadow(0 14px 14px rgba(0, 0, 0, .4));
+}
+.fold.drag { transform: translate(var(--x, 0), var(--y, 0)) rotate(0) scale(1.04); transition: none; cursor: grabbing; filter: drop-shadow(0 28px 22px rgba(0, 0, 0, .45)); }
+.kraft { background-color: var(--k, var(--p-kraft)); background-image: var(--noise); background-size: 260px auto; background-blend-mode: multiply; }
+.back { position: absolute; inset: 12% 0 0 0; border-radius: 4px; --k: #b48f63; }
+.back::before { content: ""; position: absolute; right: 7%; bottom: 100%; width: 32%; height: 13%; background: inherit; background-blend-mode: multiply; border-radius: 8px 8px 0 0; }
+.tabl { position: absolute; right: calc(7% + 4%); top: -9%; width: 24%; height: 7%; min-height: 16px; border-radius: 2px; background: var(--c); display: grid; place-items: center; font-family: var(--mono); font-size: .625rem; letter-spacing: .08em; z-index: 1; }
+.doc { position: absolute; left: 9%; right: 20%; top: 4%; height: 58%; background: #f5f1e8; padding: 5px; transform: rotate(-2.5deg); box-shadow: 0 4px 10px rgba(0, 0, 0, .25); transition: transform .45s var(--spring); }
+.doc img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.front { position: absolute; left: 0; right: 0; bottom: 0; height: 70%; border-radius: 3px 3px 4px 4px; box-shadow: 0 -2px 6px rgba(0, 0, 0, .18); display: flex; align-items: flex-end; padding: 7%; }
+.sticker { background: #f1ead9; padding: 8px 12px 10px; border-radius: 2px; max-width: 88%; box-shadow: 0 1px 2px rgba(0, 0, 0, .2); border-left: 6px solid var(--c); }
+.sticker .mono { font-size: .625rem; opacity: .6; display: block; }
+.sticker strong { font-family: var(--display); font-weight: 500; font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.1; letter-spacing: -.01em; display: block; margin-top: 2px; }
+.fold:active .doc { transform: rotate(-1deg) translateY(-8px); }
+@media (hover: hover) and (pointer: fine) { .fold:hover .doc { transform: rotate(-1deg) translateY(-10px); } }
+
+/* Carpeta abierta: la tapa gira y enseña el expediente */
+dialog.open { width: min(76rem, 100vw); max-width: 100vw; max-height: 100dvh; height: auto; padding: clamp(16px, 3vw, 40px); border: 0; background: transparent; color: var(--paper-ink); overflow: auto; }
+dialog.open::backdrop { background: rgba(5, 10, 8, .7); backdrop-filter: blur(4px); }
+dialog.open[open] { animation: rise .45s var(--out); }
+@keyframes rise { from { opacity: 0; transform: translateY(24px) scale(.97); } }
+.close { position: sticky; top: 0; margin-left: auto; display: block; z-index: 5; font: inherit; font-size: 1.25rem; width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground-deep); color: var(--ink); cursor: pointer; }
+.spread { display: grid; grid-template-columns: 1fr 1fr; perspective: 2400px; margin-top: 8px; }
+.page { min-height: 520px; padding: clamp(20px, 3vw, 36px); border-radius: 4px; }
+.inside { --k: #b89468; position: relative; }
+.inside .ficha { grid-template-columns: 1fr; }
+.inside .ficha .res, .inside .ficha details, .inside .ficha .pending, .inside .ficha .mono:first-child { display: none; }
+.cover { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3, .1, .2, 1); }
+.spread.opened .cover { transform: rotateY(-180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 4px; }
+.face.out { display: flex; align-items: flex-end; padding: 7%; --k: var(--p-kraft); }
+.face.in { transform: rotateY(180deg); padding: clamp(20px, 3vw, 36px); overflow: auto; --k: #c9ab80; }
+.sheet { background: #f4efe3; padding: clamp(18px, 3vw, 32px); min-height: 100%; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transform: rotate(-.6deg); }
+.sheet h3 { font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: -.02em; line-height: 1.05; margin: 6px 0 4px; }
+.sheet dl { margin: 20px 0 0; display: grid; gap: 14px; }
+.sheet dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
+.sheet dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; }
+.sheet .pending { display: inline-block; margin-top: 20px; border: 1.5px dashed currentColor; padding: 8px 12px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+
+@media (max-width: 760px) {
+  .desk { grid-template-columns: 1fr; gap: 36px; }
+  .fold { width: 88%; }
+  .fold:nth-child(even) { margin-left: auto; }
+  .spread { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+  .spread .left { min-height: 0; }
+  .cover { transform-origin: center top; }
+  .spread.opened .cover { transform: rotateX(180deg); }
+  .face.in { transform: rotateX(180deg); }
+  /* En móvil la tapa se abre hacia arriba: su hueco crece mientras gira */
+  .spread .left { height: 0; transition: height 1s cubic-bezier(.3, .1, .2, 1); }
+  .spread.opened .left { height: var(--cover-h, 520px); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-note mono"><span>Prototipo · C · Mesa · solo para decidir</span><a href="./">← las tres versiones</a></div>
+  <div class="intro mono"><span>Trabajo</span><span>5 carpetas · toca una para abrirla<span class="only-mouse"> · o arrástralas</span></span></div>
+  <div class="mat"><div class="ruler" id="ruler"></div><div class="desk" id="desk"></div></div>
+</div>
+
+<dialog class="open" id="open" aria-labelledby="o-title">
+  <button class="close" type="button" aria-label="Cerrar">×</button>
+  <div class="spread" id="spread">
+    <div class="left"></div>
+    <div class="page inside kraft" id="inside">
+      <div id="inside-content"></div>
+      <div class="cover" id="cover">
+        <div class="face out kraft" id="cover-out"></div>
+        <div class="face in kraft"><div class="sheet" id="sheet"></div></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script src="datos.js"></script>
+<script>
+const rot = [-2.2, 1.4, -.8, 2, -1.5];
+const desk = document.getElementById('desk');
+document.getElementById('ruler').innerHTML = Array.from({ length: 40 }, (_, i) => `<span>${i + 1}</span>`).join('');
+if (!matchMedia('(hover: hover) and (pointer: fine)').matches) document.querySelector('.only-mouse').remove();
+
+const sticker = c => `<div class="sticker" style="--c:var(${c.color})"><span class="mono">${c.no} · ${esc(c.meta)}</span><strong>${esc(c.name)}</strong></div>`;
+desk.innerHTML = CASES.map((c, i) => `
+  <button class="fold" type="button" data-i="${i}" style="--r:${rot[i]}deg;--c:var(${c.color})" aria-label="Abrir ${esc(c.name)}">
+    <span class="back kraft"><span class="tabl">${c.no}</span></span>
+    <span class="doc"><img src="${IMG + c.frames[0]}" alt="" loading="lazy"></span>
+    <span class="front kraft">${sticker(c)}</span>
+  </button>`).join('');
+
+// Arrastrar solo con ratón; con el dedo, tocar abre (el scroll no se rompe)
+let z = 1;
+desk.addEventListener('pointerdown', e => {
+  const f = e.target.closest('.fold');
+  if (!f || e.pointerType !== 'mouse') return;
+  const sx = e.clientX, sy = e.clientY, ox = +(f.dataset.x || 0), oy = +(f.dataset.y || 0);
+  let moved = false;
+  f.style.zIndex = ++z;
+  const move = ev => {
+    const dx = ev.clientX - sx, dy = ev.clientY - sy;
+    if (!moved && Math.hypot(dx, dy) < 6) return;
+    moved = true; f.classList.add('drag');
+    f.style.setProperty('--x', ox + dx + 'px'); f.style.setProperty('--y', oy + dy + 'px');
+    f.dataset.nx = ox + dx; f.dataset.ny = oy + dy;
+  };
+  const up = () => {
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up);
+    f.classList.remove('drag');
+    if (moved) { f.dataset.x = f.dataset.nx; f.dataset.y = f.dataset.ny; f.dataset.dragged = '1'; }
+  };
+  addEventListener('pointermove', move); addEventListener('pointerup', up);
+});
+
+const dlg = document.getElementById('open'), spread = document.getElementById('spread');
+function openFolder(i) {
+  const c = CASES[i];
+  const inside = document.getElementById('inside');
+  document.getElementById('inside-content').innerHTML = ficha(c, { title: false });
+  document.getElementById('cover-out').innerHTML = sticker(c);
+  document.getElementById('sheet').innerHTML = `
+    <span class="mono" style="opacity:.6">Expediente ${c.no} · ${esc(c.url)}</span>
+    <h3 id="o-title">${esc(c.name)}</h3><span class="mono" style="opacity:.6">${esc(c.meta)}</span>
+    ${c.problem ? `<dl><div><dt>Problema</dt><dd>${esc(c.problem)}</dd></div><div><dt>Decisión</dt><dd>${esc(c.decision)}</dd></div><div><dt>Resultado</dt><dd>${esc(c.result)}</dd></div></dl>`
+      : '<span class="pending">Texto pendiente · problema, decisión y resultado</span>'}`;
+  spread.classList.remove('opened');
+  dlg.showModal();
+  // Mismo alto para la tapa abierta que para la página de dentro
+  spread.style.setProperty('--cover-h', inside.offsetHeight + 'px');
+  setTimeout(() => spread.classList.add('opened'), REDUCE ? 20 : 280);
+}
+function closeFolder() {
+  spread.classList.remove('opened');
+  setTimeout(() => dlg.close(), REDUCE ? 0 : 520);
+}
+desk.addEventListener('click', e => {
+  const f = e.target.closest('.fold'); if (!f) return;
+  if (f.dataset.dragged) { delete f.dataset.dragged; return; }
+  openFolder(+f.dataset.i);
+});
+dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.close')) closeFolder(); });
+dlg.addEventListener('cancel', e => { e.preventDefault(); closeFolder(); });
+</script>
+</body>
+</html>
