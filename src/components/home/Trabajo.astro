@@ -40,7 +40,7 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
           </button>
 
           <div class="cp-data" hidden>
-            <span class="mono cp-no">Expediente {no(i)}</span>
+            <span class="mono cp-no">{no(i)}</span>
             <h3>{c.name}</h3>
             <span class="mono cp-meta">{c.meta}</span>
             {c.problem ? (
@@ -73,6 +73,12 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
       </div>
     </div>
     </div>
+  </dialog>
+
+  <!-- El folio, a pantalla completa: el papel se lee entero, sin recortes -->
+  <dialog class="cp-paper" id="cp-paper" aria-label="Folio del caso">
+    <button class="cp-close" type="button" aria-label="Cerrar">×</button>
+    <div class="cp-folio" id="cp-folio"></div>
   </dialog>
 </section>
 
@@ -153,9 +159,11 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
   .cp-fold img { -webkit-user-drag: none; pointer-events: none; }
 
   /* ===== Carpeta abierta ===== */
-  /* La carpeta no cambia de tamaño: si sobra pantalla, nos acercamos a ella */
-  dialog.cp-open { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; padding: 0;
-    border: 0; background: transparent; color: var(--paper-ink); overflow: hidden; display: grid; place-items: center; }
+  /* La carpeta no cambia de tamaño: si sobra pantalla, nos acercamos a ella.
+     Ojo: el display solo cuando está abierto, o el dialog cerrado se queda a la vista. */
+  dialog.cp-open, dialog.cp-paper { position: fixed; inset: 0; width: auto; height: auto; max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0; background: transparent; color: var(--paper-ink); overflow: hidden; }
+  dialog.cp-open[open], dialog.cp-paper[open] { display: grid; place-items: center; }
   .cp-zoom { scale: var(--z, 1); width: min(76rem, 92vw); }
   dialog.cp-open::backdrop { background: rgba(5, 10, 8, .72); backdrop-filter: blur(4px); animation: cp-fade .4s; }
   @keyframes cp-fade { from { opacity: 0; } }
@@ -169,7 +177,7 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
 
   /* Una carpeta no crece: cuerpo y tapa miden siempre lo mismo y lo que sobra se hace scroll */
   .cp-inside { position: relative; height: var(--fold-h, 420px); --k: color-mix(in srgb, var(--c) 86%, #1c2420); }
-  #cp-body { height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+  #cp-body { height: 100%; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; }
   .cp-inside::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; pointer-events: none;
     border-radius: 0 0 4px 4px; background: linear-gradient(transparent, rgba(18, 28, 22, .22)); }
   .cp-cover { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d;
@@ -177,17 +185,32 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
   .cp-spread.opened .cp-cover { transform: rotateY(-180deg); }
   .cp-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 4px; --k: var(--c); }
   .cp-face.cp-out { padding: 3%; }
-  .cp-face.cp-in { transform: rotateY(180deg); padding: clamp(20px, 3vw, 36px); overflow: auto; }
+  .cp-face.cp-in { transform: rotateY(180deg); padding: clamp(20px, 3vw, 36px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
 
-  .cp-sheet { background: #f4efe3; padding: clamp(18px, 3vw, 32px); box-shadow: 0 2px 8px rgba(0, 0, 0, .2); transform: rotate(-.5deg); }
-  .cp-sheet h3 { font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3vw, 2.4rem); letter-spacing: -.02em;
-    line-height: 1.05; margin: 6px 0 4px; color: var(--paper-ink); }
-  .cp-sheet .cp-no, .cp-sheet .cp-meta { opacity: .6; }
-  .cp-sheet dl { margin: 20px 0 0; display: grid; gap: 14px; }
-  .cp-sheet dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
-  .cp-sheet dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; color: var(--paper-ink); }
+  .cp-sheet, .cp-folio { background: #f4efe3; color: var(--paper-ink); box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+  .cp-sheet { position: relative; padding: clamp(18px, 3vw, 32px); transform: rotate(-.5deg);
+    transition: transform .35s var(--cp-spring), box-shadow .35s; }
+  /* El papel se levanta al pasar por encima y se abre entero al tocarlo */
+  @media (hover: hover) and (pointer: fine) {
+    .cp-sheet.is-hover, .cp-sheet:focus-within { transform: translateY(-10px) rotate(-.2deg); box-shadow: 0 22px 34px -14px rgba(0, 0, 0, .5); }
+  }
+  .cp-sheet-open { position: absolute; inset: 0; width: 100%; border: 0; background: none; cursor: zoom-in; }
+  .cp-sheet h3, .cp-folio h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02em;
+    line-height: 1.05; margin: 6px 0 4px; color: var(--paper-ink); font-size: clamp(1.75rem, 3vw, 2.4rem); }
+  .cp-sheet .cp-no, .cp-sheet .cp-meta, .cp-folio .cp-no, .cp-folio .cp-meta { opacity: .6; }
+  .cp-sheet dl, .cp-folio dl { margin: 20px 0 0; display: grid; gap: 14px; }
+  .cp-sheet dt, .cp-folio dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
+  .cp-sheet dd, .cp-folio dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; color: var(--paper-ink); }
   .cp-pending { display: inline-block; margin-top: 20px; border: 1.5px dashed currentColor; padding: 8px 12px; opacity: .7; }
-  .cp-shot img { display: block; width: 100%; border-radius: 3px; box-shadow: 0 3px 10px rgba(0, 0, 0, .3); rotate: -.5deg; }
+  .cp-shot img { display: block; width: 100%; border-radius: 3px; box-shadow: 0 3px 10px rgba(0, 0, 0, .3); }
+
+  /* El folio entero */
+  .cp-folio { width: min(92vw, calc(92dvh / 1.414)); aspect-ratio: 1 / 1.414; overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: thin; padding: clamp(28px, 5vw, 64px); border-radius: 2px; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .85); }
+  .cp-folio h3 { font-size: clamp(2.25rem, 4vw, 3.25rem); }
+  .cp-folio dl { margin-top: 28px; gap: 22px; }
+  .cp-folio dd { font-size: 1.0625rem; line-height: 1.6; max-width: 62ch; }
+  dialog.cp-paper::backdrop { background: rgba(5, 10, 8, .8); backdrop-filter: blur(6px); animation: cp-fade .35s; }
 
   @media (max-width: 760px) {
     .cp-spread { grid-template-columns: 1fr; }
@@ -320,7 +343,9 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
 
       spread.style.setProperty("--c", item.style.getPropertyValue("--c"));
       $("cp-tab").textContent = item.querySelector(".cp-tab")?.textContent ?? "";
-      $("cp-sheet").innerHTML = data.innerHTML;
+      const nombre = data.querySelector("h3")?.textContent ?? "el caso";
+      $("cp-sheet").innerHTML =
+        data.innerHTML + `<button class="cp-sheet-open" type="button" aria-label="Ver el folio entero de ${nombre}"></button>`;
       $("cp-cover-out").innerHTML = img ? `<img src="${img.getAttribute("src")}" alt="">` : "";
       $("cp-shot").innerHTML = img ? `<img src="${img.getAttribute("src")}" alt="">` : "";
       // Dos hojas del tamaño de la carpeta: en móvil el expediente va dentro y la captura en la
@@ -373,8 +398,44 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
       openFolder(f);
     });
     dlg.addEventListener("click", (e) => {
-      if (e.target === dlg || (e.target as HTMLElement).closest(".cp-close")) closeFolder();
+      const t = e.target as HTMLElement;
+      if (t.closest(".cp-sheet-open")) { openPaper(); return; }
+      if (e.target === dlg || t.closest(".cp-close")) closeFolder();
     });
     dlg.addEventListener("cancel", (e) => { e.preventDefault(); closeFolder(); });
+
+    // El papel se levanta al pasarle por encima. Va por clase y no por :hover porque dentro de
+    // la tapa girada en 3D el navegador pierde el hover.
+    dlg.addEventListener("pointerover", (e) => {
+      $("cp-sheet").classList.toggle("is-hover", !!(e.target as HTMLElement).closest(".cp-sheet"));
+    });
+    dlg.addEventListener("pointerout", (e) => {
+      if (!(e.relatedTarget as HTMLElement | null)?.closest?.(".cp-sheet")) $("cp-sheet").classList.remove("is-hover");
+    });
+
+    // El folio entero: el papel sale de la carpeta y se lee a pantalla completa
+    const paper = $("cp-paper") as HTMLDialogElement;
+    const folio = $("cp-folio");
+    function openPaper() {
+      const sheet = $("cp-sheet");
+      const clone = sheet.cloneNode(true) as HTMLElement;
+      clone.querySelector(".cp-sheet-open")?.remove();
+      folio.innerHTML = clone.innerHTML;
+      paper.showModal();
+      folio.scrollTop = 0;
+      if (!REDUCE) {
+        const s = sheet.getBoundingClientRect(), f = folio.getBoundingClientRect();
+        const k = Math.max(.2, s.width / f.width);
+        const dx = s.left + s.width / 2 - (f.left + f.width / 2);
+        const dy = s.top + s.height / 2 - (f.top + f.height / 2);
+        folio.animate(
+          [{ transform: `translate(${dx}px, ${dy}px) scale(${k})`, opacity: .3 }, { transform: "none", opacity: 1 }],
+          { duration: 480, easing: "cubic-bezier(.16,1,.3,1)" },
+        );
+      }
+    }
+    paper.addEventListener("click", (e) => {
+      if (e.target === paper || (e.target as HTMLElement).closest(".cp-close")) paper.close();
+    });
   }
 </script>
