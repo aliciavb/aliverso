@@ -55,7 +55,14 @@
 }
 .tab::after { content: ""; position: absolute; bottom: 0; right: -9px; width: 9px; height: 9px; background: radial-gradient(circle at 100% 0, transparent 9px, var(--k) 9.5px); }
 .front { position: absolute; left: 0; right: 0; bottom: 0; top: 44px; border-radius: 4px 4px 6px 6px; padding: 3%; box-shadow: 0 -3px 8px rgba(0, 0, 0, .16); }
-.front img, .face.out img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 2px; display: block; }
+/* La portada va pegada sobre el cartón, entera y con su sombra: no recortada a sangre */
+.front, .face.out { display: flex; align-items: center; justify-content: center; }
+.front img, .face.out img {
+  width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain;
+  border-radius: 2px; display: block; rotate: -.7deg; box-shadow: 0 3px 10px rgba(0, 0, 0, .3);
+}
+/* En móvil la carpeta es algo más alta para que la foto apaisada quepa con margen parejo */
+.desk.phone .fold { aspect-ratio: 16 / 13; }
 .front::after, .face.out::after { content: ""; position: absolute; inset: 3%; background: var(--noise) 0 0 / 260px auto; mix-blend-mode: multiply; opacity: .3; pointer-events: none; }
 .fold:active { scale: .985; }
 @media (hover: hover) and (pointer: fine) { .item:not(.held) .fold:hover { transform: translateY(-6px); } }
@@ -69,7 +76,12 @@ dialog.open.closing { animation: out .35s var(--out) forwards; }
 .close { position: sticky; top: 0; margin-left: auto; display: block; z-index: 5; font: inherit; font-size: 1.25rem; width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground-deep); color: var(--ink); cursor: pointer; }
 .spread { display: grid; grid-template-columns: 1fr 1fr; perspective: 2400px; margin-top: 8px; transform-origin: 0 0; }
 .page { min-height: 520px; padding: clamp(20px, 3vw, 36px); border-radius: 4px; }
-.inside { position: relative; --k: color-mix(in srgb, var(--c) 86%, #1c2420); }
+/* Una carpeta no crece: cuerpo y tapa miden siempre lo mismo y lo que no cabe se hace scroll */
+.inside { position: relative; --k: color-mix(in srgb, var(--c) 86%, #1c2420);
+  min-height: 0; height: var(--fold-h, 520px); }
+#inside-content { height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+.inside::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; border-radius: 0 0 4px 4px;
+  background: linear-gradient(transparent, rgba(18, 28, 22, .22)); pointer-events: none; }
 .inside .ficha { grid-template-columns: 1fr; }
 .inside .ficha .res, .inside .ficha details, .inside .ficha .pending, .inside .ficha .mono:first-child { display: none; }
 .cover { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3, .1, .2, 1); }
@@ -83,14 +95,24 @@ dialog.open.closing { animation: out .35s var(--out) forwards; }
 .sheet dt { font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: #9a4a33; }
 .sheet dd { margin: 2px 0 0; font-size: .95rem; line-height: 1.5; }
 .sheet .pending { display: inline-block; margin-top: 20px; border: 1.5px dashed currentColor; padding: 8px 12px; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.inside .tab { display: none; }
 
 @media (max-width: 760px) {
   .spread { grid-template-columns: 1fr; }
-  .spread .left { height: 0; transition: height 1s cubic-bezier(.3, .1, .2, 1); }
-  .spread.opened .left { height: var(--cover-h, 520px); }
-  .cover { transform-origin: center top; }
-  .spread.opened .cover { transform: rotateX(180deg); }
+  /* Abre hacia abajo, como una carpeta de verdad: la pestaña se queda arriba a la izquierda,
+     el interior no se mueve y la tapa cae por debajo. */
+  /* La tapa cae rígida y se queda debajo: ni ella ni el cuerpo cambian de tamaño */
+  .cover { inset: 0 0 auto 0; height: var(--fold-h, 520px); transform-origin: center bottom;
+    transition: transform .8s cubic-bezier(.3, .1, .2, 1); }
+  .spread.opened .cover { transform: rotateX(-180deg); }
+  .spread .left { order: 2; height: 0; transition: height .8s cubic-bezier(.3, .1, .2, 1); }
+  .spread.opened .left { height: var(--fold-h, 520px); }
   .face.in { transform: rotateX(180deg); }
+  .inside .tab { display: flex; }
+  /* Dentro de la tapa, solo la captura del trabajo: menos información, pero legible */
+  #cover-in .ficha { grid-template-columns: 1fr; }
+  #cover-in .ficha > div + div { display: none; }
+  .inside .sheet { min-height: 0; transform: rotate(-.4deg); }
 }
 </style>
 </head>
@@ -106,10 +128,11 @@ dialog.open.closing { animation: out .35s var(--out) forwards; }
   <div class="spread" id="spread">
     <div class="left"></div>
     <div class="page inside pp" id="inside">
-      <div id="inside-content"></div>
+      <span class="tab" id="o-tab"></span>
+      <div id="inside-content"><div id="ficha"></div></div>
       <div class="cover" id="cover">
         <div class="face out pp" id="cover-out"></div>
-        <div class="face in pp"><div class="sheet" id="sheet"></div></div>
+        <div class="face in pp" id="cover-in"><div class="sheet" id="sheet"></div></div>
       </div>
     </div>
   </div>
@@ -139,7 +162,8 @@ const PILE = { desk: [[.02, .08, -3], [.5, 0, 2.4], [.98, .16, -1.6], [.2, 1, 1.
 let mode = 'pile';
 function layout() {
   const W = desk.clientWidth, phone = W < 600;
-  const fw = phone ? W * .84 : Math.min(420, W * .38), fh = fw * 11.2 / 16;
+  desk.classList.toggle('phone', phone);
+  const fw = phone ? W * .84 : Math.min(420, W * .38), fh = fw * (phone ? 13 : 11.2) / 16;
   let pos, H;
   if (mode === 'pile') {
     H = phone ? fh * (1 + 4 * .62) : fh * 1.95;
@@ -228,7 +252,8 @@ let current = null;
 async function openFolder(btn) {
   const c = CASES[+btn.dataset.i], it = btn.closest('.item');
   spread.style.setProperty('--c', `var(${c.color})`);
-  $('inside-content').innerHTML = ficha(c, { title: false });
+  $('ficha').innerHTML = ficha(c, { title: false });
+  $('o-tab').textContent = c.short;
   $('cover-out').innerHTML = `<img src="${IMG + c.frames[0]}" alt="">`;
   $('sheet').innerHTML = `
     <span class="mono" style="opacity:.6">Expediente ${c.no} · ${esc(c.url)}</span>
@@ -237,9 +262,16 @@ async function openFolder(btn) {
       : '<span class="pending">Texto pendiente · problema, decisión y resultado</span>'}`;
   spread.classList.remove('opened'); dlg.classList.remove('closing');
   dlg.showModal(); dlg.scrollTop = 0;
-  spread.style.setProperty('--cover-h', inside.offsetHeight + 'px');
+  // Dos alturas: cerrada, la proporción de la carpeta de la mesa; abierta, la que pide el contenido.
+  // Así el vuelo no deforma nada y el estirón ocurre al desplegarse.
+  const mob = matchMedia('(max-width: 760px)').matches;
+  // Dos hojas, cada una del tamaño de la carpeta: en móvil el expediente va dentro y la captura
+  // del trabajo en la cara interna de la tapa; en escritorio al revés, que ahí se abre como un libro.
+  $(mob ? 'inside-content' : 'cover-in').appendChild($('sheet'));
+  $(mob ? 'cover-in' : 'inside-content').appendChild($('ficha'));
+  spread.style.setProperty('--fold-h', Math.round(inside.offsetWidth * (mob ? 13 / 16 : 11.2 / 16)) + 'px');
   current = btn;
-  const S = btn.querySelector('.front').getBoundingClientRect(), R = inside.getBoundingClientRect(), P = spread.getBoundingClientRect();
+  const S = btn.getBoundingClientRect(), R = inside.getBoundingClientRect(), P = spread.getBoundingClientRect();
   btn.classList.add('lifted');
   if (!REDUCE) {
     const k = S.width / R.width;
