@@ -17,11 +17,7 @@ const { cases } = Astro.props as { cases: TrabajoCase[] };
 const no = (i: number) => String(i + 1).padStart(2, "0");
 ---
 
-<section class="block" id="trabajo">
-  <div class="block-head">
-    <span class="mono">Trabajo</span>
-    <span class="mono" id="cp-hint">Arrástralas · toca para abrir</span>
-  </div>
+<section class="block" id="trabajo" aria-label="Trabajo">
 
   <div class="cp-mat">
     <div class="cp-ruler" aria-hidden="true"></div>
@@ -92,7 +88,6 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
     --cp-spring: cubic-bezier(.34, 1.4, .64, 1);
     --cp-ease: cubic-bezier(.3, .1, .2, 1);
   }
-  #trabajo .block-head .mono:last-child { color: var(--ink-soft); }
 
   /* La mesa: alfombrilla de corte */
   .cp-mat {
@@ -238,7 +233,6 @@ const no = (i: number) => String(i + 1).padStart(2, "0");
     const wait = (ms: number) => new Promise((r) => setTimeout(r, REDUCE ? 0 : ms));
     const items = [...desk.querySelectorAll<HTMLElement>(".cp-item")];
     const touch = matchMedia("(pointer: coarse)").matches;
-    $("cp-hint").textContent = touch ? "Mantén pulsado para moverlas · toca para abrir" : "Arrástralas · clic para abrir";
 
     // Posiciones: montón un poco superpuesto. x e y en fracción del hueco libre.
     const PILE: Record<string, number[][]> = {

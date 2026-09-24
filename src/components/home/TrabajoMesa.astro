@@ -1,0 +1,339 @@
+---
+// src/components/home/TrabajoMesa.astro — variante de Trabajo para /mezcla (2026-09-24).
+// Las carpetas se mueven por la alfombrilla. Van cerradas y sin fotos: por fuera solo el nombre
+// y el tipo de trabajo. Al tocar una se abre su ficha en el centro de la pantalla, del color
+// de la carpeta: imagen grande, texto corto y enlace.
+import type { Case } from "../../data/cases";
+
+const { cases } = Astro.props as { cases: Case[] };
+---
+
+<section class="block" id="trabajo" aria-label="Trabajo">
+  <div class="cp-mat">
+    <div class="cp-ruler" aria-hidden="true"></div>
+    <div class="cp-desk" id="mp-desk">
+      {cases.map((c, i) => (
+        <div class="cp-item" data-i={i} style={`--i:${i};--c:var(${c.color})`}>
+          <button class="cp-fold" type="button" aria-haspopup="dialog" aria-label={`Abrir la ficha de ${c.name}`}>
+            <span class="cp-back cp-pp"><span class="cp-tab">{c.short}</span></span>
+            <span class="cp-front cp-pp">
+              <span class="mp-name">{c.name}</span>
+              <span class="mp-meta">{c.meta}</span>
+            </span>
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <dialog class="mp-dlg" id="mp-dlg" aria-labelledby="mp-title">
+    <div class="mp-card">
+    {cases.map((c, i) => (
+      <article class="mp-ficha cp-pp" data-i={i} style={`--c:var(${c.color})`} hidden>
+        <span class="cp-tab">{c.short}</span>
+        <div class="mp-body">
+        {/* Una sola pantalla por proyecto, en una ventana de navegador: siempre 16:10, sin huecos ni scroll */}
+        <figure class="mp-window">
+          <span class="mp-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+          {c.screen ? <img src={c.screen} alt={`${c.name}, la web`} width="1600" height="1000" loading="lazy" /> : <span class="mp-noimg">Imagen pendiente</span>}
+        </figure>
+        <div class="mp-text">
+          <h3>{c.name}</h3>
+          <p class="mp-meta">{c.meta}</p>
+          <p class="mp-summary">{c.summary ?? "Texto pendiente."}</p>
+          {c.url && (
+            <a class="mp-link" href={c.url} target="_blank" rel="noopener">{c.urlLabel ?? "Ver la web"} ↗</a>
+          )}
+        </div>
+        </div>
+      </article>
+    ))}
+    <button class="mp-close" type="button" aria-label="Cerrar">×</button>
+    <button class="mp-nav mp-prev" type="button" data-d="-1" aria-label="Proyecto anterior">←</button>
+    <button class="mp-nav mp-next" type="button" data-d="1" aria-label="Proyecto siguiente">→</button>
+    </div>
+  </dialog>
+</section>
+
+<style is:global>
+  #trabajo, .mp-dlg {
+    --p-crema: #e6dcc6; --p-salvia: #a9bfae; --p-kraft: #c4a277; --p-oliva: #cfc58c; --p-salmon: #dea38b;
+    --paper-ink: #1c2420;
+    --paper-white: #f4efe3;
+    --cp-noise: url("/assets/bg-noise.jpg");
+    --cp-out: cubic-bezier(.16, 1, .3, 1);
+    --cp-spring: cubic-bezier(.34, 1.4, .64, 1);
+  }
+
+  /* La mesa: alfombrilla de corte */
+  .cp-mat {
+    position: relative; border-radius: 14px; overflow: hidden;
+    padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 56px) clamp(28px, 4vw, 56px);
+    background-color: #16301f;
+    background-image:
+      linear-gradient(rgba(241, 230, 208, .11) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .11) 1px, transparent 1px),
+      linear-gradient(rgba(241, 230, 208, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .045) 1px, transparent 1px);
+    background-size: 190px 190px, 190px 190px, 38px 38px, 38px 38px; background-position: 18px 18px;
+    box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(241, 230, 208, .08), inset 0 -4px 0 rgba(0, 0, 0, .25);
+  }
+  .cp-mat::before {
+    content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 1px; pointer-events: none;
+    background: rgba(241, 230, 208, .07); transform-origin: 0 0; transform: rotate(35deg);
+  }
+  .cp-ruler { position: absolute; left: 18px; right: 0; top: 4px; height: 12px; pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgba(241, 230, 208, .3) 0 1px, transparent 1px 38px); }
+
+  .cp-desk { position: relative; height: 560px; }
+  .cp-item {
+    position: absolute; left: 0; top: 0; width: var(--fw, 380px);
+    transform: translate(var(--x, 0px), var(--y, 0px)) rotate(var(--r, 0deg)); transition: transform .8s var(--cp-spring);
+    -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+  }
+  .cp-item.held { transition: none; }
+  .cp-pp { background-color: var(--k, var(--c)); background-image: var(--cp-noise); background-size: 260px auto;
+    background-blend-mode: multiply; color: var(--paper-ink); }
+
+  /* ===== La carpeta ===== */
+  .cp-fold {
+    position: relative; display: block; width: 100%; aspect-ratio: 16 / 11.2; border: 0; padding: 0; background: none;
+    cursor: pointer; font: inherit; text-align: left;
+    filter: drop-shadow(0 14px 14px rgba(0, 0, 0, .42));
+    opacity: 0; translate: 0 40px;
+    transition: scale .35s var(--cp-spring), filter .35s, transform .45s var(--cp-spring),
+                translate .9s var(--cp-spring) calc(var(--i) * 90ms), opacity .6s var(--cp-out) calc(var(--i) * 90ms);
+  }
+  .cp-desk.in .cp-fold { opacity: 1; translate: 0 0; }
+  .cp-desk.phone .cp-fold { aspect-ratio: 16 / 12; }
+  .cp-item.held .cp-fold { scale: 1.04; cursor: grabbing; filter: drop-shadow(0 30px 26px rgba(0, 0, 0, .5)); }
+  .cp-fold:active { scale: .985; }
+  @media (hover: hover) and (pointer: fine) { .cp-item:not(.held) .cp-fold:hover { transform: translateY(-6px); } }
+
+  .cp-back { position: absolute; inset: 30px 0 0 0; border-radius: 0 6px 6px 6px; --k: color-mix(in srgb, var(--c) 80%, #1c2420); }
+  .cp-tab {
+    position: absolute; bottom: 100%; left: 0; width: max-content; min-width: 30%; white-space: nowrap; height: 30px;
+    border-radius: 9px 9px 0 0; display: flex; align-items: center; padding: 0 12px; background: inherit; background-blend-mode: multiply;
+    font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .cp-tab::after { content: ""; position: absolute; bottom: 0; right: -9px; width: 9px; height: 9px;
+    background: radial-gradient(circle at 100% 0, transparent 9px, var(--k) 9.5px); }
+
+
+  /* La tapa, cerrada: deja ver la pestaña y un filo del fondo. Lleva el nombre y el tipo de trabajo */
+  .cp-front {
+    position: absolute; left: 0; right: 0; bottom: 0; top: 36px; border-radius: 4px 4px 6px 6px;
+    box-shadow: 0 -3px 8px rgba(0, 0, 0, .16);
+    display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; padding: 18px 20px;
+  }
+  .mp-name { font-family: var(--display); font-weight: 600; font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.1; letter-spacing: -.01em; }
+  .mp-meta { font-size: .9375rem; opacity: .72; margin: 0; }
+
+  /* ===== La ficha, en el centro de la pantalla ===== */
+  dialog.mp-dlg { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; }
+  dialog.mp-dlg[open] { display: grid; place-items: center; }
+  dialog.mp-dlg::backdrop { background: rgba(5, 10, 8, .7); backdrop-filter: blur(4px); }
+  /* Deja sitio arriba para la pestaña y a los lados para las flechas */
+  .mp-card { position: relative; width: min(68rem, calc(100vw - 184px)); margin-top: 34px; --pad: clamp(24px, 4vw, 56px); }
+  dialog.mp-dlg[open] { animation: mp-in .28s var(--cp-out); }
+  dialog.mp-dlg.closing { animation: mp-in .2s ease-in reverse forwards; }
+  @keyframes mp-in { from { opacity: 0; transform: translateY(14px); } }
+
+  /* La ficha tiene forma de carpeta: la pestaña sale por arriba a la izquierda */
+  .mp-ficha { position: relative; border-radius: 0 10px 10px 10px; --k: var(--c);
+    filter: drop-shadow(0 34px 44px rgba(0, 0, 0, .55)); }
+  .mp-ficha > .cp-tab { height: 34px; padding: 0 16px; font-size: .75rem; min-width: 22%; }
+  .mp-ficha > .cp-tab::after { right: -10px; width: 10px; height: 10px;
+    background: radial-gradient(circle at 100% 0, transparent 10px, var(--k) 10.5px); }
+  .mp-body {
+    display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 56px); align-items: center; padding: var(--pad);
+    max-height: calc(min(88dvh, 760px) - 34px); overflow-y: auto; overscroll-behavior: contain;
+  }
+  .mp-ficha[hidden] { display: none; }
+  /* La ventana de navegador de la ficha */
+  .mp-window { margin: 0; min-width: 0; border-radius: 10px; overflow: hidden; background: #0f1512;
+    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .6), 0 0 0 1px rgba(28, 36, 32, .25); }
+  .mp-bar { display: flex; gap: 6px; align-items: center; height: 28px; padding: 0 12px; background: #1c2420; }
+  .mp-bar i { width: 9px; height: 9px; border-radius: 50%; background: rgba(244, 239, 227, .28); }
+  .mp-window img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+  .mp-window .mp-noimg { display: grid; place-items: center; aspect-ratio: 16 / 10; color: var(--paper-white); }
+  .mp-noimg { opacity: .6; }
+  .mp-text { max-width: 34rem; }
+  .mp-text h3 { font-family: var(--display); font-weight: 600; letter-spacing: -.025em; line-height: 1;
+    font-size: clamp(2.5rem, 5vw, 4.25rem); margin: 0 0 12px; color: var(--paper-ink); }
+  .mp-text .mp-meta { font-size: 1.0625rem; }
+  .mp-summary { font-size: clamp(1.125rem, 1.6vw, 1.375rem); line-height: 1.5; margin: 28px 0 36px; }
+  .mp-link { display: inline-flex; align-items: center; gap: 8px; padding: 14px 24px; border-radius: 999px;
+    background: var(--paper-ink); color: var(--paper-white); font-weight: 500; text-decoration: none;
+    transition: translate .25s var(--cp-spring); }
+  .mp-link:hover { translate: 0 -2px; }
+  .mp-close { position: absolute; top: 12px; right: 12px; z-index: 5; font: inherit; font-size: 1.5rem; line-height: 1;
+    width: 48px; height: 48px; border-radius: 999px; border: 0; background: var(--paper-ink); color: var(--paper-white); cursor: pointer; }
+  .mp-nav { position: absolute; top: 50%; translate: 0 -50%; width: 56px; height: 56px; border-radius: 999px; border: 0;
+    font: 400 1.375rem/1 var(--display); background: var(--paper-white); color: var(--paper-ink); cursor: pointer;
+    box-shadow: 0 12px 28px -10px rgba(0, 0, 0, .6); transition: scale .25s var(--cp-spring); }
+  .mp-nav:hover { scale: 1.08; }
+  .mp-prev { left: -80px; }
+  .mp-next { right: -80px; }
+
+  @media (max-width: 760px) {
+    .mp-card { --pad: 20px; width: calc(100vw - 32px); margin-bottom: 72px; }
+    .mp-body { grid-template-columns: 1fr; align-items: start; padding-top: 72px; gap: 24px; max-height: calc(80dvh - 34px); }
+    .mp-nav { top: auto; bottom: -68px; translate: none; width: 52px; height: 52px; }
+    .mp-prev { left: calc(50% - 64px); }
+    .mp-next { right: calc(50% - 64px); }
+    .mp-text h3 { font-size: 2.25rem; }
+    .mp-summary { margin: 20px 0 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cp-fold, .cp-item { transition-duration: .01ms !important; }
+    dialog.mp-dlg[open], dialog.mp-dlg.closing { animation-duration: .01ms; }
+  }
+</style>
+
+<script>
+  const $ = (id: string) => document.getElementById(id)!;
+  const desk = $("mp-desk");
+  if (desk) {
+    const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const items = [...desk.querySelectorAll<HTMLElement>(".cp-item")];
+    const num = (el: HTMLElement, p: string) => parseFloat(el.style.getPropertyValue(p)) || 0;
+
+    // Posiciones: montón un poco superpuesto. x e y en fracción del hueco libre.
+    const PILE: Record<string, number[][]> = {
+      desk: [[.02, .08, -3], [.5, 0, 2.4], [.98, .16, -1.6], [.2, 1, 1.8], [.8, .9, -2.6]],
+      phone: [[0, 0, -2.4], [1, .25, 2], [.12, .5, -1.4], [.9, .75, 2.6], [.3, 1, -2]],
+    };
+    function layout() {
+      const W = desk.clientWidth, phone = W < 600;
+      if (!W) return;
+      desk.classList.toggle("phone", phone);
+      const fw = phone ? W * .84 : Math.min(400, W * .36), fh = fw * (phone ? 12 : 11.2) / 16;
+      const H = phone ? fh * (1 + 4 * .62) : fh * 1.95;
+      desk.style.setProperty("--fw", fw + "px");
+      desk.style.height = H + "px";
+      const pos = PILE[phone ? "phone" : "desk"].map(([x, y, r]) => [x * (W - fw), y * (H - fh), r]);
+      items.forEach((it, i) => {
+        const p = pos[i % pos.length];
+        it.style.setProperty("--x", p[0] + "px");
+        it.style.setProperty("--y", p[1] + "px");
+        it.style.setProperty("--r", p[2] + "deg");
+        it.style.zIndex = String(i + 1);
+      });
+    }
+    layout();
+    let lastW = desk.clientWidth;
+    new ResizeObserver(() => {
+      if (Math.abs(desk.clientWidth - lastW) > 2) { lastW = desk.clientWidth; layout(); }
+    }).observe(desk);
+    new IntersectionObserver((es, io) => es.forEach((e) => {
+      if (e.isIntersecting) { desk.classList.add("in"); io.disconnect(); }
+    }), { threshold: .05 }).observe(desk);
+
+    // Coger, mover y soltar
+    let held: { it: HTMLElement; sx: number; sy: number; ox: number; oy: number } | null = null, z = 10;
+    function pick(it: HTMLElement, x: number, y: number) {
+      held = { it, sx: x, sy: y, ox: num(it, "--x"), oy: num(it, "--y") };
+      it.classList.add("held"); it.style.zIndex = String(++z);
+      navigator.vibrate?.(8);
+    }
+    function drag(x: number, y: number) {
+      if (!held) return;
+      const { it } = held, W = desk.clientWidth, H = desk.clientHeight, fw = it.offsetWidth, fh = it.offsetHeight;
+      it.style.setProperty("--x", Math.max(-fw * .2, Math.min(W - fw * .8, held.ox + x - held.sx)) + "px");
+      it.style.setProperty("--y", Math.max(-24, Math.min(H - fh * .5, held.oy + y - held.sy)) + "px");
+    }
+    function drop(swallowClick: boolean) {
+      if (!held) return;
+      held.it.classList.remove("held");
+      if (swallowClick) held.it.dataset.dragged = "1";
+      held = null;
+    }
+    desk.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch" || e.button !== 0) return;
+      const it = (e.target as HTMLElement).closest<HTMLElement>(".cp-item");
+      if (!it) return;
+      const sx = e.clientX, sy = e.clientY;
+      let started = false;
+      it.style.zIndex = String(++z);
+      const move = (ev: PointerEvent) => {
+        if (!started) { if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return; started = true; pick(it, sx, sy); }
+        drag(ev.clientX, ev.clientY);
+      };
+      const up = () => {
+        removeEventListener("pointermove", move); removeEventListener("pointerup", up);
+        if (started) drop(true);
+      };
+      addEventListener("pointermove", move); addEventListener("pointerup", up);
+    });
+    // Dedo: mantener pulsado 280 ms coge la carpeta; si se mueve antes, es scroll de la página
+    let lp: { sx: number; sy: number; picked: boolean; timer?: number } | null = null;
+    desk.addEventListener("touchstart", (e) => {
+      if (e.touches.length > 1) return;
+      const it = (e.target as HTMLElement).closest<HTMLElement>(".cp-item");
+      if (!it) return;
+      const t = e.touches[0];
+      lp = { sx: t.clientX, sy: t.clientY, picked: false };
+      lp.timer = window.setTimeout(() => { if (lp) { pick(it, lp.sx, lp.sy); lp.picked = true; } }, 280);
+    }, { passive: true });
+    desk.addEventListener("touchmove", (e) => {
+      if (!lp) return;
+      const t = e.touches[0];
+      if (lp.picked) { e.preventDefault(); drag(t.clientX, t.clientY); }
+      else if (Math.hypot(t.clientX - lp.sx, t.clientY - lp.sy) > 8) { clearTimeout(lp.timer); lp = null; }
+    }, { passive: false });
+    const endTouch = (e: TouchEvent) => {
+      if (!lp) return;
+      clearTimeout(lp.timer);
+      if (lp.picked) { drop(false); if (e.cancelable) e.preventDefault(); }
+      lp = null;
+    };
+    desk.addEventListener("touchend", endTouch, { passive: false });
+    desk.addEventListener("touchcancel", endTouch);
+    desk.addEventListener("contextmenu", (e) => { if ((e.target as HTMLElement).closest(".cp-item")) e.preventDefault(); });
+
+    // Tocar una carpeta abre su ficha en el centro; las flechas pasan a la siguiente
+    const dlg = $("mp-dlg") as HTMLDialogElement;
+    const fichas = [...dlg.querySelectorAll<HTMLElement>(".mp-ficha")];
+    let cur = 0;
+    function open(i: number, d = 0) {
+      cur = (i + fichas.length) % fichas.length;
+      fichas.forEach((f, k) => {
+        const on = k === cur;
+        f.hidden = !on;
+        f.querySelector("h3")!.id = on ? "mp-title" : "";
+        if (on) f.querySelector(".mp-body")!.scrollTop = 0;
+      });
+      if (!dlg.open) { dlg.classList.remove("closing"); dlg.showModal(); }
+      else if (d && !REDUCE) {
+        fichas[cur].animate([{ opacity: 0, transform: `translateX(${d * 28}px)` }, { opacity: 1, transform: "none" }],
+          { duration: 280, easing: "cubic-bezier(.16,1,.3,1)" });
+      }
+    }
+    function close() {
+      if (!dlg.open || dlg.classList.contains("closing")) return;
+      if (REDUCE) { dlg.close(); return; }
+      dlg.classList.add("closing");
+      setTimeout(() => { dlg.close(); dlg.classList.remove("closing"); }, 200);
+    }
+    desk.addEventListener("click", (e) => {
+      const it = (e.target as HTMLElement).closest<HTMLElement>(".cp-item");
+      if (!it) return;
+      if (it.dataset.dragged) { delete it.dataset.dragged; return; }
+      // Por si el ResizeObserver no llegó a medir (pestaña en segundo plano)
+      if (desk.clientWidth !== lastW) { lastW = desk.clientWidth; layout(); }
+      open(Number(it.dataset.i));
+    });
+    dlg.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      const nav = t.closest<HTMLElement>(".mp-nav");
+      if (nav) { const d = Number(nav.dataset.d); open(cur + d, d); return; }
+      if (t.closest(".mp-close") || t === dlg) close();
+    });
+    dlg.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") open(cur + 1, 1);
+      if (e.key === "ArrowLeft") open(cur - 1, -1);
+    });
+    dlg.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
+  }
+</script>

@@ -1,0 +1,216 @@
+---
+// src/components/home/Recorrido.astro — "Cómo trabajo" en /mezcla (2026-09-24), idea de Alicia a
+// partir de kengoworks.com: una línea dibujada a mano entra por la izquierda desde fuera de la
+// pantalla, para en el primer paso, baja por su lado y se abre en curva hacia el segundo, y de ahí
+// al tercero. En cuanto asoma el primer paso se dibuja sola y entera, como un trazo de boli: ondula,
+// pasa dos veces, y cada parada se rodea a mano en coral cuando la línea llega.
+import { journey, stepsTitle } from "../../data/steps";
+---
+
+<section class="block rc" id="como-trabajo" aria-label="Cómo trabajo">
+  <h2 class="title">{stepsTitle}</h2>
+  <div class="rc-track" id="rc-track">
+    <svg class="rc-line" aria-hidden="true">
+      <path class="rc-ghost" />
+      <path class="rc-ink" />
+      <g class="rc-marks"></g>
+    </svg>
+    <ol class="rc-steps">
+      {journey.map((s, i) => (
+        <li class={`rc-step s${i}`}>
+          <span class="rc-stop" aria-hidden="true"></span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style is:global>
+  .rc-track { position: relative; }
+  /* La línea ocupa todo el ancho de la ventana, no solo la columna: así puede entrar desde fuera */
+  .rc-line { position: absolute; top: 0; left: calc(50% - 50vw); width: 100vw; height: 100%;
+    overflow: visible; pointer-events: none; z-index: 0; }
+  .rc-line path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  /* Tinta apagada: el tono suave del texto secundario, para que acompañe sin competir */
+  .rc-ink { stroke: var(--ink-soft); stroke-width: 2.2; opacity: .55; }
+  .rc-ghost { stroke: var(--ink-soft); stroke-width: 1.3; opacity: .22; }
+  /* El redondeo de cada parada, en boli coral, y el punto de tinta */
+  .rc-ring { stroke: var(--accent); stroke-width: 2; transition: stroke-dashoffset .7s cubic-bezier(.4, 0, .2, 1); }
+  .rc-dot { fill: var(--ink); opacity: 0; transition: opacity .3s; }
+  .rc-marks .on .rc-dot { opacity: .9; }
+
+  /* Los textos van por encima de la línea si se cruzan */
+  .rc-steps { list-style: none; margin: 0; padding: 0; position: relative; z-index: 1; }
+  .rc-step { position: relative; width: min(36%, 26rem); padding-left: 44px; }
+  .rc-step + .rc-step { margin-top: clamp(40px, 6vh, 72px); }
+  .rc-step.s1 { margin-left: 31%; }
+  .rc-step.s2 { margin-left: 62%; }
+  /* La parada: solo marca por dónde pasa la línea, a la izquierda del título y a la altura de su
+     primera línea. Lo que se ve lo dibuja el SVG. */
+  .rc-stop { position: absolute; left: 0; top: calc(.55em * 1.05); width: 18px; height: 18px; margin-top: -9px;
+    font-size: clamp(1.75rem, 3.2vw, 2.5rem); }
+  .rc-step h3 { font-family: var(--display); font-weight: 600; font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+    letter-spacing: -.02em; line-height: 1.05; margin: 0 0 14px; }
+  .rc-step p { margin: 0; color: var(--ink-soft); font-size: 1.0625rem; line-height: 1.55; }
+
+  /* Con JS los pasos esperan a la línea; sin JS se ven todos */
+  .rc-track.js .rc-step h3, .rc-track.js .rc-step p { opacity: .22; translate: 0 8px;
+    transition: opacity .6s, translate .7s cubic-bezier(.16, 1, .3, 1); }
+  .rc-track.js .rc-step.on h3, .rc-track.js .rc-step.on p { opacity: 1; translate: 0 0; }
+  .rc-track.js .rc-step.on p { transition-delay: .08s; }
+
+  @media (max-width: 760px) {
+    .rc-step { width: auto; padding-left: 36px; }
+    .rc-step.s1 { margin-left: 10%; }
+    .rc-step.s2 { margin-left: 20%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rc-track.js .rc-step h3, .rc-track.js .rc-step p, .rc-ring, .rc-dot { transition: none; }
+  }
+</style>
+
+<script>
+  const track = document.getElementById("rc-track");
+  if (track) {
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = track.querySelector<SVGSVGElement>(".rc-line")!;
+    const ink = svg.querySelector<SVGPathElement>(".rc-ink")!;
+    const ghost = svg.querySelector<SVGPathElement>(".rc-ghost")!;
+    const marksG = svg.querySelector<SVGGElement>(".rc-marks")!;
+    const steps = [...track.querySelectorAll<HTMLElement>(".rc-step")];
+    const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.classList.add("js");
+    let lens = [0, 0], stops: number[] = [], rings: SVGGElement[] = [];
+    let shown = 0; // cuánto hay dibujado, de 0 a 1
+
+    // Azar con semilla: el trazo sale igual cada vez que se recalcula
+    const rng = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const f = (n: number) => n.toFixed(1);
+    // Une los puntos con curvas suaves (Catmull-Rom), sin esquinas
+    function smooth(pts: number[][]) {
+      let d = `M ${f(pts[0][0])} ${f(pts[0][1])}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i - 1] ?? pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] ?? p2;
+        d += ` C ${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)}, ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)}, ${f(p2[0])} ${f(p2[1])}`;
+      }
+      return d;
+    }
+    // Pasa el camino ideal a mano: lo recorre cada pocos píxeles y lo aparta un poco hacia los lados
+    // con ondas lentas (el pulso) y un pelín de temblor
+    function hand(ideal: SVGPathElement, seed: number, amp: number) {
+      const r = rng(seed), L = ideal.getTotalLength(), n = Math.max(2, Math.ceil(L / 7));
+      const a = r() * 6.3, b = r() * 6.3, pts: number[][] = [];
+      for (let i = 0; i <= n; i++) {
+        const s = (i / n) * L, p = ideal.getPointAtLength(s);
+        const q = ideal.getPointAtLength(Math.min(L, s + 1)), o = ideal.getPointAtLength(Math.max(0, s - 1));
+        const tl = Math.hypot(q.x - o.x, q.y - o.y) || 1;
+        const w = amp * (Math.sin(s / 110 + a) + .5 * Math.sin(s / 37 + b)) + (r() - .5) * .5;
+        pts.push([p.x - ((q.y - o.y) / tl) * w, p.y + ((q.x - o.x) / tl) * w]);
+      }
+      return smooth(pts);
+    }
+    // Un redondeo a boli: da algo más de una vuelta, no cierra en el mismo sitio y no es redondo del todo
+    function ring(cx: number, cy: number, seed: number) {
+      const r = rng(seed), start = r() * 6.3, turns = 1.12 + r() * .1, pts: number[][] = [];
+      for (let i = 0; i <= 44; i++) {
+        const t = i / 44, th = start + t * turns * 6.283;
+        const rad = 17 + 2.2 * t + 1.4 * Math.sin(th * 2 + seed);
+        pts.push([cx + Math.cos(th) * rad * 1.12, cy + Math.sin(th) * rad * .92]);
+      }
+      return smooth(pts);
+    }
+
+    function build() {
+      const s = svg.getBoundingClientRect();
+      if (!s.width) return;
+      const pts = steps.map((li) => {
+        const r = li.querySelector(".rc-stop")!.getBoundingClientRect();
+        return [r.left + r.width / 2 - s.left, r.top + r.height / 2 - s.top];
+      });
+      // El camino ideal: entra desde fuera algo por debajo y sube suave a la primera parada; luego baja
+      // pegada a la izquierda del texto hasta la altura de la siguiente, y ahí gira hacia ella
+      const ideal = document.createElementNS(NS, "path");
+      svg.appendChild(ideal);
+      const [x0, y0] = pts[0];
+      let d = `M -40 ${y0 + 18} Q ${x0 * .55} ${y0 + 12}, ${x0} ${y0}`;
+      ideal.setAttribute("d", d);
+      const idealStops = [ideal.getTotalLength()];
+      for (let i = 1; i < pts.length; i++) {
+        const [ax, ay] = pts[i - 1], [bx, by] = pts[i];
+        d += ` C ${ax - 4} ${by - 10}, ${ax + (bx - ax) * .12} ${by + 2}, ${bx} ${by}`;
+        ideal.setAttribute("d", d);
+        idealStops.push(ideal.getTotalLength());
+      }
+      const L = ideal.getTotalLength();
+      ink.setAttribute("d", hand(ideal, 11, 2.2));
+      ghost.setAttribute("d", hand(ideal, 29, 2.8));
+      ideal.remove();
+
+      lens = [ink.getTotalLength(), ghost.getTotalLength()];
+      stops = idealStops.map((v) => v / L);
+      [ink, ghost].forEach((p, k) => (p.style.strokeDasharray = `${lens[k]}`));
+
+      marksG.replaceChildren();
+      rings = pts.map(([cx, cy], i) => {
+        const g = document.createElementNS(NS, "g");
+        const c = document.createElementNS(NS, "path");
+        c.setAttribute("class", "rc-ring");
+        c.setAttribute("d", ring(cx, cy, 5 + i * 13));
+        const dot = document.createElementNS(NS, "circle");
+        dot.setAttribute("class", "rc-dot");
+        dot.setAttribute("cx", f(cx)); dot.setAttribute("cy", f(cy)); dot.setAttribute("r", "3.2");
+        g.append(c, dot);
+        marksG.appendChild(g);
+        const len = c.getTotalLength();
+        c.style.strokeDasharray = `${len}`;
+        c.style.strokeDashoffset = `${len}`;
+        c.dataset.len = String(len);
+        return g;
+      });
+      render(shown);
+    }
+
+    // Pinta hasta la fracción p del recorrido y enciende las paradas ya alcanzadas.
+    // El segundo trazo va un pelín por detrás, como al repasar.
+    function render(p: number) {
+      shown = p;
+      if (!lens[0]) return;
+      ink.style.strokeDashoffset = String(lens[0] * (1 - p));
+      ghost.style.strokeDashoffset = String(lens[1] * (1 - Math.max(0, p - .03)));
+      steps.forEach((li, i) => {
+        const on = p >= stops[i] - .002;
+        li.classList.toggle("on", on);
+        const g = rings[i];
+        if (g && g.classList.contains("on") !== on) {
+          g.classList.toggle("on", on);
+          const c = g.querySelector<SVGPathElement>(".rc-ring")!;
+          c.style.strokeDashoffset = on ? "0" : c.dataset.len!;
+        }
+      });
+    }
+
+    // En cuanto asoma el primer paso, el boli hace todo el recorrido de una vez: al bajar al último
+    // ya están los tres encendidos y el camino entero
+    const DURATION = 2600;
+    const ease = (k: number) => (k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2);
+    function play() {
+      if (REDUCE) { render(1); return; }
+      const t0 = performance.now();
+      const tick = (t: number) => {
+        const k = Math.min(1, (t - t0) / DURATION);
+        render(ease(k));
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+    new IntersectionObserver((es, io) => {
+      if (es.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
+    }, { rootMargin: "0px 0px -15% 0px" }).observe(steps[0]);
+
+    new ResizeObserver(build).observe(track);
+    document.fonts?.ready.then(build);
+    build();
+  }
+</script>

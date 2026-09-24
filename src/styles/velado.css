@@ -179,6 +179,8 @@ h2.title {
   padding: 24px; color: var(--ink-soft);
 }
 .photo-slot strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 6px; }
+/* Foto analógica de Hablemos (desechable, nubes desde el avión), tal cual, sin marco */
+.analog { display: block; width: 100%; height: auto; }
 
 footer.site { padding-block: 40px 16px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 

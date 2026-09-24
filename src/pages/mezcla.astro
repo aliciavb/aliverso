@@ -1,18 +1,19 @@
 ---
-// src/pages/index.astro — la home (versión "mezcla", elegida el 2026-09-24): el texto suelto sobre
-// el velado como en sam-peitz.com, las carpetas en la alfombrilla, el recorrido de Cómo trabajo y
-// el Sobre mí con la foto en la cámara. Los textos viven en src/data/*.json.
+// src/pages/mezcla.astro — mezcla de /escueta y /suelta (2026-09-24): el texto suelto sobre el
+// velado como en sam-peitz.com, pero en frases completas y con mayúsculas, sin titular en
+// negrita. El resto es igual que /escueta (sin filetes ni etiquetas pequeñas).
 import VeladoLayout from "../layouts/VeladoLayout.astro";
 import Trabajo from "../components/home/TrabajoMesa.astro";
 import { cases } from "../data/cases";
 import Recorrido from "../components/home/Recorrido.astro";
-import home from "../data/home.json";
 import "../styles/escueta.css";
 
-const { seo, hero, sobreMi, contacto, firma } = home;
+const pageTitle = "Alicia Viñals — Diseño y desarrollo web";
+const pageDescription = "Diseño y programo webs para proyectos pequeños y profesionales creativos, desde 2022.";
+const email = "hola@aliverso.me";
 ---
 
-<VeladoLayout title={seo.titulo} description={seo.descripcion}>
+<VeladoLayout title={pageTitle} description={pageDescription}>
   <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500&display=swap"
@@ -22,19 +23,21 @@ const { seo, hero, sobreMi, contacto, firma } = home;
       <canvas id="bg" aria-hidden="true"></canvas>
       <div class="wrap">
         <header class="site">
-          <a class="brand" href="/">Alicia Viñals</a>
+          <a class="brand" href="/mezcla">Alicia Viñals</a>
           <nav class="site" aria-label="Principal">
             <a href="#trabajo">Trabajo</a>
-            <a href="#sobre-mi">Sobre mí</a>
             <a href="#hablemos">Hablemos</a>
           </nav>
         </header>
 
         <main>
           <section class="suelta" aria-label="Presentación">
-            <h1 class="g g1">{hero.saludo}</h1>
-            <p class="g g2">{hero.texto}</p>
-            <p class="g g3"><a href="#trabajo">{hero.enlaceTrabajo}</a> ↓ &nbsp;o <a href="#hablemos">{hero.enlaceContacto}</a>.</p>
+            <h1 class="g g1">Hola, soy Alicia.</h1>
+            <p class="g g2">
+              Diseño y programo webs para proyectos pequeños y gente creativa. Llevo desde 2022
+              cerrando la brecha entre diseño e implementación.
+            </p>
+            <p class="g g3"><a href="#trabajo">Estas son algunas</a> ↓ &nbsp;o <a href="#hablemos">escríbeme</a>.</p>
           </section>
         </main>
       </div>
@@ -45,27 +48,14 @@ const { seo, hero, sobreMi, contacto, firma } = home;
 
       <Recorrido />
 
-      <section class="block" id="sobre-mi" aria-label="Sobre mí">
-        <div class="about">
-          <div class="cam" data-frames="8" data-ms-in="40" data-ms-out="55" data-intro-delay="1200">
-            <div class="screen" role="img" aria-label="Alicia Viñals"></div>
-            <img class="frame" src="/assets/perfil-camara.png" alt="" />
-          </div>
-          <div>
-            <h2 class="title">{sobreMi.titulo}</h2>
-            <p>{sobreMi.texto}</p>
-          </div>
-        </div>
-      </section>
-
       <section class="block" id="hablemos">
         <div class="talk">
           <div>
-            <h2 class="title">{contacto.titulo}</h2>
-            <p>{contacto.texto}</p>
-            <a class="btn" href={`mailto:${contacto.email}`}>{contacto.email}</a>
-            <p>{contacto.nota}</p>
-            {contacto.linkedin && <p><a class="link" href={contacto.linkedin} target="_blank" rel="noopener">LinkedIn</a></p>}
+            <h2 class="title">¿Quieres una?</h2>
+            <p>Cuéntame qué necesitas, para cuándo y con qué presupuesto cuentas.</p>
+            <a class="btn" href={`mailto:${email}`}>{email}</a>
+            <p>Te contesto en menos de 24 horas laborables.</p>
+            <p><a class="link" href="https://www.linkedin.com/in/alicia-vb" target="_blank" rel="noopener">LinkedIn</a></p>
           </div>
           <img
             class="analog"
@@ -80,7 +70,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
       </section>
 
       <footer class="site">
-        <span class="firma">{firma}</span>
+        <span class="firma">siempre creando</span>
         <span>© 2026 Alicia Viñals</span>
       </footer>
     </div>
@@ -100,10 +90,8 @@ const { seo, hero, sobreMi, contacto, firma } = home;
     --display: "Outfit", system-ui, sans-serif;
     --mono: "Azeret Mono", ui-monospace, monospace;
     font-family: "Outfit", system-ui, sans-serif;
+    overflow-x: clip; /* la línea de Cómo trabajo sale de la pantalla */
   }
-  /* La línea de Cómo trabajo sale de la pantalla: se recorta en la página entera. En .mezcla
-     cortaba también los bordes del hero, que se sale del contenedor para llegar de lado a lado. */
-  :global(body) { overflow-x: clip; }
 
   /* Texto suelto a distintas alturas y sangrías (idea de sam-peitz.com), en frases completas */
   .suelta {
@@ -122,9 +110,8 @@ const { seo, hero, sobreMi, contacto, firma } = home;
 </style>
 
 <script>
-  import { initVelado, initCamara } from "../scripts/velado";
+  import { initVelado } from "../scripts/velado";
 
   const canvas = document.getElementById("bg");
   if (canvas instanceof HTMLCanvasElement) initVelado(canvas);
-  document.querySelectorAll<HTMLElement>(".cam").forEach(initCamara);
 </script>

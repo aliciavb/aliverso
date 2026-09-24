@@ -1,0 +1,23 @@
+/* Versiones escuetas de la home (/escueta y /suelta, 2026-09-24).
+   Regla: los bloques se separan con espacio en blanco, no con filetes ni etiquetas pequeñas. */
+.escueta section.block { border-top: 0; padding-block: clamp(96px, 16vh, 176px) 0; }
+.escueta #trabajo { padding-top: clamp(48px, 8vh, 96px); }
+.escueta h2.title { margin-bottom: clamp(40px, 6vh, 72px); }
+
+.escueta .big-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(56px, 8vh, 96px) clamp(40px, 6vw, 96px);
+}
+.escueta .big-steps h3 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem); letter-spacing: -.02em; line-height: 1.05; margin: 0 0 16px;
+}
+.escueta .big-steps p { margin: 0; color: var(--ink-soft); font-size: 1.0625rem; line-height: 1.55; max-width: 44ch; }
+
+.escueta footer.site { padding-block: clamp(96px, 14vh, 160px) 24px; }
+
+@media (max-width: 860px) {
+  .escueta .big-steps { grid-template-columns: 1fr; }
+}
+
+.escueta .firma { color: var(--ink-soft); }

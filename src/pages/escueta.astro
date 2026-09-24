@@ -1,0 +1,93 @@
+---
+// src/pages/escueta.astro — versión escueta de la home para comparar con index (2026-09-24).
+// Soy Alicia, hago webs, he hecho estas, si quieres una escríbeme. El relato de cada caso
+// sigue dentro de su carpeta. Si gana esta, sustituye a index.astro.
+// Regla de esta versión: los bloques se separan con espacio en blanco, no con filetes ni
+// etiquetas pequeñas; el único contenedor es la alfombrilla de los trabajos.
+import VeladoLayout from "../layouts/VeladoLayout.astro";
+import Trabajo from "../components/home/Trabajo.astro";
+import { cases } from "../data/cases";
+import { steps } from "../data/steps";
+import "../styles/escueta.css";
+
+const pageTitle = "Alicia Viñals — Diseño y desarrollo web";
+const pageDescription = "Diseño y programo webs para proyectos pequeños y profesionales creativos, desde 2022.";
+const email = "hola@aliverso.me";
+---
+
+<VeladoLayout title={pageTitle} description={pageDescription}>
+  <div class="escueta">
+    <div class="top">
+      <canvas id="bg" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <header class="site">
+          <a class="brand" href="/escueta">Alicia Viñals</a>
+          <nav class="site" aria-label="Principal">
+            <a href="#trabajo">Trabajo</a>
+            <a href="#hablemos">Hablemos</a>
+          </nav>
+        </header>
+
+        <main>
+          <section class="hero">
+            <h1>Soy Alicia y hago webs.</h1>
+            <p>Las diseño y las programo yo, para proyectos pequeños y gente creativa. Estas son algunas.</p>
+            <div class="cta">
+              <a class="btn" href="#hablemos">Cuéntame tu proyecto</a>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <Trabajo cases={cases} />
+
+      <section class="block" id="como-trabajo" aria-label="Cómo trabajo">
+        <h2 class="title">Cómo trabajo</h2>
+        <ol class="big-steps">
+          {steps.map((s) => (
+            <li>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="block" id="hablemos">
+        <div class="talk">
+          <div>
+            <h2 class="title">¿Quieres una?</h2>
+            <p>Cuéntame qué necesitas, para cuándo y con qué presupuesto cuentas.</p>
+            <a class="btn" href={`mailto:${email}`}>{email}</a>
+            <p>Te contesto en menos de 24 horas laborables.</p>
+            <p><a class="link" href="https://www.linkedin.com/in/alicia-vb" target="_blank" rel="noopener">LinkedIn</a></p>
+          </div>
+          <img
+            class="analog"
+            src="/assets/nubes-900.webp"
+            srcset="/assets/nubes-900.webp 900w, /assets/nubes-1200.webp 1200w"
+            sizes="(max-width: 720px) 100vw, 560px"
+            width="1200" height="800"
+            loading="lazy"
+            alt="Nubes al atardecer desde la ventanilla de un avión, foto analógica de cámara desechable"
+          />
+        </div>
+      </section>
+
+      <footer class="site">
+        <span class="firma">siempre creando</span>
+        <span>© 2026 Alicia Viñals</span>
+      </footer>
+    </div>
+  </div>
+</VeladoLayout>
+
+
+<script>
+  import { initVelado } from "../scripts/velado";
+
+  const canvas = document.getElementById("bg");
+  if (canvas instanceof HTMLCanvasElement) initVelado(canvas);
+</script>

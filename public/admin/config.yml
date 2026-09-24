@@ -1,0 +1,101 @@
+# Admin de textos (Sveltia CMS). Cada guardado es un commit en main; Cloudflare Pages lo publica solo.
+# Aquí solo va el contenido. El diseño y la estructura siguen en el código.
+backend:
+  name: github
+  repo: aliciavb/aliciavdev
+  branch: main
+
+site_url: https://aliverso.me
+display_url: https://aliverso.me
+
+# Capturas de proyectos. Mejor en 16:10: la ventana del modal recorta y enseña la parte de arriba.
+media_folder: public/assets/projects
+public_folder: /assets/projects
+
+collections:
+  - name: textos
+    label: Textos de la web
+    editor: { preview: false }
+    files:
+      - name: home
+        label: Home
+        file: src/data/home.json
+        fields:
+          - name: hero
+            label: Hero (lo primero que se ve)
+            widget: object
+            fields:
+              - { name: saludo, label: Saludo, widget: string }
+              - { name: texto, label: Texto, widget: text }
+              - { name: enlaceTrabajo, label: "Enlace a Trabajo (va seguido de ↓)", widget: string }
+              - { name: enlaceContacto, label: "Enlace a Hablemos (tras «o»)", widget: string }
+          - name: sobreMi
+            label: Sobre mí
+            widget: object
+            fields:
+              - { name: titulo, label: Título, widget: string }
+              - { name: texto, label: Texto, widget: text }
+          - name: contacto
+            label: Hablemos
+            widget: object
+            fields:
+              - { name: titulo, label: Título, widget: string }
+              - { name: texto, label: Texto, widget: text }
+              - { name: email, label: Email, widget: string }
+              - { name: nota, label: Nota bajo el email, widget: string }
+              - { name: linkedin, label: "LinkedIn (vacío = no sale)", widget: string, required: false }
+          - { name: firma, label: Firma del pie, widget: string }
+          - name: seo
+            label: Google y redes (título y descripción de la pestaña)
+            widget: object
+            collapsed: true
+            fields:
+              - { name: titulo, label: Título, widget: string }
+              - { name: descripcion, label: Descripción, widget: text, hint: "Unos 150 caracteres como mucho." }
+
+      - name: proyectos
+        label: Proyectos (carpetas)
+        file: src/data/proyectos.json
+        fields:
+          - name: proyectos
+            label: Proyectos
+            label_singular: proyecto
+            widget: list
+            hint: "El orden de la lista es el orden de las carpetas en la mesa. Arrastra para cambiarlo."
+            summary: "{{fields.name}} — {{fields.meta}}"
+            collapsed: true
+            fields:
+              - { name: name, label: Nombre, widget: string }
+              - { name: short, label: Pestaña de la carpeta, widget: string, hint: "Corto: una palabra o unas siglas." }
+              - { name: meta, label: "Meta (tipo · año)", widget: string }
+              - name: color
+                label: Color de la carpeta
+                widget: select
+                options:
+                  - { label: Crema, value: "--p-crema" }
+                  - { label: Salvia, value: "--p-salvia" }
+                  - { label: Kraft, value: "--p-kraft" }
+                  - { label: Oliva, value: "--p-oliva" }
+                  - { label: Salmón, value: "--p-salmon" }
+              - { name: screen, label: Captura, widget: image, required: false, hint: "Mejor en 16:10 y en .webp." }
+              - { name: summary, label: Resumen, widget: text, required: false, hint: "2 o 3 frases." }
+              - { name: url, label: Enlace, widget: string, required: false }
+              - { name: urlLabel, label: Texto del enlace, widget: string, required: false, hint: "Por ejemplo: Ver la web" }
+              - { name: problem, label: "Notas: el problema (no sale en la web)", widget: text, required: false }
+              - { name: decision, label: "Notas: la decisión (no sale en la web)", widget: text, required: false }
+              - { name: result, label: "Notas: el resultado (no sale en la web)", widget: text, required: false }
+
+      - name: pasos
+        label: Cómo trabajo
+        file: src/data/pasos.json
+        fields:
+          - { name: titulo, label: Título de la sección, widget: string }
+          - name: pasos
+            label: Pasos
+            label_singular: paso
+            widget: list
+            summary: "{{fields.title}}"
+            hint: "La línea de boli está pensada para 3 pasos."
+            fields:
+              - { name: title, label: Título, widget: string }
+              - { name: text, label: Texto, widget: text }
