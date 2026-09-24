@@ -1,4 +1,4 @@
-# Admin de textos (Sveltia CMS). Cada guardado es un commit en main; Cloudflare Pages lo publica solo.
+# Admin de textos (Sveltia CMS). Cada guardado es un commit en main; GitHub Actions lo construye y lo sube a Hostinger.
 # Aquí solo va el contenido. El diseño y la estructura siguen en el código.
 backend:
   name: github
