@@ -1,24 +1,24 @@
 {
-  "seo": {
-    "titulo": "Alicia Viñals — Diseño y desarrollo web",
-    "descripcion": "Diseño y programo webs para proyectos pequeños y profesionales creativos, desde 2022."
-  },
   "hero": {
     "saludo": "Hola, soy Alicia.",
-    "texto": "Diseño y programo webs para proyectos pequeños y gente creativa. Llevo desde 2022 cerrando la brecha entre diseño e implementación.",
-    "enlaceTrabajo": "Estas son algunas",
+    "texto": "Diseño y programo webs para proyectos y gente creativa. Llevo desde 2022 cerrando la brecha entre diseño e implementación.",
+    "enlaceTrabajo": "Mira mis trabajos",
     "enlaceContacto": "escríbeme"
   },
   "sobreMi": {
     "titulo": "Alicia Viñals",
-    "texto": "Soy madrileña y llevo desde 2022 cerrando la brecha entre diseño e implementación. Empecé en el diseño gráfico estudiando Bellas Artes, pasé al diseño web y del diseño web a programar, en 42 Madrid. Lo que busco en cada proyecto es que tu web te sirva para lo que la necesitas: conseguir clientes, publicar lo que haces o enseñar lo que vales."
+    "texto": "Soy madrileña y llevo desde 2022 cerrando la brecha entre diseño e implementación. Empecé en el diseño gráfico estudiando Bellas Artes, pasé al diseño web y del diseño web a programar, en 42 Madrid, el campus de programación de Fundación Telefónica. Lo que busco en cada proyecto es que tu web te sirva para lo que la necesitas: conseguir clientes, publicar lo que haces o enseñar lo que vales."
   },
   "contacto": {
-    "titulo": "¿Quieres una?",
+    "titulo": "¿Tienes algo en mente?",
     "texto": "Cuéntame qué necesitas, para cuándo y con qué presupuesto cuentas.",
     "email": "hola@aliverso.me",
     "nota": "Te contesto en menos de 24 horas laborables.",
     "linkedin": "https://www.linkedin.com/in/alicia-vb"
   },
-  "firma": "siempre creando"
+  "firma": "siempre creando",
+  "seo": {
+    "titulo": "Alicia Viñals — Diseño y desarrollo web",
+    "descripcion": "Diseño y programo webs para proyectos pequeños y profesionales creativos, desde 2022."
+  }
 }
