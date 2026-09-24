@@ -2,7 +2,7 @@
 # Aquí solo va el contenido. El diseño y la estructura siguen en el código.
 backend:
   name: github
-  repo: aliciavb/aliciavdev
+  repo: aliciavb/aliverso
   branch: main
 
 site_url: https://aliverso.me
@@ -65,6 +65,7 @@ collections:
             summary: "{{fields.name}} — {{fields.meta}}"
             collapsed: true
             fields:
+              - { name: publicado, label: Sale en la web, widget: boolean, default: true, hint: "Apagado: se queda guardado aquí pero no se ve en la web." }
               - { name: name, label: Nombre, widget: string }
               - { name: short, label: Pestaña de la carpeta, widget: string, hint: "Corto: una palabra o unas siglas." }
               - { name: meta, label: "Meta (tipo · año)", widget: string }

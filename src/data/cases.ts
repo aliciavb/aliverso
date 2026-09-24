@@ -6,6 +6,8 @@ export type Case = {
   name: string; meta: string; short: string; color: string; screen?: string;
   summary?: string; url?: string; urlLabel?: string;
   problem?: string; decision?: string; result?: string;
+  publicado?: boolean;
 };
 
-export const cases: Case[] = data.proyectos;
+// publicado: false la deja en el JSON (y en el admin) pero fuera de la web.
+export const cases: Case[] = data.proyectos.filter((p) => p.publicado !== false);

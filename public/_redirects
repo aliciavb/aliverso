@@ -1,0 +1,6 @@
+# URLs del WordPress antiguo de aliverso.me que tienen equivalente en la home.
+# /pagina-ejemplo/ y /under-construction/ se dejan en 404 a propósito.
+/sobre-mi  /#sobre-mi  301
+/sobre-mi/ /#sobre-mi  301
+/playground  /  301
+/playground/ /  301
