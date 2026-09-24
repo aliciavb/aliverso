@@ -4,6 +4,7 @@
 // y el tipo de trabajo. Al tocar una se abre su ficha en el centro de la pantalla, del color
 // de la carpeta: imagen grande, texto corto y enlace.
 import type { Case } from "../../data/cases";
+import { formato } from "../../lib/formato";
 
 const { cases } = Astro.props as { cases: Case[] };
 ---
@@ -40,7 +41,7 @@ const { cases } = Astro.props as { cases: Case[] };
         <div class="mp-text">
           <h3>{c.name}</h3>
           <p class="mp-meta">{c.meta}</p>
-          <p class="mp-summary">{c.summary ?? "Texto pendiente."}</p>
+          <p class="mp-summary" set:html={formato(c.summary) || "Texto pendiente."} />
           {c.url && (
             <a class="mp-link" href={c.url} target="_blank" rel="noopener">{c.urlLabel ?? "Ver la web"} ↗</a>
           )}

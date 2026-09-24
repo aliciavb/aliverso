@@ -1,5 +1,6 @@
 # Admin de textos (Sveltia CMS). Cada guardado es un commit en main; GitHub Actions lo construye y lo sube a Hostinger.
 # Aquí solo va el contenido. El diseño y la estructura siguen en el código.
+# Los campos con formato solo admiten negrita, cursiva y enlace (src/lib/formato.ts los convierte).
 backend:
   name: github
   repo: aliciavb/aliverso
@@ -26,7 +27,7 @@ collections:
             widget: object
             fields:
               - { name: saludo, label: Saludo, widget: string }
-              - { name: texto, label: Texto, widget: text }
+              - { name: texto, label: Texto, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
               - { name: enlaceTrabajo, label: "Enlace a Trabajo (va seguido de ↓)", widget: string }
               - { name: enlaceContacto, label: "Enlace a Hablemos (tras «o»)", widget: string }
           - name: sobreMi
@@ -34,15 +35,15 @@ collections:
             widget: object
             fields:
               - { name: titulo, label: Título, widget: string }
-              - { name: texto, label: Texto, widget: text }
+              - { name: texto, label: Texto, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
           - name: contacto
             label: Hablemos
             widget: object
             fields:
               - { name: titulo, label: Título, widget: string }
-              - { name: texto, label: Texto, widget: text }
+              - { name: texto, label: Texto, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
               - { name: email, label: Email, widget: string }
-              - { name: nota, label: Nota bajo el email, widget: string }
+              - { name: nota, label: Nota bajo el email, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
               - { name: linkedin, label: "LinkedIn (vacío = no sale)", widget: string, required: false }
           - { name: firma, label: Firma del pie, widget: string }
           - name: seo
@@ -79,7 +80,7 @@ collections:
                   - { label: Oliva, value: "--p-oliva" }
                   - { label: Salmón, value: "--p-salmon" }
               - { name: screen, label: Captura, widget: image, required: false, hint: "Mejor en 16:10 y en .webp." }
-              - { name: summary, label: Resumen, widget: text, required: false, hint: "2 o 3 frases." }
+              - { name: summary, label: Resumen, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [], required: false, hint: "2 o 3 frases. Para un enlace, selecciona la palabra y pulsa el botón de enlace." }
               - { name: url, label: Enlace, widget: string, required: false }
               - { name: urlLabel, label: Texto del enlace, widget: string, required: false, hint: "Por ejemplo: Ver la web" }
               - { name: problem, label: "Notas: el problema (no sale en la web)", widget: text, required: false }
@@ -99,4 +100,4 @@ collections:
             hint: "La línea de boli está pensada para 3 pasos."
             fields:
               - { name: title, label: Título, widget: string }
-              - { name: text, label: Texto, widget: text }
+              - { name: text, label: Texto, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }

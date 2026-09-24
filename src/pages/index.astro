@@ -7,6 +7,7 @@ import Trabajo from "../components/home/TrabajoMesa.astro";
 import { cases } from "../data/cases";
 import Recorrido from "../components/home/Recorrido.astro";
 import home from "../data/home.json";
+import { formato } from "../lib/formato";
 import "../styles/escueta.css";
 
 const { seo, hero, sobreMi, contacto, firma } = home;
@@ -33,7 +34,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
         <main>
           <section class="suelta" aria-label="Presentación">
             <h1 class="g g1">{hero.saludo}</h1>
-            <p class="g g2">{hero.texto}</p>
+            <p class="g g2" set:html={formato(hero.texto)} />
             <p class="g g3"><a href="#trabajo">{hero.enlaceTrabajo}</a> ↓ &nbsp;o <a href="#hablemos">{hero.enlaceContacto}</a>.</p>
           </section>
         </main>
@@ -53,7 +54,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
           </div>
           <div>
             <h2 class="title">{sobreMi.titulo}</h2>
-            <p>{sobreMi.texto}</p>
+            <p set:html={formato(sobreMi.texto)} />
           </div>
         </div>
       </section>
@@ -62,9 +63,9 @@ const { seo, hero, sobreMi, contacto, firma } = home;
         <div class="talk">
           <div>
             <h2 class="title">{contacto.titulo}</h2>
-            <p>{contacto.texto}</p>
+            <p set:html={formato(contacto.texto)} />
             <a class="btn" href={`mailto:${contacto.email}`}>{contacto.email}</a>
-            <p>{contacto.nota}</p>
+            <p set:html={formato(contacto.nota)} />
             {contacto.linkedin && <p><a class="link" href={contacto.linkedin} target="_blank" rel="noopener">LinkedIn</a></p>}
           </div>
           <img

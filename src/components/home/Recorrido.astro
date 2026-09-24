@@ -5,6 +5,7 @@
 // al tercero. En cuanto asoma el primer paso se dibuja sola y entera, como un trazo de boli: ondula,
 // pasa dos veces, y cada parada se rodea a mano en coral cuando la línea llega.
 import { journey, stepsTitle } from "../../data/steps";
+import { formato } from "../../lib/formato";
 ---
 
 <section class="block rc" id="como-trabajo" aria-label="Cómo trabajo">
@@ -20,7 +21,7 @@ import { journey, stepsTitle } from "../../data/steps";
         <li class={`rc-step s${i}`}>
           <span class="rc-stop" aria-hidden="true"></span>
           <h3>{s.title}</h3>
-          <p>{s.text}</p>
+          <p set:html={formato(s.text)} />
         </li>
       ))}
     </ol>

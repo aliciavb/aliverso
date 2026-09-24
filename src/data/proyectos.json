@@ -63,7 +63,7 @@
       "meta": "Diseño y desarrollo",
       "color": "--p-salmon",
       "screen": "/assets/projects/aiwrapped/pantalla.webp",
-      "summary": "Proyecto que surgió en un hackathon de dos días en el que había que crear algo con IA: pensé en el Wrapped de Spotify, pero de cómo usas la IA. Desde <a href=\"https://entaina.ai/\" target=\"_blank\" rel=\"noopener noreferrer\">entaina</a> vieron la idea y me encargaron llevarla a producción como lead magnet para su empresa.",
+      "summary": "Proyecto que surgió en un hackathon de dos días en el que había que crear algo con IA: pensé en el Wrapped de Spotify, pero de cómo usas la IA. Desde [entaina](https://entaina.ai/) vieron la idea y me encargaron llevarla a producción como lead magnet para su empresa.",
       "url": "https://ai-wrapped.entaina.ai",
       "urlLabel": "Probarla",
       "problem": "",

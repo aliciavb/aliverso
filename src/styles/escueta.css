@@ -21,3 +21,7 @@
 }
 
 .escueta .firma { color: var(--ink-soft); }
+
+/* Enlaces puestos desde /admin dentro de un texto (src/lib/formato.ts): del color del texto, subrayados. */
+.escueta p a:not([class]) { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.escueta p a:not([class]):hover { text-decoration-thickness: 2px; }
