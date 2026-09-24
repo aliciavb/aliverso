@@ -1,9 +1,10 @@
 {
   "proyectos": [
     {
+      "publicado": true,
       "name": "Galería i23",
-      "meta": "Web de apertura · WordPress",
       "short": "i23",
+      "meta": "Web de apertura · WordPress",
       "color": "--p-crema",
       "screen": "/assets/projects/i23/pantalla.webp",
       "summary": "La web con la que abrió una galería nueva. La preparé para que publicar cada exposición fuera rellenar una ficha, y lleva tres temporadas haciéndolo sola.",
@@ -11,27 +12,27 @@
       "urlLabel": "Ver la web",
       "problem": "La galería aún no existía. Tenían el local en la calle Ibiza 23, la identidad de marca hecha y un Instagram que anunciaba la apertura. Necesitaban la web para abrir.",
       "decision": "Pasé su identidad a la web y la programé en WordPress. Podía montar cada exposición como una página suelta, pero preparé una estructura para que publicar una nueva fuera rellenar una ficha, tanto para mí como para quien la editara después.",
-      "result": "La galería lleva tres temporadas de exposiciones publicadas por su cuenta, sin mí.",
-      "publicado": true
+      "result": "La galería lleva tres temporadas de exposiciones publicadas por su cuenta, sin mí."
     },
     {
+      "publicado": true,
       "name": "Escuela TAI",
-      "meta": "Mantenimiento y diseño · 2022–2024",
       "short": "TAI",
+      "meta": "Mantenimiento y diseño · 2022–2024",
       "color": "--p-salvia",
       "screen": "/assets/projects/tai/pantalla.webp",
-      "summary": "De 2022 a 2024 mantuve la web de una escuela universitaria de artes y rediseñé partes de ella. Sigue online, la editan ellos y en 2025 me volvieron a llamar.",
+      "summary": "De 2022 a 2024 mantuve la web de una escuela universitaria de artes y rediseñé partes de ella. Usé a diario WordPress y Figma y estaba en constante comunicación con equipos de marketing, ventas, desarrollo y comunicación",
       "url": "https://taiarts.com",
       "urlLabel": "Ver la web",
       "problem": "Es la web de una escuela universitaria de artes: fichas de cada carrera, páginas de cada departamento, formularios de captación, campañas. La visitan a diario futuros alumnos y alumnos actuales, así que tiene que estar siempre al día y bien cuidada.",
       "decision": "De 2022 a 2024 fui quien la mantenía. Recogía en reunión lo que pedía cada departamento y lo llevaba a la web: formularios, portada, fechas, módulos nuevos y rediseños de los que ya había. Diseñé una landing que después sirvió de referencia para las siguientes.",
-      "result": "Sigue online y la editan ellos. En diciembre de 2025, un año después de irme, me volvieron a llamar para cubrir una baja.",
-      "publicado": true
+      "result": "Sigue online y la editan ellos. En diciembre de 2025, un año después de irme, me volvieron a llamar para cubrir una baja."
     },
     {
+      "publicado": false,
       "name": "Factoría de Creación",
-      "meta": "Diseño y web · WordPress",
       "short": "Factoría",
+      "meta": "Diseño y web · WordPress",
       "color": "--p-kraft",
       "screen": "/assets/projects/factoria/pantalla.webp",
       "summary": "Web de una productora de cine independiente: cada película con su ficha y un buzón para que los cineastas mandaran sus proyectos. Durante años les llegaron por ahí.",
@@ -39,13 +40,13 @@
       "urlLabel": "Ver cómo era (archivo)",
       "problem": "Una productora y distribuidora de cine independiente necesitaba que su web hiciera dos cosas: poner en valor lo que ya había producido y recibir proyectos nuevos de cineastas.",
       "decision": "La diseñé y la programé en WordPress en 2022. Cada película tiene su ficha, con todos los datos visibles y ordenados y los premios cuando los hay, y la imagen por delante del texto. Y un buzón para que cualquiera mandara su proyecto.",
-      "result": "Durante años fue su buzón de proyectos: les llegaban por ahí y desde ahí veían cuáles producir.",
-      "publicado": false
+      "result": "Durante años fue su buzón de proyectos: les llegaban por ahí y desde ahí veían cuáles producir."
     },
     {
+      "publicado": false,
       "name": "Festival WE:NOW",
-      "meta": "Web y ecommerce · WordPress",
       "short": "WE:NOW",
+      "meta": "Web y ecommerce · WordPress",
       "color": "--p-oliva",
       "screen": "/assets/projects/wenow/pantalla.webp",
       "summary": "Web e inscripción de pago de un festival para artistas jóvenes, de 2022 a 2024. Para la edición 2024 la pasé entera a su imagen nueva.",
@@ -53,19 +54,21 @@
       "urlLabel": "Ver cómo era (archivo)",
       "problem": "Un festival internacional para artistas de 18 a 30 años. Cada convocatoria necesitaba sus bases, el jurado y una inscripción de pago, y al cerrarse había que publicar los ganadores y la selección de obras.",
       "decision": "Monté la web en WordPress a partir del diseño en PDF de un diseñador gráfico. Para la edición 2024 el festival cambió de imagen, de ilustraciones y mucho color a un bloque amarillo con texto negro en negrita, y pasé la web entera al diseño nuevo. La inscripción con pago la integramos con el equipo de TAI.",
-      "result": "Acompañó al festival de 2022 a 2024, de convocatoria en convocatoria, hasta la selección de obras de la edición 2024.",
-      "publicado": false
+      "result": "Acompañó al festival de 2022 a 2024, de convocatoria en convocatoria, hasta la selección de obras de la edición 2024."
     },
     {
+      "publicado": true,
       "name": "AI Wrapped",
-      "meta": "Diseño y desarrollo",
       "short": "AI Wrapped",
+      "meta": "Diseño y desarrollo",
       "color": "--p-salmon",
       "screen": "/assets/projects/aiwrapped/pantalla.webp",
       "summary": "La hice en un fin de semana, en un hackathon en el que había que crear algo con IA: el Wrapped de Spotify, pero de cómo usas la IA. A Entaina le gustó tanto que quiso comprarla, y por eso hoy trabajo allí.",
       "url": "https://ai-wrapped.entaina.ai",
       "urlLabel": "Probarla",
-      "publicado": true
+      "problem": "",
+      "decision": "",
+      "result": ""
     }
   ]
 }
