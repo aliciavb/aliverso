@@ -1,7 +1,7 @@
 {
   "hero": {
     "saludo": "Hola, soy Alicia.",
-    "texto": "Diseño y programo webs para proyectos y gente creativa. Llevo desde 2022 cerrando la brecha entre diseño e implementación.",
+    "texto": "Diseño y programo webs para proyectos y profesionales creativos. Llevo desde 2022 cerrando la brecha entre diseño e implementación.",
     "enlaceTrabajo": "Mira mis trabajos",
     "enlaceContacto": "escríbeme"
   },
@@ -19,6 +19,6 @@
   "firma": "siempre creando",
   "seo": {
     "titulo": "Alicia Viñals — Diseño y desarrollo web",
-    "descripcion": "Diseño y programo webs para proyectos pequeños y profesionales creativos, desde 2022."
+    "descripcion": "Diseño y programo webs para proyectos y profesionales creativos, desde 2022."
   }
 }
