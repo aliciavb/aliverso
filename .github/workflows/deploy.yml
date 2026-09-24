@@ -30,4 +30,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./dist/
-          server-dir: ./public_html/
+          # La cuenta FTP "deploy" entra directamente en domains/aliverso.me/public_html.
+          server-dir: ./
