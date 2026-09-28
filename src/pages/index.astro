@@ -117,8 +117,10 @@ const { seo, hero, sobreMi, contacto, firma } = home;
   .g1 { margin-left: 4%; }
   .g2 { margin-left: 40%; max-width: 36ch; }
   .g3 { margin-left: 12%; }
+  /* En móvil la escalera se exagera: con 4/14/12 % parecía un descuadre (2026-09-28) */
   @media (max-width: 600px) {
-    .g2 { margin-left: 14%; }
+    .g1 { margin-left: 0; }
+    .g2 { margin-left: 32%; }
   }
 </style>
 
