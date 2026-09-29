@@ -21,9 +21,17 @@
   --noise-blend: screen;
   --noise-filter: invert(1);
   --gutter: clamp(16px, 5vw, 64px);
-  --display: "Bricolage Grotesque", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  /* Las dos tipografías de la web (2026-09-24): Outfit para todo, Azeret Mono para pestañas y detalles cortos */
+  --display: "Outfit", system-ui, sans-serif;
+  --mono: "Azeret Mono", ui-monospace, monospace;
   color-scheme: dark;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/fonts/Outfit-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -40,7 +48,7 @@ body {
     linear-gradient(180deg, var(--ground) 0%, var(--ground-deep) 100%);
   background-attachment: fixed;
   color: var(--ink);
-  font: 400 1.0625rem/1.6 "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 400 1.0625rem/1.6 var(--display);
   padding-inline: var(--gutter);
   padding-block: 0 96px;
   position: relative;
