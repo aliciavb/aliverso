@@ -7,7 +7,7 @@ import Trabajo from "../components/home/TrabajoMesa.astro";
 import { cases } from "../data/cases";
 import Recorrido from "../components/home/Recorrido.astro";
 import home from "../data/home.json";
-import { formato } from "../lib/formato";
+import { formato, parrafos } from "../lib/formato";
 import "../styles/escueta.css";
 
 const { seo, hero, sobreMi, contacto, firma } = home;
@@ -54,7 +54,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
           </div>
           <div>
             <h2 class="title">{sobreMi.titulo}</h2>
-            <p set:html={formato(sobreMi.texto)} />
+            <Fragment set:html={parrafos(sobreMi.texto)} />
           </div>
         </div>
       </section>
@@ -105,6 +105,9 @@ const { seo, hero, sobreMi, contacto, firma } = home;
   /* La línea de Cómo trabajo sale de la pantalla: se recorta en la página entera. En .mezcla
      cortaba también los bordes del hero, que se sale del contenedor para llegar de lado a lado. */
   :global(body) { overflow-x: clip; }
+  /* El pie ya lleva su propio aire: sin el relleno de 96px del body, que dejaba un hueco vacío
+     debajo de «© 2026» al llegar al final */
+  :global(body) { padding-bottom: 0; }
 
   /* Texto suelto a distintas alturas y sangrías (idea de sam-peitz.com), en frases completas */
   .suelta {

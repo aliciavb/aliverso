@@ -34,3 +34,14 @@ export function formato(texto?: string | null): string {
   for (let i = 0; i < 2; i++) s = s.replace(/\u0000(\d+)\u0000/g, (_, n) => apartados[+n]);
   return s;
 }
+
+// Para textos largos: una línea en blanco en /admin separa párrafos (<p> propios); un salto
+// simple sigue siendo un <br />.
+export function parrafos(texto?: string | null): string {
+  if (!texto) return "";
+  return texto
+    .trim()
+    .split(/\n\s*\n/)
+    .map((p) => `<p>${formato(p)}</p>`)
+    .join("");
+}

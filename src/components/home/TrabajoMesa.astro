@@ -200,17 +200,20 @@ const { cases } = Astro.props as { cases: Case[] };
     const items = [...desk.querySelectorAll<HTMLElement>(".cp-item")];
     const num = (el: HTMLElement, p: string) => parseFloat(el.style.getPropertyValue(p)) || 0;
 
-    // Posiciones: montón un poco superpuesto. x e y en fracción del hueco libre.
+    // Posiciones: montón un poco superpuesto. x e y en fracción del hueco libre. La alfombrilla se
+    // ajusta a cuántas carpetas hay publicadas, para que no quede hueco al apagar alguna en /admin.
+    const n = items.length;
     const PILE: Record<string, number[][]> = {
-      desk: [[.02, .08, -3], [.5, 0, 2.4], [.98, .16, -1.6], [.2, 1, 1.8], [.8, .9, -2.6]],
-      phone: [[0, 0, -2.4], [1, .25, 2], [.12, .5, -1.4], [.9, .75, 2.6], [.3, 1, -2]],
+      desk: n > 3 ? [[.02, .08, -3], [.5, 0, 2.4], [.98, .16, -1.6], [.2, 1, 1.8], [.8, .9, -2.6]]
+                  : [[.02, .5, -3], [.5, 0, 2.4], [.98, 1, -1.6]],
+      phone: [[0, -2.4], [1, 2], [.12, -1.4], [.9, 2.6], [.3, -2]].map(([x, r], i) => [x, n > 1 ? i / (n - 1) : 0, r]),
     };
     function layout() {
       const W = desk.clientWidth, phone = W < 600;
       if (!W) return;
       desk.classList.toggle("phone", phone);
       const fw = phone ? W * .84 : Math.min(400, W * .36), fh = fw * (phone ? 12 : 11.2) / 16;
-      const H = phone ? fh * (1 + 4 * .62) : fh * 1.95;
+      const H = phone ? fh * (1 + (n - 1) * .62) : fh * (n > 3 ? 1.95 : 1.12);
       desk.style.setProperty("--fw", fw + "px");
       desk.style.height = H + "px";
       const pos = PILE[phone ? "phone" : "desk"].map(([x, y, r]) => [x * (W - fw), y * (H - fh), r]);

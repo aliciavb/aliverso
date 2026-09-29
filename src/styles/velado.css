@@ -157,7 +157,7 @@ h2.title {
 /* hueco de la pantalla en perfil-camara.png: x 61–328, y 55–417 sobre 408×611 */
 .cam .screen {
   position: absolute; left: 14.7%; top: 8.8%; width: 66.4%; height: 59.8%;
-  background: var(--ground-deep) url("/assets/perfil.png") 0 0 / 800% 100% no-repeat;
+  background: var(--ground-deep) url("/assets/perfil.webp") 0 0 / 800% 100% no-repeat;
 }
 .cam .frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
@@ -166,6 +166,8 @@ h2.title {
 .about .cam { width: clamp(200px, 20vw, 280px); }
 .about h2 { margin-bottom: 16px; }
 .about p { margin: 0; color: var(--ink-soft); max-width: 52ch; }
+/* Una línea en blanco en /admin separa párrafos (parrafos() en src/lib/formato.ts) */
+.about p + p { margin-top: 1em; }
 
 /* Hablemos */
 .talk { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
@@ -191,6 +193,7 @@ footer.site { padding-block: 40px 16px; color: var(--ink-soft); display: flex; j
 @media (max-width: 720px) {
   .talk { grid-template-columns: 1fr; }
   .about { grid-template-columns: 1fr; }
-  .about .cam { width: min(220px, 60vw); }
+  .about .cam { width: min(220px, 60vw); justify-self: center; }
+  .about h2 { text-align: center; }
 }
 .case-result.pending-text { font-size: .75rem; color: var(--ink-soft); border: 1.5px dashed var(--line); padding: 12px; max-width: none; }

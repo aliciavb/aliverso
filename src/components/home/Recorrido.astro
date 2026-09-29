@@ -210,7 +210,11 @@ import { formato } from "../../lib/formato";
       if (es.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
     }, { rootMargin: "0px 0px -15% 0px" }).observe(steps[0]);
 
-    new ResizeObserver(build).observe(track);
+    // El SVG mide 100vw: con la columna ya a su ancho máximo, al cambiar la ventana solo se mueve
+    // él, no la columna, así que también hay que vigilarlo a él
+    const ro = new ResizeObserver(build);
+    ro.observe(track);
+    ro.observe(svg);
     document.fonts?.ready.then(build);
     build();
   }
