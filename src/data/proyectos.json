@@ -9,7 +9,7 @@
       "screen": "/assets/projects/i23/artistas-2.webp",
       "summary": "La web con la que abrió una galería nueva en la calle Ibiza, 23, en Madrid. La preparé para que publicar cada exposición fuera rellenar una ficha, y lleva varias temporadas en funcionamiento.",
       "url": "https://i23.art",
-      "urlLabel": "Ver la web",
+      "urlLabel": "Visitar i23.art",
       "problem": "La galería aún no existía. Tenían el local en la calle Ibiza 23, la identidad de marca hecha y un Instagram que anunciaba la apertura. Necesitaban la web para abrir.",
       "decision": "Pasé su identidad a la web y la programé en WordPress. Podía montar cada exposición como una página suelta, pero preparé una estructura para que publicar una nueva fuera rellenar una ficha, tanto para mí como para quien la editara después.",
       "result": "La galería lleva tres temporadas de exposiciones publicadas por su cuenta, sin mí."
@@ -23,7 +23,7 @@
       "screen": "/assets/projects/tai/pantalla.webp",
       "summary": "De 2022 a 2024 mantuve la web de una escuela universitaria de artes y rediseñé partes de ella. Usé a diario WordPress y Figma y estaba en constante comunicación con equipos de marketing, ventas, desarrollo y comunicación",
       "url": "https://taiarts.com",
-      "urlLabel": "Ver la web",
+      "urlLabel": "Visitar taiarts.com",
       "problem": "Es la web de una escuela universitaria de artes: fichas de cada carrera, páginas de cada departamento, formularios de captación, campañas. La visitan a diario futuros alumnos y alumnos actuales, así que tiene que estar siempre al día y bien cuidada.",
       "decision": "De 2022 a 2024 fui quien la mantenía. Recogía en reunión lo que pedía cada departamento y lo llevaba a la web: formularios, portada, fechas, módulos nuevos y rediseños de los que ya había. Diseñé una landing que después sirvió de referencia para las siguientes.",
       "result": "Sigue online y la editan ellos. En diciembre de 2025, un año después de irme, me volvieron a llamar para cubrir una baja."
@@ -65,7 +65,7 @@
       "screen": "/assets/projects/aiwrapped/pantalla.webp",
       "summary": "Proyecto que surgió en un hackathon de dos días en el que había que crear algo con IA: pensé en el Wrapped de Spotify, pero de cómo usas la IA. Desde [entaina](https://entaina.ai/) vieron la idea y me encargaron llevarla a producción como lead magnet para su empresa.",
       "url": "https://ai-wrapped.entaina.ai",
-      "urlLabel": "Probarla",
+      "urlLabel": "Probar AI Wrapped",
       "problem": "",
       "decision": "",
       "result": ""

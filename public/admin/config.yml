@@ -43,6 +43,7 @@ collections:
               - { name: titulo, label: Título, widget: string }
               - { name: texto, label: Texto, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
               - { name: email, label: Email, widget: string }
+              - { name: asunto, label: "Asunto del correo al pulsar el botón (vacío = sin asunto)", widget: string, required: false }
               - { name: nota, label: Nota bajo el email, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
               - { name: linkedin, label: "LinkedIn (vacío = no sale)", widget: string, required: false }
           - { name: firma, label: Firma del pie, widget: string }

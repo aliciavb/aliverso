@@ -14,10 +14,6 @@ const { seo, hero, sobreMi, contacto, firma } = home;
 ---
 
 <VeladoLayout title={seo.titulo} description={seo.descripcion}>
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500&display=swap"
-  />
   <div class="escueta mezcla">
     <div class="top">
       <canvas id="bg" aria-hidden="true"></canvas>
@@ -64,7 +60,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
           <div>
             <h2 class="title">{contacto.titulo}</h2>
             <p set:html={formato(contacto.texto)} />
-            <a class="btn" href={`mailto:${contacto.email}`}>{contacto.email}</a>
+            <a class="btn" href={`mailto:${contacto.email}${contacto.asunto ? `?subject=${encodeURIComponent(contacto.asunto)}` : ""}`}>{contacto.email}</a>
             <p set:html={formato(contacto.nota)} />
             {contacto.linkedin && <p><a class="link" href={contacto.linkedin} target="_blank" rel="noopener">LinkedIn</a></p>}
           </div>
@@ -89,19 +85,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
 </VeladoLayout>
 
 <style>
-  /* Tipografías elegidas el 2026-09-24: Outfit para todo, también el hero (en mono se sentía
-     otra web); Azeret Mono solo en las pestañas de las carpetas y detalles cortos. Sustituyen a Bricolage + Instrument Sans + Plex Mono. */
-  @font-face {
-    font-family: "Outfit";
-    src: url("/fonts/Outfit-Variable.woff2") format("woff2");
-    font-weight: 100 900;
-    font-display: swap;
-  }
-  .mezcla {
-    --display: "Outfit", system-ui, sans-serif;
-    --mono: "Azeret Mono", ui-monospace, monospace;
-    font-family: "Outfit", system-ui, sans-serif;
-  }
+  /* Tipografías (Outfit + Azeret Mono) definidas para toda la web en velado.css y VeladoLayout */
   /* La línea de Cómo trabajo sale de la pantalla: se recorta en la página entera. En .mezcla
      cortaba también los bordes del hero, que se sale del contenedor para llegar de lado a lado. */
   :global(body) { overflow-x: clip; }
