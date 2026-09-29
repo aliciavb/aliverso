@@ -230,6 +230,14 @@ const { cases } = Astro.props as { cases: Case[] };
     new ResizeObserver(() => {
       if (Math.abs(desk.clientWidth - lastW) > 2) { lastW = desk.clientWidth; layout(); }
     }).observe(desk);
+    // Las capturas de las fichas van en lazy y dentro del dialog cerrado, así que el navegador no las
+    // pedía hasta abrir la carpeta y se veía el negro un momento. En cuanto la alfombrilla asoma
+    // (algo antes, con el margen) se piden todas.
+    new IntersectionObserver((es, io) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      document.querySelectorAll<HTMLImageElement>("#mp-dlg .mp-window img").forEach((img) => (img.loading = "eager"));
+    }), { rootMargin: "600px 0px" }).observe(desk);
     new IntersectionObserver((es, io) => es.forEach((e) => {
       if (e.isIntersecting) { desk.classList.add("in"); io.disconnect(); }
     }), { threshold: .05 }).observe(desk);
