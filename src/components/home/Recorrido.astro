@@ -103,9 +103,12 @@ import { formato } from "../../lib/formato";
     function hand(ideal: SVGPathElement, seed: number, amp: number) {
       const r = rng(seed), L = ideal.getTotalLength(), n = Math.max(2, Math.ceil(L / 7));
       const a = r() * 6.3, b = r() * 6.3, pts: number[][] = [];
+      // getPointAtLength es caro: un punto por muestra, y la dirección sale de las muestras vecinas
+      const base: DOMPoint[] = [];
+      for (let i = 0; i <= n; i++) base.push(ideal.getPointAtLength((i / n) * L));
       for (let i = 0; i <= n; i++) {
-        const s = (i / n) * L, p = ideal.getPointAtLength(s);
-        const q = ideal.getPointAtLength(Math.min(L, s + 1)), o = ideal.getPointAtLength(Math.max(0, s - 1));
+        const s = (i / n) * L, p = base[i];
+        const q = base[Math.min(n, i + 1)], o = base[Math.max(0, i - 1)];
         const tl = Math.hypot(q.x - o.x, q.y - o.y) || 1;
         const w = amp * (Math.sin(s / 110 + a) + .5 * Math.sin(s / 37 + b)) + (r() - .5) * .5;
         pts.push([p.x - ((q.y - o.y) / tl) * w, p.y + ((q.x - o.x) / tl) * w]);
@@ -123,6 +126,7 @@ import { formato } from "../../lib/formato";
       return smooth(pts);
     }
 
+    let built = ""; // medidas con las que se dibujó: si no cambian, no se recalcula
     function build() {
       const s = svg.getBoundingClientRect();
       if (!s.width) return;
@@ -130,6 +134,9 @@ import { formato } from "../../lib/formato";
         const r = li.querySelector(".rc-stop")!.getBoundingClientRect();
         return [r.left + r.width / 2 - s.left, r.top + r.height / 2 - s.top];
       });
+      const key = pts.map(([x, y]) => `${Math.round(x)},${Math.round(y)}`).join(" ");
+      if (key === built) return;
+      built = key;
       // El camino ideal: entra desde fuera algo por debajo y sube suave a la primera parada; luego baja
       // pegada a la izquierda del texto hasta la altura de la siguiente, y ahí gira hacia ella
       const ideal = document.createElementNS(NS, "path");
@@ -197,6 +204,7 @@ import { formato } from "../../lib/formato";
     const DURATION = 2600;
     const ease = (k: number) => (k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2);
     function play() {
+      build();
       if (REDUCE) { render(1); return; }
       const t0 = performance.now();
       const tick = (t: number) => {
@@ -212,10 +220,15 @@ import { formato } from "../../lib/formato";
 
     // El SVG mide 100vw: con la columna ya a su ancho máximo, al cambiar la ventana solo se mueve
     // él, no la columna, así que también hay que vigilarlo a él
-    const ro = new ResizeObserver(build);
-    ro.observe(track);
-    ro.observe(svg);
-    document.fonts?.ready.then(build);
-    build();
+    // Calcular el trazo cuesta: no se hace al cargar la página, sino al acercarse a la sección
+    new IntersectionObserver((es, io) => {
+      if (!es.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      const ro = new ResizeObserver(build);
+      ro.observe(track);
+      ro.observe(svg);
+      document.fonts?.ready.then(build);
+      build();
+    }, { rootMargin: "600px 0px" }).observe(track);
   }
 </script>
