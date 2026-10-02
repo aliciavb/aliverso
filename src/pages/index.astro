@@ -108,6 +108,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
   import { initVelado, initCamara } from "../scripts/velado";
 
   const canvas = document.getElementById("bg");
-  if (canvas instanceof HTMLCanvasElement) initVelado(canvas);
+  // El velado se dibuja después del primer pintado: el fondo ya lleva su degradado mientras tanto
+  if (canvas instanceof HTMLCanvasElement) requestAnimationFrame(() => setTimeout(() => initVelado(canvas)));
   document.querySelectorAll<HTMLElement>(".cam").forEach(initCamara);
 </script>

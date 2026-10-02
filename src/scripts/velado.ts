@@ -119,9 +119,12 @@ void main(){
   }
 
   const SCALE = 0.6; // resolución interna: suaviza el velado y abarata el render
+  const MAX_PX = 250_000; // tope de píxeles internos: en pantallas grandes el dibujo bloqueaba el arranque
   function resize() {
-    const w = Math.max(1, Math.round(canvas.clientWidth * SCALE));
-    const h = Math.max(1, Math.round(canvas.clientHeight * SCALE));
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    const scale = Math.min(SCALE, Math.sqrt(MAX_PX / Math.max(1, cw * ch)));
+    const w = Math.max(1, Math.round(cw * scale));
+    const h = Math.max(1, Math.round(ch * scale));
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -163,6 +166,18 @@ export function initCamara(cam: HTMLElement) {
   let frame = 0, target = 0;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let onDone: (() => void) | null = null;
+
+  // La tira de fotogramas no se descarga hasta que Sobre mí está cerca. Se observa la sección y
+  // no la cámara: el script de grabar-scroll anula los observadores puestos sobre .cam.
+  const cerca = new IntersectionObserver(
+    ([e]) => {
+      if (!e.isIntersecting) return;
+      cam.classList.add("cargada");
+      cerca.disconnect();
+    },
+    { rootMargin: "800px 0px" }
+  );
+  cerca.observe(cam.closest("section") ?? cam);
 
   const draw = () => (screen.style.backgroundPosition = (frame / lastFrame) * 100 + "% 0");
 

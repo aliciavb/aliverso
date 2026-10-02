@@ -172,8 +172,10 @@ h2.title {
 /* hueco de la pantalla en perfil-camara.png: x 61–328, y 55–417 sobre 408×611 */
 .cam .screen {
   position: absolute; left: 14.7%; top: 8.8%; width: 66.4%; height: 59.8%;
-  background: var(--ground-deep) url("/assets/perfil.webp") 0 0 / 800% 100% no-repeat;
+  background: var(--ground-deep) 0 0 / 800% 100% no-repeat;
 }
+/* La tira de fotogramas pesa: se pide al acercarse a Sobre mí (initCamara pone .cargada) */
+.cam.cargada .screen { background-image: url("/assets/perfil.webp"); }
 .cam .frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 /* Sobre mí: cámara a la izquierda, texto a la derecha (Hablemos lo invierte) */
