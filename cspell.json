@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "language": "es",
+  "import": ["@cspell/dict-es-es/cspell-ext.json"],
+  "files": ["src/data/*.json"],
+  "ignoreRegExpList": [
+    "/\"[A-Za-z]+\"\\s*:/g",
+    "/https?:\\/\\/[^\\s\")]+/g",
+    "/\"\\/assets\\/[^\"]*\"/g",
+    "/--p-[a-z]+/g",
+    "/[\\w.-]+@[\\w.-]+/g"
+  ],
+  "words": [
+    "Alicia", "Viñals", "aliverso", "entaina", "Factoría", "TAI", "taiarts",
+    "WordPress", "Figma", "Spotify", "Wrapped", "LinkedIn", "Instagram",
+    "hackathon", "ecommerce", "fullstack", "landing", "lead", "magnet", "SEO", "demo", "web", "webs", "rediseño", "rediseños", "rediseñé", "rediseñar"
+  ]
+}

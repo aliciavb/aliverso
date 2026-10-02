@@ -1,0 +1,22 @@
+# Cada push a main (también los guardados del admin) pasa el corrector por los textos de src/data/.
+# Va aparte de la publicación: si encuentra una errata, la web se publica igual y este trabajo
+# falla, con lo que GitHub avisa por correo. Las palabras propias se añaden en cspell.json › words.
+name: Erratas
+
+on:
+  push:
+    branches: [main]
+    paths: ["src/data/**", "cspell.json"]
+  workflow_dispatch:
+
+jobs:
+  erratas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run erratas

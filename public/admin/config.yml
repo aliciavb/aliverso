@@ -46,6 +46,7 @@ collections:
               - { name: asunto, label: "Asunto del correo al pulsar el botón (vacío = sin asunto)", widget: string, required: false }
               - { name: nota, label: Nota bajo el email, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
               - { name: linkedin, label: "LinkedIn (vacío = no sale)", widget: string, required: false }
+              - { name: postal, label: "Mensaje del dorso de la postal (corto: tiene que caber en media postal)", widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [], required: false }
           - { name: firma, label: Firma del pie, widget: string }
           - name: seo
             label: Google y redes (título y descripción de la pestaña)

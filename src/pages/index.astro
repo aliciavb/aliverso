@@ -6,6 +6,7 @@ import VeladoLayout from "../layouts/VeladoLayout.astro";
 import Trabajo from "../components/home/TrabajoMesa.astro";
 import { cases } from "../data/cases";
 import Recorrido from "../components/home/Recorrido.astro";
+import Postal from "../components/home/Postal.astro";
 import home from "../data/home.json";
 import { formato, parrafos } from "../lib/formato";
 import "../styles/escueta.css";
@@ -64,15 +65,7 @@ const { seo, hero, sobreMi, contacto, firma } = home;
             <p set:html={formato(contacto.nota)} />
             {contacto.linkedin && <p><a class="link" href={contacto.linkedin} target="_blank" rel="noopener">LinkedIn</a></p>}
           </div>
-          <img
-            class="analog"
-            src="/assets/nubes-900.webp"
-            srcset="/assets/nubes-900.webp 900w, /assets/nubes-1200.webp 1200w"
-            sizes="(max-width: 720px) 100vw, 560px"
-            width="1200" height="800"
-            loading="lazy"
-            alt="Nubes al atardecer desde la ventanilla de un avión, foto analógica de cámara desechable"
-          />
+          <Postal mensaje={contacto.postal} email={contacto.email} />
         </div>
       </section>
 

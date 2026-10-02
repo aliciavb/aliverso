@@ -1,0 +1,147 @@
+---
+// Postal de Hablemos: la foto analógica de las nubes, un poco girada sobre la mesa, se da la vuelta
+// al tocarla y enseña el dorso. Funciona con dedo, ratón y teclado; nada depende del hover. La foto
+// es un botón; el dorso lleva enlaces, así que no puede ir dentro de un botón: se vuelve tocando
+// cualquier parte que no sea un enlace, o con el botón «Ver la foto» (solo visible con teclado). Sin rótulo: para que se entienda que gira, se levanta al pasar el ratón y, donde no hay
+// ratón, sola una vez al llegar a ella (como la foto de la cámara).
+// Elegida el 2026-10-02 (mezcla de las variantes B y C). El mensaje se edita en /admin.
+interface Props {
+  mensaje?: string;
+  email: string;
+}
+const { mensaje, email } = Astro.props;
+import { formato } from "../../lib/formato";
+---
+
+<div class="postal">
+  <span class="giro">
+    <button class="cara frente" type="button" aria-label="Dar la vuelta a la postal">
+      <img
+        src="/assets/nubes-900.webp"
+        srcset="/assets/nubes-900.webp 900w, /assets/nubes-1200.webp 1200w"
+        sizes="(max-width: 720px) 100vw, 560px"
+        width="1200" height="800"
+        loading="lazy"
+        alt="Nubes al atardecer desde la ventanilla de un avión, foto analógica de cámara desechable"
+      />
+    </button>
+    <span class="cara dorso" inert>
+      <span class="mensaje">
+        <span set:html={formato(mensaje)} />
+      </span>
+      <span class="senas">
+        <span class="sello"></span>
+        <svg class="matasellos" viewBox="0 0 150 70" aria-hidden="true">
+          <circle cx="35" cy="35" r="32" /><circle cx="35" cy="35" r="20.5" />
+          <path id="postal-arco-a" class="guia" d="M 11.5 35 A 23.5 23.5 0 0 1 58.5 35" />
+          <path id="postal-arco-b" class="guia" d="M 5.5 35 A 29.5 29.5 0 0 0 64.5 35" />
+          <text><textPath href="#postal-arco-a" startOffset="50%" text-anchor="middle">MADRID</textPath></text>
+          <text><textPath href="#postal-arco-b" startOffset="50%" text-anchor="middle">ALIVERSO.ME</textPath></text>
+          <text class="anio" x="35" y="39" text-anchor="middle">2026</text>
+          <path d="M70 17 q10 -7 20 0 t20 0 t20 0 t20 0 M70 29 q10 -7 20 0 t20 0 t20 0 t20 0 M70 41 q10 -7 20 0 t20 0 t20 0 t20 0 M70 53 q10 -7 20 0 t20 0 t20 0 t20 0" />
+        </svg>
+        <span class="linea">{email}</span>
+        <span class="linea">Madrid</span>
+      </span>
+      <button class="volver" type="button">Ver la foto</button>
+    </span>
+  </span>
+</div>
+
+<style>
+  .postal {
+    /* --mano: la tipografía de la letra de Alicia cuando exista; mientras, la mono */
+    --papel: #efe6d2; --tinta: #12241c; --mano: var(--mono);
+    display: block; width: 100%; cursor: pointer; container-type: inline-size; perspective: 1400px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .postal button { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+  .giro {
+    display: block; position: relative; aspect-ratio: 3 / 2; rotate: -2deg;
+    transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1);
+  }
+  .postal.vuelta .giro { transform: rotateY(-180deg); }
+  /* La sombra va en cada cara: un filter en .giro aplana el 3D y el dorso no se vería */
+  .cara {
+    position: absolute; inset: 0; display: block; box-shadow: 0 14px 22px rgba(0, 0, 0, .45);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .frente img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Dorso: mensaje a la izquierda, sello, matasellos y señas a la derecha */
+  .dorso {
+    transform: rotateY(180deg);
+    background: var(--papel) url("/assets/bg-noise.jpg") 0 0 / 323px auto; background-blend-mode: multiply;
+    color: var(--tinta); display: grid; grid-template-columns: 5fr 6fr; gap: 4cqw; padding: 6cqw 5cqw;
+    font-family: var(--mano); font-size: clamp(.6875rem, 3cqw, .9375rem); line-height: 1.45;
+  }
+  .mensaje { display: flex; flex-direction: column; justify-content: space-between; gap: 3cqw; }
+  /* :global porque el mensaje llega como HTML desde formato() y Astro no le pone su marca */
+  .mensaje :global(a) { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .mensaje :global(a:hover) { color: var(--leak-1); }
+  /* Para volver con teclado: solo se ve al recibir el foco */
+  .volver { position: absolute; left: 5cqw; bottom: 3cqw; opacity: 0; pointer-events: none; text-decoration: underline; }
+  .volver:focus-visible { opacity: 1; }
+  .senas {
+    display: flex; flex-direction: column; justify-content: flex-end; gap: 2.2cqw;
+    border-left: 1px solid color-mix(in srgb, var(--tinta) 35%, transparent); padding-left: 4cqw; position: relative;
+  }
+  .linea { display: block; border-bottom: 1px solid color-mix(in srgb, var(--tinta) 35%, transparent); padding-bottom: .3em; white-space: nowrap; font-size: .92em; }
+  /* Sello: los colores del velado. El día que se puedan dejar postales, aquí se elige entre varios */
+  .sello {
+    position: absolute; top: 0; right: 0; width: 15cqw; aspect-ratio: 4 / 5;
+    background: #fff linear-gradient(135deg, var(--leak-1), var(--leak-3) 55%, var(--leak-4)) content-box;
+    padding: 1.2cqw; outline: 2px dotted var(--papel); outline-offset: -1px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+  }
+  /* Matasellos: el círculo queda a la izquierda del sello y las ondas lo cruzan */
+  .matasellos { position: absolute; top: 1.5cqw; right: 3cqw; width: 32cqw; overflow: visible; rotate: -9deg; opacity: .72; }
+  .matasellos circle, .matasellos path { fill: none; stroke: var(--tinta); stroke-width: 1.2; }
+  .matasellos .guia { stroke: none; }
+  .matasellos text { font: 500 6.5px var(--mono); letter-spacing: .12em; fill: var(--tinta); }
+  .matasellos .anio { font-size: 10px; letter-spacing: .04em; }
+
+  /* Con ratón, se levanta mientras está encima (también por el dorso). Tras un clic se queda
+     plana (.quieta) hasta que el ratón sale: si no, parece que no ha terminado de girar */
+  @media (hover: hover) {
+    .postal:hover:not(.quieta) .giro { transform: rotateY(-22deg); }
+    .postal.vuelta:hover:not(.quieta) .giro { transform: rotateY(-158deg); }
+  }
+  .postal.asoma .giro { animation: asoma 1.1s ease-in-out .4s 1; }
+  @keyframes asoma { 40% { transform: rotateY(-22deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .giro { transition: none; }
+    .postal.asoma .giro { animation: none; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".postal").forEach((postal) => {
+    const frente = postal.querySelector<HTMLButtonElement>(".frente");
+    const dorso = postal.querySelector<HTMLElement>(".dorso");
+    const volver = postal.querySelector<HTMLButtonElement>(".volver");
+    postal.addEventListener("click", (e) => {
+      // Un enlace del dorso se abre; no gira la postal
+      if (e.target instanceof Element && e.target.closest("a")) return;
+      const vuelta = postal.classList.toggle("vuelta");
+      // La cara que no se ve queda fuera del teclado y de los lectores de pantalla
+      if (frente) frente.inert = vuelta;
+      if (dorso) dorso.inert = !vuelta;
+      // Con teclado (clic sin puntero), el foco pasa a la cara que queda a la vista
+      if (e.detail === 0) (vuelta ? volver : frente)?.focus();
+      postal.classList.remove("asoma");
+      postal.classList.add("quieta");
+    });
+    postal.addEventListener("mouseleave", () => postal.classList.remove("quieta"));
+
+    // Sin ratón (móvil), se levanta sola una vez al llegar
+    if (!matchMedia("(hover: none)").matches) return;
+    const io = new IntersectionObserver((entradas) => {
+      if (!entradas[0].isIntersecting) return;
+      postal.classList.add("asoma");
+      io.disconnect();
+    }, { threshold: 0.8 });
+    io.observe(postal);
+  });
+</script>
