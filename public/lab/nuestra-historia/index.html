@@ -1,0 +1,1607 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nuestra historia · libro de boda</title>
+<meta name="description" content="La sección «Nuestra historia» de una web de boda, hecha como un libro que se hojea cogiendo la esquina de la página.">
+<meta property="og:title" content="Nuestra historia">
+<meta property="og:description" content="La sección «Nuestra historia» de una web de boda, hecha como un libro que se hojea cogiendo la esquina de la página.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aliverso.me/lab/nuestra-historia/">
+<style>
+/* Fuentes en local (SIL Open Font License, ver fonts/OFL-*.txt) */
+@font-face {
+  font-family: "EB Garamond";
+  src: url("fonts/eb-garamond-latin-400-italic.woff2") format("woff2");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Caveat";
+  src: url("fonts/caveat-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit-Variable.woff2") format("woff2");
+  font-weight: 100 900; font-display: swap;
+}
+@font-face {
+  font-family: "Azeret Mono";
+  src: url("fonts/AzeretMono-Variable.woff2") format("woff2");
+  font-weight: 400 500; font-display: swap;
+}
+
+:root { color-scheme: light; }
+[hidden] { display: none !important; }
+
+/* Un único objeto centrado: el libro. Doble página en ancho; en estrecho, una página
+   y la vista se desplaza de la izquierda a la derecha. */
+:root {
+  /* escena (cambia con el tema) */
+  --scene: #e7e3db;
+  --scene-glow: #f3f0ea;
+  --fg: #3a3530;
+  --accent: #3a3530;
+  --book-shadow: rgba(30, 26, 20, .34);
+  /* libro (objeto físico: mismos colores en ambos temas) */
+  --paper: #f3ead6;
+  --edge: #e3d8c1;
+  --edge-hi: #ede3cd;
+  --edge-lo: #d1c3a8;
+  --ink: #3a3530;
+  --ink-soft: #77716a;
+  --rule: #ddd6c8;
+  --cloth: #8e9a80;
+  --cloth-deep: #6c785f;
+  --cloth-ink: #f3ead6;
+  --endpaper: #e8dcc4;
+  /* tipografía (elegida el 2026-10-10): las de aliverso.me, Outfit y Azeret Mono, con los
+     títulos de portada y capítulos en EB Garamond cursiva */
+  --f-title: "EB Garamond", "Iowan Old Style", Georgia, serif;
+  --f-body: "Outfit", system-ui, sans-serif;
+  --f-label: "Azeret Mono", ui-monospace, monospace;
+  --w-title: 400;
+  --w-body: 350;
+  --w-strong: 500;
+  --s-title: 1.9em;
+  --s-body: .92em;
+  --lh-body: 1.4;
+  --s-label: .58em;
+  --track-label: .04em;
+  --sub-style: normal;
+  --title-style: italic;
+  /* medidas y movimiento */
+  --vh: 100vh;
+  --pw: max(260px, min(430px, calc((100vw - 48px) / 2), calc((var(--vh) - 90px) * .72)));
+  --ph: calc(var(--pw) / .72);
+  --ceja: .55em;
+  --dur: 950ms;
+  --ease: cubic-bezier(.645, .045, .355, 1);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .26 0 0 0 0 .2 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* trama de la tela: hilos finos en las dos direcciones */
+  --weave:
+    repeating-linear-gradient(0deg, rgba(255, 249, 238, .035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(30, 24, 18, .035) 0 1px, transparent 1px 3px);
+}
+@supports (height: 100dvh) { :root { --vh: 100dvh; } }
+@media (max-width: 719px) {
+  :root { --pw: max(230px, min(400px, calc(100vw - 32px), calc((var(--vh) - 90px) * .72))); }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --scene: #161513; --scene-glow: #24221f; --fg: #ece8e1; --accent: #ece8e1;
+    --book-shadow: rgba(30, 24, 18, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --scene: #161513; --scene-glow: #24221f; --fg: #ece8e1; --accent: #ece8e1;
+  --book-shadow: rgba(30, 24, 18, .6);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { overflow-x: clip; }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse 75% 60% at 50% 44%, var(--scene-glow), var(--scene) 72%) var(--scene);
+  color: var(--fg);
+  font-family: var(--f-body);
+  overflow-x: clip;
+}
+.lab {
+  min-height: var(--vh);
+  padding-block: 18px 22px;
+  padding-inline: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* La hoja levantada y su sombra salen del libro: que no alarguen la página ni saquen barra de scroll. */
+  overflow: clip;
+}
+
+/* ---------- escenario y libro ---------- */
+.stage {
+  position: relative;
+  width: calc(var(--pw) * 2);
+  height: var(--ph);
+  margin-block: 12px;
+  touch-action: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.stage.dragging { cursor: grabbing; }
+.stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 14px; border-radius: 4px; }
+.book {
+  position: absolute;
+  top: 0; left: 0;
+  width: calc(var(--pw) * 2);
+  height: 100%;
+  font-size: calc(var(--pw) / 21);
+  color: var(--ink);
+  transform: translateX(var(--tx, 0%));
+  transition: transform var(--dur) var(--ease);
+}
+.book.no-anim, .book.no-anim .block { transition: none; }
+.book[data-view="start"] { --tx: -25%; }
+.book[data-view="open"]  { --tx: 0%; }
+.book[data-view="end"]   { --tx: 25%; }
+/* ---------- al cerrar el libro: dos botones que salen de debajo ---------- */
+.stage { z-index: 2; }
+.fin {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .7em;
+  margin-top: 6px;
+  font-size: calc(var(--pw) / 21);
+  /* escondidos detrás del libro, un poco hacia arriba */
+  transform: translateY(-120%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 500ms var(--ease), opacity 300ms ease, visibility 0s linear 500ms;
+}
+:root[data-fin="1"] .fin {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  /* salen mientras la tapa se cierra, un poco después de empezar a girar */
+  transition: transform 650ms cubic-bezier(.2, .9, .3, 1.1) calc(var(--dur) * .3), opacity 400ms ease calc(var(--dur) * .3), visibility 0s;
+}
+/* Botones físicos, de la tela del libro (elegidos el 2026-10-10): pespunte y texto estampado en seco.
+   «Confirmar asistencia», en la tela verde de la tapa; «volver a leer», en tela cruda del color del papel. */
+.fin-btn {
+  position: relative;
+  font-family: var(--f-label);
+  font-size: var(--s-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  border: 0;
+  border-radius: .35em;
+  padding: 1.15em 1.7em;
+  cursor: pointer;
+  color: #4f4840;
+  background: var(--weave), var(--grain), linear-gradient(180deg, #f6eedc, #e9dec6);
+  text-shadow: 0 1px 0 rgba(255, 250, 240, .7);
+  box-shadow: inset 0 1px 0 rgba(255, 252, 244, .6), inset 0 -2px 0 rgba(90, 70, 40, .1),
+              0 2px 0 #cfc2a6, 0 5px 10px -3px rgba(30, 24, 18, .3);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.fin-btn::after {  /* pespunte */
+  content: "";
+  position: absolute;
+  inset: .32em;
+  border: 1px dashed rgba(119, 113, 106, .45);
+  border-radius: .2em;
+  pointer-events: none;
+}
+.fin-btn.lleno {
+  color: var(--cloth-ink);
+  background: var(--weave), var(--grain), linear-gradient(180deg, #9aa68c, var(--cloth) 55%, #84907a);
+  text-shadow: 0 -1px 0 rgba(30, 24, 18, .28), 0 1px 0 rgba(255, 249, 238, .14);
+  box-shadow: inset 0 1px 0 rgba(255, 250, 235, .22), inset 0 -2px 0 rgba(30, 24, 18, .16),
+              0 2px 0 var(--cloth-deep), 0 5px 10px -3px rgba(30, 24, 18, .4);
+}
+.fin-btn.lleno::after { border-color: rgba(243, 234, 214, .55); }
+.fin-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: .3em; }
+/* al pasar por encima se levanta un poco; al pulsar, se hunde */
+.fin-btn:hover { filter: brightness(1.04); transform: translateY(-1px); }
+.fin-btn:active { transform: translateY(2px); box-shadow: inset 0 1px 3px rgba(30, 24, 18, .3), 0 2px 4px -2px rgba(30, 24, 18, .3); }
+.fin-nota { position: absolute; top: 100%; left: 0; right: 0; margin: .6em 0 0;  /* fuera del flujo: que el libro no suba al aparecer */ text-align: center; font-size: .9em; color: var(--ink-soft); }
+@media (prefers-reduced-motion: reduce) { .fin, :root[data-fin="1"] .fin { transition: none; } }
+@media (max-width: 719px) {
+  .stage { width: var(--pw); clip-path: inset(-30% -14px); touch-action: pan-y; }
+  .book { transition-duration: 480ms; }
+  .book[data-side="right"] { --tx: -50%; }
+  .book[data-side="left"]  { --tx: 0%; }
+}
+
+/* Bloque de páginas bajo las hojas. Las tapas sobresalen del papel (cejas). */
+.block {
+  position: absolute;
+  top: var(--ceja);
+  width: calc(50% - var(--ceja));
+  height: calc(100% - 2 * var(--ceja));
+  background: var(--edge);
+  transition: opacity .45s ease;
+}
+.block.r {
+  left: 50%;
+  border-radius: 0 .2em .2em 0;
+  box-shadow: 1px 0 0 var(--edge-lo), 2px 1px 0 var(--edge-hi), 3px 1px 0 var(--edge-lo), 4px 2px 0 var(--edge-hi),
+              5px 2px 0 var(--edge-lo), 6px 3px 0 var(--edge-hi), 7px 3px 0 var(--edge-lo);
+}
+.block.l {
+  left: var(--ceja);
+  border-radius: .2em 0 0 .2em;
+  box-shadow: -1px 0 0 var(--edge-lo), -2px 1px 0 var(--edge-hi), -3px 1px 0 var(--edge-lo), -4px 2px 0 var(--edge-hi),
+              -5px 2px 0 var(--edge-lo), -6px 3px 0 var(--edge-hi), -7px 3px 0 var(--edge-lo);
+}
+/* El bloque de papel solo existe en un lado si allí hay hojas de papel: bajo una tapa sola no hay nada. */
+.book[data-lempty="1"] .block.l,
+.book[data-rempty="1"] .block.r { opacity: 0; }
+.leaf[data-hard] .face { box-shadow: 0 1.4em 2.2em -.6em var(--book-shadow); }
+
+/* hojas */
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+}
+.leaf:not([data-hard]) { top: var(--ceja); height: calc(100% - 2 * var(--ceja)); width: calc(50% - var(--ceja)); }
+/* Cada cara va dentro de una lámina. En reposo solo se ve una: el anverso a la
+   derecha o el dorso desplazado a la izquierda. Al plegar, el script las recorta y gira. */
+/* will-change siempre, no solo al plegar: si la capa se crea al levantar la esquina, el texto se
+   vuelve a rasterizar y da un saltito */
+.sheet { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
+.leaf > .face.back,
+.leaf:not(.flipped):not(.folding) .s-back,
+.leaf.flipped:not(.folding) .s-front { visibility: hidden; }
+.leaf.flipped .s-back { transform: translateX(-100%); }
+.reveal {  /* sombra sobre la página que queda al descubierto */
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  overflow: hidden;
+  background: var(--grain), var(--paper);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5em 1.9em 2.2em;
+}
+.face.front { border-radius: 0 .2em .2em 0; }
+.face.back  { border-radius: .2em 0 0 .2em; }
+.face::before {  /* luz y sombra de la hoja curvada, solo mientras se pliega */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--flap-shade, none);
+}
+.face::after {  /* sombra del lomo */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* sombra del lomo: el papel se hunde hacia el centro, más oscuro y más ancho, y se levanta un poco después */
+.face.front::after { background: linear-gradient(90deg, rgba(58, 40, 22, .34), rgba(58, 40, 22, .2) 2.5%, rgba(58, 40, 22, .1) 7%, rgba(58, 40, 22, .04) 14%, rgba(255, 248, 230, .06) 20%, transparent 28%); }
+.face.back::after  { background: linear-gradient(270deg, rgba(58, 40, 22, .34), rgba(58, 40, 22, .2) 2.5%, rgba(58, 40, 22, .1) 7%, rgba(58, 40, 22, .04) 14%, rgba(255, 248, 230, .06) 20%, transparent 28%); }
+/* en las tapas, la sombra de antes: la tela no se hunde como el papel */
+.face.front.cover::after { background: linear-gradient(90deg, rgba(30, 26, 20, .2), rgba(30, 26, 20, .05) 5%, transparent 14%); }
+.face.back.cover::after  { background: linear-gradient(270deg, rgba(30, 26, 20, .2), rgba(30, 26, 20, .05) 5%, transparent 14%); }
+
+
+/* ---------- tapas: tela lisa ---------- */
+.face.cover {
+  background: var(--grain), var(--weave),
+    linear-gradient(90deg, rgba(30, 24, 18, .16) 0 1.1em, rgba(30, 24, 18, .06) 1.1em 1.25em, transparent 1.25em),
+    var(--cloth);
+  color: var(--cloth-ink);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2em 2em 2em 3em;
+}
+.face.cover.back {
+  background: var(--grain), var(--weave),
+    linear-gradient(270deg, rgba(30, 24, 18, .16) 0 1.1em, rgba(30, 24, 18, .06) 1.1em 1.25em, transparent 1.25em),
+    var(--cloth);
+  padding: 2em 3em 2em 2em;
+}
+.cover-title {
+  margin: 0;
+  font-family: var(--f-title);
+  font-style: var(--title-style, normal);
+  font-weight: var(--w-title);
+  font-size: 2.3em;
+  line-height: 1.1;
+  text-wrap: balance;
+  /* estampado en seco: el título se hunde un poco en la tela */
+  text-shadow: 0 -1px 0 rgba(30, 24, 18, .18), 0 1px 0 rgba(255, 249, 238, .12);
+}
+.cover-sub {
+  margin: .9em 0 0;
+  font-family: var(--f-sub, inherit);
+  font-style: var(--sub-style);
+  font-weight: var(--w-body);
+  font-size: 1em;
+  line-height: 1.35;
+  max-width: 14em;
+  opacity: .85;
+  text-wrap: balance;
+}
+.cover-arrow {
+  width: 1.5em;
+  height: .75em;
+  margin-left: .25em;
+  vertical-align: -.02em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Por dentro de las tapas: la delantera lleva la lámina del capítulo 1 y la trasera, el capítulo 4.
+   El papel se pinta del mismo tamaño y en el mismo sitio que una hoja suelta: pegado al lomo y con
+   la tela de la tapa asomando solo arriba, abajo y por fuera (las cejas). Así ninguna página parece
+   despegada del lomo. */
+.leaf[data-hard] .face.guarda,
+.leaf[data-hard] .face.plate,
+.leaf[data-hard] .face.text {
+  background: var(--grain), var(--paper);
+  border: var(--ceja) solid var(--cloth);
+  box-shadow: none;   /* la sombra de la tapa, solo por fuera: por dentro rayaba la página de al lado junto al lomo */
+}
+.leaf[data-hard] .face.front { border-left: 0; }   /* tapa trasera: el lomo queda a la izquierda */
+.leaf[data-hard] .face.back { border-right: 0; }   /* tapa delantera abierta: el lomo, a la derecha */
+.leaf[data-hard] .face.guarda { background: var(--grain), var(--endpaper); }
+.leaf[data-hard] .face.plate { padding: 1.7em 1.7em 2.6em; }
+
+/* ---------- páginas de texto ---------- */
+.face.text { justify-content: center; gap: .6em; }
+.chap {
+  margin: 0;
+  font-family: var(--f-label);
+  font-size: var(--s-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.text h2 {
+  margin: 0 0 .25em;
+  font-family: var(--f-title);
+  font-style: var(--title-style, normal);
+  font-weight: var(--w-title);
+  font-size: var(--s-title);
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.body {
+  margin: 0;
+  font-weight: var(--w-body);
+  font-size: var(--s-body);
+  line-height: var(--lh-body);
+  hyphens: none;
+  -webkit-hyphens: none;
+  text-wrap: pretty;
+}
+.details {
+  margin: .6em 0 0;
+  padding: .7em 0;
+  border-block: 1px solid var(--rule);
+  display: grid;
+  gap: .25em;
+  line-height: 1.3;
+}
+.details dt {
+  font-family: var(--f-label);
+  font-size: var(--s-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.details dd { margin: 0; font-size: 1.02em; font-weight: var(--w-strong); }
+
+/* ---------- láminas: la imagen con margen de papel ---------- */
+/* hueco para la foto de los novios: cuatro esquinas de álbum donde encaja una polaroid */
+.foto-hueco {
+  position: relative;
+  width: 82%;
+  aspect-ratio: 88 / 107;
+  background: rgba(58, 53, 48, .035);
+  box-shadow: inset 0 0 0 1px rgba(58, 53, 48, .07);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+/* esquinas de tela reforzada, del color de la página: las separa solo su sombra y el pespunte */
+.esquina {
+  position: absolute;
+  width: 15%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 1px 1.2px rgba(40, 30, 20, .32)) drop-shadow(0 0 .5px rgba(40, 30, 20, .25));
+}
+.esquina::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M78 0 L0 78' stroke='%2377716a' stroke-opacity='.55' stroke-width='2.2' stroke-dasharray='5 4' fill='none'/%3E%3Cpath d='M100 0 L0 100' stroke='%23fbf5e8' stroke-width='3' fill='none'/%3E%3C/svg%3E") 0 0 / 100% 100%,
+    var(--weave),
+    var(--grain),
+    linear-gradient(135deg, #f1e7d1 0%, #ece1c9 100%);
+}
+.esquina.tl { top: -2px; left: -2px; }
+.esquina.tr { top: -2px; right: -2px; }
+.esquina.tr::before { transform: scaleX(-1); }
+.esquina.bl { bottom: -2px; left: -2px; }
+.esquina.bl::before { transform: scaleY(-1); }
+.esquina.br { bottom: -2px; right: -2px; }
+.esquina.br::before { transform: scale(-1, -1); }
+.foto-hueco-txt {
+  margin-bottom: 7%;
+  padding: .5em .8em;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--f-label);
+  font-size: var(--s-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.foto-hueco-txt:focus-visible { outline: 1px solid var(--ink-soft); outline-offset: 2px; }
+.foto-hueco.encima { background: rgba(58, 53, 48, .08); box-shadow: inset 0 0 0 1px rgba(58, 53, 48, .18); }
+.foto-hueco .esquina { z-index: 2; }
+/* la polaroid: marco crema (nunca blanco puro), foto cuadrada y más margen abajo */
+.polaroid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 6% 6% 0;
+  background: var(--grain), #fbf6ea;
+  box-shadow: 0 1px 2px rgba(40, 30, 20, .22), 0 6px 14px -6px rgba(40, 30, 20, .3);
+  animation: encajar 700ms cubic-bezier(.2, .9, .3, 1.15) both;
+}
+.polaroid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.polaroid.quieta { animation: none; }
+/* la fecha, como escrita con rotulador en el margen de abajo */
+.polaroid { container-type: inline-size; }
+.polaroid .fecha {
+  position: absolute;
+  right: var(--x, 9%);
+  bottom: var(--y, 4%);
+  font-family: "Caveat", "Segoe Print", cursive;
+  font-weight: 500;
+  font-size: var(--size, 7.5cqw);
+  line-height: 1;
+  letter-spacing: var(--ls, 0);
+  white-space: nowrap;
+  color: #55536a;
+  transform: rotate(var(--r, -3deg));
+  opacity: .5;
+}
+/* cada cifra un poco suelta: como escrita deprisa, sin dos trazos iguales */
+.polaroid .fecha span { display: inline-block; transform: translateY(var(--dy, 0)) rotate(var(--dr, 0deg)); }
+@keyframes encajar {
+  0% { transform: translate(-6%, -14%) rotate(-7deg) scale(1.08); opacity: 0; box-shadow: 0 18px 30px -8px rgba(40, 30, 20, .35); }
+  35% { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .polaroid { animation: none; } }
+.face.plate { align-items: center; justify-content: center; padding: 1.7em 1.7em 2.6em; }
+.plate > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 264 / 324;
+}
+
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 1ms; }
+}
+</style>
+</head>
+<body>
+<div class="lab" lang="es">
+  <h1 class="sr-only">Nuestra historia</h1>
+
+  <div class="stage" id="stage" tabindex="0" role="group" aria-label="Libro ilustrado con nuestra historia. Arrastra una esquina o usa las flechas izquierda y derecha para pasar página.">
+    <div class="book" id="book" data-view="start" data-side="right">
+      <div class="block l"></div>
+      <div class="block r"></div>
+      <div class="reveal" id="reveal" hidden></div>
+
+      <!-- Tapa delantera (rígida): cubierta / lámina 1 por dentro de la tapa -->
+      <div class="leaf" data-hard>
+        <section class="face front cover">
+          <h2 class="cover-title">Nuestra historia</h2>
+          <p class="cover-sub">Acompáñanos <svg class="cover-arrow" viewBox="0 0 24 12" aria-hidden="true"><path d="M1 6h21M17 1.5 22 6l-5 4.5"/></svg></p>
+        </section>
+        <figure class="face back plate">
+          <div class="foto-hueco" role="img" data-foto="fotos/cap1-web.jpg" data-fecha="23/06/2021" aria-label="Hueco para una foto de los novios.">
+            <span class="esquina tl"></span><span class="esquina tr"></span><span class="esquina bl"></span><span class="esquina br"></span>
+            <button class="foto-hueco-txt" type="button">Vuestra foto</button>
+          </div>
+        </figure>
+      </div>
+
+      <!-- Hoja: capítulo 1 / lámina 2 -->
+      <div class="leaf">
+        <article class="face front text">
+          <p class="chap">Capítulo 1</p>
+          <h2>El principio</h2>
+          <p class="body">No sabemos si fue casualidad o si tenía que pasar, pero aquel día nos conocimos. Una conversación que parecía una más terminó siendo el principio de algo que ninguno de los dos imaginaba.</p>
+        </article>
+        <figure class="face back plate">
+          <div class="foto-hueco" role="img" data-foto="fotos/cap2-web.jpg" data-fecha="18/05/2023" aria-label="Hueco para una foto de los novios.">
+            <span class="esquina tl"></span><span class="esquina tr"></span><span class="esquina bl"></span><span class="esquina br"></span>
+            <button class="foto-hueco-txt" type="button">Vuestra foto</button>
+          </div>
+        </figure>
+      </div>
+
+      <!-- Hoja: capítulo 2 / lámina 3 -->
+      <div class="leaf">
+        <article class="face front text">
+          <p class="chap">Capítulo 2</p>
+          <h2>Nosotros</h2>
+          <p class="body">Entre planes improvisados, viajes, domingos juntos y pequeñas rutinas, fuimos construyendo nuestra propia historia. Poco a poco, compartir el tiempo dejó de ser un plan y se convirtió en nuestra forma de vivir.</p>
+        </article>
+        <figure class="face back plate">
+          <div class="foto-hueco" role="img" data-foto="fotos/cap3-web.jpg" data-fecha="17/06/2025" aria-label="Hueco para una foto de los novios.">
+            <span class="esquina tl"></span><span class="esquina tr"></span><span class="esquina bl"></span><span class="esquina br"></span>
+            <button class="foto-hueco-txt" type="button">Vuestra foto</button>
+          </div>
+        </figure>
+      </div>
+
+      <!-- Hoja: capítulo 3 / lámina 4 -->
+      <div class="leaf">
+        <article class="face front text">
+          <p class="chap">Capítulo 3</p>
+          <h2>Un hogar</h2>
+          <p class="body">Llegó el momento de compartir algo más que nuestro tiempo: una casa, nuestras costumbres, nuestras manías y todos esos pequeños momentos que hacen que una vida sea de dos. Y fue entonces cuando entendimos que queríamos seguir eligiéndonos cada día.</p>
+        </article>
+        <figure class="face back plate">
+          <svg viewBox="0 0 264 324" role="img" aria-label="Acuarela: dos copas, flores y unas alianzas sobre una mesa.">
+            <image class="acuarela" data-lamina="mesa" width="264" height="324" preserveAspectRatio="xMidYMid slice"/>
+          </svg>
+        </figure>
+      </div>
+
+
+      <!-- Tapa trasera (rígida): capítulo 4 por dentro (sin hoja en blanco al final) / contracubierta -->
+      <div class="leaf" data-hard>
+        <article class="face front text">
+          <p class="chap">Capítulo 4</p>
+          <h2>El gran día</h2>
+          <p class="body">Después de todo lo vivido, decidimos dar el siguiente paso. Hoy celebramos rodeados de las personas que queremos el comienzo de un nuevo capítulo: el que escribiremos juntos, esta vez para siempre.</p>
+          <dl class="details">
+            <dt>Cuándo y dónde</dt><dd>Sábado 18 de septiembre de 2027, 18:00&nbsp;h&nbsp;· Finca del Cuento</dd>
+          </dl>
+        </article>
+        <section class="face back cover">
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Al acabar y cerrar el libro, salen de debajo de él -->
+  <div class="fin" id="fin">
+    <button class="fin-btn" id="releer" type="button">Volver a leer</button>
+    <button class="fin-btn lleno" id="rsvp" type="button">Confirmar asistencia</button>
+    <p class="fin-nota" id="rsvpNote" hidden>Esto es una demo: aquí iría vuestro formulario.</p>
+  </div>
+
+  <!-- Sin controles a la vista: el script los sigue usando y el estado se anuncia a lectores de pantalla. -->
+  <div class="sr-only">
+    <button id="prev" type="button" hidden>Página anterior</button>
+    <span id="barFill" hidden></span>
+    <p id="status" aria-live="polite">Portada</p>
+    <button id="next" type="button" hidden>Página siguiente</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const stage = $('stage');
+  const book = $('book');
+  const reveal = $('reveal');
+  const blockL = book.querySelector('.block.l');
+  const blockR = book.querySelector('.block.r');
+  const prevBtn = $('prev');
+  const nextBtn = $('next');
+  const statusEl = $('status');
+  const barFill = $('barFill');
+
+  /* Cada hoja tiene dos caras. Se envuelven en una lámina para aplicar la
+     transformación y la sombra por fuera y el recorte (clip-path) por dentro. */
+  const leaves = Array.from(book.querySelectorAll('.leaf')).map((el, index) => {
+    const wrap = (face, name) => {
+      const sheet = document.createElement('div');
+      sheet.className = `sheet ${name}`;
+      el.insertBefore(sheet, face);
+      sheet.appendChild(face);
+      return sheet;
+    };
+    const front = el.querySelector('.front');
+    const back = el.querySelector('.back');
+    return {
+      el, index, front, back, frontWrap: wrap(front, 's-front'), backWrap: wrap(back, 's-back'),
+      hard: el.hasAttribute('data-hard'),
+    };
+  });
+
+  const LEAVES = leaves.length;
+  const PAGES = LEAVES * 2;
+  const TOP_Z = LEAVES + 5;
+  /** Primera y última hoja de papel (las tapas duras no cuentan como bloque de páginas). */
+  const FIRST_PAPER = leaves[0].hard ? 1 : 0;
+  const LAST_PAPER = leaves[LEAVES - 1].hard ? LEAVES - 2 : LEAVES - 1;
+  const singleQuery = window.matchMedia('(max-width: 719px)');
+  const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /** Página visible: 0 = cubierta, PAGES - 1 = contracubierta. */
+  let page = 0;
+  /** Pliegue activo (una hoja a medio pasar), o null. */
+  let fold = null;
+  let rafId = 0;
+  let gesture = null;
+  let suppressClick = false;
+  let riffleTarget = null;
+
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  const isSingle = () => singleQuery.matches;
+  const flippedCount = () => Math.ceil(page / 2);
+  const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+  /* ---------- estado en reposo ---------- */
+
+  function setFaceVisible(face, visible) {
+    face.classList.toggle('is-visible', visible);
+    face.inert = !visible;
+    face.setAttribute('aria-hidden', String(!visible));
+  }
+
+  function updateStatus(p) {
+    const flips = Math.ceil(p / 2);
+    let label;
+    if (p === 0) label = 'Portada';
+    else if (p === PAGES - 1) label = 'Contraportada';
+    else if (isSingle()) label = `Página ${p + 1} de ${PAGES}`;
+    else label = `Páginas ${2 * flips}–${2 * flips + 1} de ${PAGES}`;
+    statusEl.textContent = label;
+    barFill.style.width = `${(p / (PAGES - 1)) * 100}%`;
+    prevBtn.disabled = p === 0;
+    nextBtn.disabled = p === PAGES - 1;
+  }
+
+  function syncRest() {
+    const flips = flippedCount();
+    const single = isSingle();
+    const onRight = page % 2 === 0;
+    leaves.forEach((leaf) => {
+      const i = leaf.index;
+      const flipped = i < flips;
+      leaf.el.classList.toggle('flipped', flipped);
+      leaf.el.style.zIndex = String(flipped ? i + 1 : LEAVES - i);
+      setFaceVisible(leaf.front, i === flips && (!single || onRight));
+      setFaceVisible(leaf.back, i === flips - 1 && (!single || !onRight));
+    });
+    book.dataset.view = flips === 0 ? 'start' : flips === LEAVES ? 'end' : 'open';
+    document.documentElement.dataset.fin = flips === LEAVES ? '1' : '0';
+    book.dataset.side = onRight ? 'right' : 'left';
+    book.dataset.lempty = flips <= FIRST_PAPER ? '1' : '0';
+    book.dataset.rempty = flips > LAST_PAPER ? '1' : '0';
+    updateStatus(page);
+  }
+
+  function pageAfterFlip(index, mirror) {
+    if (!mirror) return 2 * index + 1;
+    if (isSingle()) return 2 * index;
+    return index === 0 ? 0 : 2 * index - 1;
+  }
+
+  /* ---------- geometría del pliegue ----------
+     Se trabaja en coordenadas de página: origen en el lomo (arriba), x hacia el
+     borde exterior. La esquina C = (w, cy) se lleva hasta P; la línea de pliegue
+     es la mediatriz de C y P. Para pasar hacia atrás se usa el mismo modelo
+     reflejado (mirror), con el dorso como cara base. */
+
+  function clipPolygon(points, sideFn) {
+    const out = [];
+    for (let i = 0; i < points.length; i++) {
+      const a = points[i];
+      const b = points[(i + 1) % points.length];
+      const da = sideFn(a);
+      const db = sideFn(b);
+      if (da >= 0) out.push(a);
+      if ((da >= 0) !== (db >= 0)) {
+        const t = da / (da - db);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    }
+    return out;
+  }
+
+  function toClip(points) {
+    if (points.length < 3) return 'polygon(0 0, 0 0, 0 0)';
+    return `polygon(${points.map(([x, y]) => `${x.toFixed(2)}px ${y.toFixed(2)}px`).join(', ')})`;
+  }
+
+  /** Degradado perpendicular al pliegue, con paradas en px medidas desde la línea. */
+  function foldGradient(w, h, mx, my, nx, ny, stops) {
+    const angle = (Math.atan2(nx, -ny) * 180) / Math.PI;
+    const length = Math.abs(w * nx) + Math.abs(h * ny);
+    const origin = (mx - w / 2) * nx + (my - h / 2) * ny + length / 2;
+    const list = stops.map(([offset, color]) => `${color} ${(origin + offset).toFixed(1)}px`).join(', ');
+    return `linear-gradient(${angle.toFixed(2)}deg, ${list})`;
+  }
+
+  /** El papel no se estira: la esquina no puede alejarse del lomo más que el ancho o la diagonal. */
+  function constrain(P, f) {
+    let { x, y } = P;
+    const near = f.cy;
+    const far = f.h - f.cy;
+    const diagonal = Math.hypot(f.w, f.h);
+    for (let i = 0; i < 2; i++) {
+      let d = Math.hypot(x, y - near);
+      if (d > f.w) { x *= f.w / d; y = near + ((y - near) * f.w) / d; }
+      d = Math.hypot(x, y - far);
+      if (d > diagonal) { x *= diagonal / d; y = far + ((y - far) * diagonal) / d; }
+    }
+    return { x, y };
+  }
+
+  /** Ancho de media doble página (el de la tapa). Las hojas de papel pueden ser algo menores que la tapa. */
+  const boardWidth = () => book.offsetWidth / 2;
+
+  function panFor(progress, f) {
+    const b = boardWidth();
+    if (isSingle()) return -b * (1 - progress);
+    if (f.index === 0) return (-b / 2) * (1 - progress);
+    if (f.index === LEAVES - 1) return (b / 2) * progress;
+    return 0;
+  }
+
+  /** Posición del puntero → destino de la esquina, compensando el desplazamiento del libro. */
+  function pointerToTarget(clientX, clientY, f) {
+    const rect = stage.getBoundingClientRect();
+    const u = clientX - rect.left;
+    const v = clientY - rect.top - f.leaf.el.offsetTop;
+    const b = boardWidth();
+    let x;
+    if (isSingle()) x = 2 * u - b;
+    else if (f.index === 0) x = (4 * u - 3 * b) / 3;
+    else if (f.index === LEAVES - 1) x = (4 * u - 5 * b) / 3;
+    else x = u - b;
+    // Una hoja cosida al lomo gira casi en vertical: la esquina sigue al puntero en altura solo en parte.
+    return { x: f.mirror ? -x : x, y: f.cy + (v - f.cy) * 0.25 };
+  }
+
+  function drawFold() {
+    const f = fold;
+    const { w, h, cy, mirror, leaf } = f;
+    const P = constrain(f.P, f);
+    f.P = P;
+
+    const base = mirror ? leaf.back : leaf.front;
+    const flap = mirror ? leaf.front : leaf.back;
+    const flapWrap = mirror ? leaf.frontWrap : leaf.backWrap;
+
+    const turn = clamp((w - P.x) / (2 * w), 0, 1);          // 0 = sin pasar, 1 = pasada
+    const flippedness = mirror ? 1 - turn : turn;           // 0 = a la derecha, 1 = a la izquierda
+    book.style.setProperty('--tx', `${panFor(flippedness, f).toFixed(2)}px`);
+    // El canto del bloque de páginas solo aparece cuando la hoja está a punto de posarse.
+    if (f.index === FIRST_PAPER) blockL.style.opacity = clamp((flippedness - 0.65) / 0.35, 0, 1).toFixed(3);
+    if (f.index === LAST_PAPER) blockR.style.opacity = clamp((1 - flippedness) / 0.35, 0, 1).toFixed(3);
+    if (leaf.hard) { drawHard(f, flippedness); return; }
+
+    const dx = w - P.x;
+    const dy = cy - P.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 0.5) {
+      base.style.clipPath = '';
+      flapWrap.style.visibility = 'hidden';
+      reveal.hidden = true;
+      return;
+    }
+
+    const nx = dx / dist;
+    const ny = dy / dist;
+    const mx = (w + P.x) / 2;
+    const my = (cy + P.y) / 2;
+    const side = ([x, y]) => (x - mx) * nx + (y - my) * ny;
+    const rect = [[0, 0], [w, 0], [w, h], [0, h]];
+    const kept = clipPolygon(rect, (p) => -side(p));
+    const folded = clipPolygon(rect, side);
+    const flipX = (points) => points.map(([x, y]) => [w - x, y]);
+
+    base.style.clipPath = toClip(mirror ? flipX(kept) : kept);
+    flap.style.clipPath = toClip(mirror ? folded : flipX(folded));
+
+    // Reflexión respecto al pliegue compuesta con el volteo de la cara: una rotación.
+    const a = 2 * nx * nx - 1;
+    const b = 2 * nx * ny;
+    const c = -2 * nx * ny;
+    const d = 1 - 2 * ny * ny;
+    const mn = mx * nx + my * ny;
+    const e = w * (1 - 2 * nx * nx) + 2 * mn * nx;
+    const g = -2 * w * nx * ny + 2 * mn * ny;
+    const m = mirror ? [a, -b, -c, d, -(a * w + e), b * w + g] : [a, b, c, d, e, g];
+    flapWrap.style.transform = `matrix(${m.map((n) => n.toFixed(5)).join(',')})`;
+    flapWrap.style.visibility = 'visible';
+
+    // Sombras: se apagan en el último tramo para que el aterrizaje no dé un salto.
+    const fade = clamp((1 - turn) * 4, 0, 1);
+    const flapWidth = dist / 2;
+    const inFlap = mirror ? [mx, my, nx, ny] : [w - mx, my, -nx, ny];
+    flap.style.setProperty('--flap-shade', foldGradient(w, h, ...inFlap, [
+      // Papel mate que se comba: sin brillo ni arista marcada, solo un sombreado ancho.
+      [0, `rgba(40,26,12,${(0.2 * fade).toFixed(3)})`],
+      [flapWidth * 0.45, `rgba(40,26,12,${(0.03 * fade).toFixed(3)})`],
+      [flapWidth * 0.75, `rgba(255,250,235,${(0.07 * fade).toFixed(3)})`],
+      [flapWidth, `rgba(40,26,12,${(0.1 * fade).toFixed(3)})`],
+    ]));
+    flapWrap.style.filter =
+      `drop-shadow(0 0 ${clamp(flapWidth * 0.14, 3, 20).toFixed(1)}px rgba(30,18,8,${(0.26 * fade).toFixed(3)}))`;
+
+    const inBase = mirror ? [w - mx, my, -nx, ny] : [mx, my, nx, ny];
+    // La parte que aún no ha girado se oscurece al acercarse a la curva, como una hoja que se levanta.
+    const curl = Math.min(110, flapWidth * 0.9 + 10);
+    base.style.setProperty('--flap-shade', foldGradient(w, h, ...inBase, [
+      [-curl, 'rgba(40,26,12,0)'],
+      [0, `rgba(40,26,12,${(0.2 * fade).toFixed(3)})`],
+    ]));
+    reveal.hidden = false;
+    reveal.style.left = mirror ? `${(boardWidth() - w).toFixed(1)}px` : '50%';
+    reveal.style.top = `${leaf.el.offsetTop}px`;
+    reveal.style.width = `${w}px`;
+    reveal.style.height = `${h}px`;
+    reveal.style.clipPath = toClip(mirror ? flipX(folded) : folded);
+    reveal.style.background = foldGradient(w, h, ...inBase, [
+      [0, `rgba(12,22,28,${(0.38 * fade).toFixed(3)})`],
+      [Math.min(90, flapWidth * 0.9 + 6), 'rgba(12,22,28,0)'],
+    ]);
+  }
+
+  /** Tapa dura: no se dobla, gira entera sobre el lomo. Mismo estado de pliegue, otro dibujo. */
+  function drawHard(f, flippedness) {
+    const { leaf, w } = f;
+    const angle = flippedness * 180;
+    const showBack = angle > 90;
+    const lift = Math.sin((angle * Math.PI) / 180);
+    leaf.el.style.transformOrigin = '0 50%';
+    leaf.el.style.transform = `perspective(${(w * 5).toFixed(0)}px) rotateY(${(-angle).toFixed(2)}deg)`;
+    const shown = showBack ? leaf.backWrap : leaf.frontWrap;
+    const hiddenWrap = showBack ? leaf.frontWrap : leaf.backWrap;
+    hiddenWrap.style.visibility = 'hidden';
+    shown.style.visibility = 'visible';
+    // El dorso se dibuja en espejo para que, girado 180°, se lea al derecho.
+    leaf.backWrap.style.transform = 'translateX(100%) scaleX(-1)';
+    (showBack ? leaf.back : leaf.front).style.setProperty('--flap-shade', `rgba(30,14,4,${(0.4 * lift).toFixed(3)})`);
+    shown.style.filter = `drop-shadow(0 ${(6 * lift).toFixed(1)}px ${(4 + 14 * lift).toFixed(1)}px rgba(20,10,4,${(0.45 * lift).toFixed(3)}))`;
+    reveal.hidden = true;
+  }
+
+  /* ---------- ciclo de vida del pliegue ---------- */
+
+  function beginFold(index, mirror, corner) {
+    if (fold) {
+      if (fold.index === index && fold.mirror === mirror) return fold;
+      endFold(fold.mode === 'timed' ? fold.completing : false);
+    }
+    const leaf = leaves[index];
+    const w = leaf.el.offsetWidth;
+    const h = leaf.el.offsetHeight;
+    const cy = corner === 'top' ? 0 : h;
+    fold = {
+      leaf, index, mirror, corner, w, h, cy,
+      P: { x: w, y: cy },
+      target: null,
+      mode: 'follow',
+      peek: false,
+      unpeeking: false,
+      completing: false,
+      onDone: null,
+    };
+    leaf.el.classList.add('folding');
+    leaf.el.style.zIndex = String(TOP_Z);
+    reveal.style.zIndex = String(TOP_Z - 1);
+    (mirror ? leaf.frontWrap : leaf.backWrap).style.zIndex = '2';
+    (mirror ? leaf.backWrap : leaf.frontWrap).style.zIndex = '1';
+    (mirror ? leaf.frontWrap : leaf.backWrap).style.visibility = 'hidden';
+    book.classList.add('no-anim');
+    if (!rafId) rafId = requestAnimationFrame(tick);
+    return fold;
+  }
+
+  function endFold(completed) {
+    const f = fold;
+    if (!f) return;
+    fold = null;
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+
+    const { leaf } = f;
+    [leaf.front, leaf.back].forEach((face) => {
+      face.style.clipPath = '';
+      face.style.removeProperty('--flap-shade');
+    });
+    [leaf.frontWrap, leaf.backWrap].forEach((sheet) => {
+      sheet.style.transform = '';
+      sheet.style.filter = '';
+      sheet.style.zIndex = '';
+      sheet.style.visibility = '';
+    });
+    leaf.el.classList.remove('folding');
+    leaf.el.style.transform = '';
+    leaf.el.style.transformOrigin = '';
+    reveal.hidden = true;
+    blockL.style.opacity = '';
+    blockR.style.opacity = '';
+    book.style.removeProperty('--tx');
+
+    if (completed) page = pageAfterFlip(f.index, f.mirror);
+    syncRest();
+    requestAnimationFrame(() => { if (!fold) book.classList.remove('no-anim'); });
+    if (f.onDone) f.onDone(completed);
+  }
+
+  function animateFold(completing, duration, ease, onDone) {
+    const f = fold;
+    f.mode = 'timed';
+    f.peek = false;
+    f.completing = completing;
+    f.from = { x: f.P.x, y: f.P.y };
+    f.to = { x: completing ? -f.w : f.w, y: f.cy };
+    f.t0 = performance.now();
+    f.duration = duration;
+    f.ease = ease;
+    f.onDone = onDone || null;
+    // La esquina describe un arco hacia dentro para que el pliegue salga en diagonal.
+    f.lift = (f.cy === 0 ? 1 : -1) * 0.07 * f.h * (Math.abs(f.to.x - f.from.x) / (2 * f.w));
+    updateStatus(completing ? pageAfterFlip(f.index, f.mirror) : page);
+    // al darle a cerrar el libro, los botones empiezan a salir ya, mientras la tapa gira
+    if (completing && pageAfterFlip(f.index, f.mirror) === PAGES - 1) document.documentElement.dataset.fin = '1';
+  }
+
+  function tick(now) {
+    rafId = 0;
+    const f = fold;
+    if (!f) return;
+    if (f.mode === 'timed') {
+      const t = clamp((now - f.t0) / f.duration, 0, 1);
+      const k = f.ease(t);
+      f.P = {
+        x: f.from.x + (f.to.x - f.from.x) * k,
+        y: f.from.y + (f.to.y - f.from.y) * k + f.lift * Math.sin(Math.PI * k),
+      };
+      if (t >= 1) { endFold(f.completing); return; }
+      drawFold();
+    } else if (f.target) {
+      const k = f.peek ? 0.2 : 0.38;
+      f.P = { x: f.P.x + (f.target.x - f.P.x) * k, y: f.P.y + (f.target.y - f.P.y) * k };
+      drawFold();
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  /* ---------- navegación ---------- */
+
+  function go(direction, options = {}) {
+    if (fold && fold.mode === 'timed') endFold(fold.completing);
+    const flips = flippedCount();
+    let index;
+    let mirror;
+
+    if (isSingle()) {
+      const onRight = page % 2 === 0;
+      if (direction > 0 && onRight) { index = page / 2; mirror = false; }
+      else if (direction < 0 && !onRight) { index = (page - 1) / 2; mirror = true; }
+      else {
+        // Misma hoja, otra cara: solo se desplaza la vista.
+        if (fold) endFold(false);
+        const target = clamp(page + direction, 0, PAGES - 1);
+        if (target !== page) { page = target; syncRest(); }
+        return;
+      }
+    } else if (direction > 0) {
+      if (flips >= LEAVES) return;
+      index = flips; mirror = false;
+    } else {
+      if (flips <= 0) return;
+      index = flips - 1; mirror = true;
+    }
+
+    if (reduceQuery.matches) {
+      if (fold) endFold(false);
+      page = pageAfterFlip(index, mirror);
+      syncRest();
+      return;
+    }
+    beginFold(index, mirror, options.corner || 'bottom');
+    animateFold(true, options.fast ? 230 : 820, easeInOut, options.onDone);
+  }
+
+  function userGo(direction, options) {
+    riffleTarget = null;
+    go(direction, options);
+  }
+
+  function riffleStep() {
+    if (riffleTarget === null) return;
+    const flips = flippedCount();
+    if (flips === riffleTarget) { riffleTarget = null; return; }
+    go(flips < riffleTarget ? 1 : -1, { fast: true, onDone: riffleStep });
+  }
+
+  function goTo(target) {
+    const destination = clamp(target, 0, PAGES - 1);
+    riffleTarget = null;
+    if (fold) endFold(fold.mode === 'timed' ? fold.completing : false);
+    if (isSingle() || reduceQuery.matches) {
+      page = destination;
+      syncRest();
+      return;
+    }
+    riffleTarget = Math.ceil(destination / 2);
+    riffleStep();
+  }
+
+  /* ---------- arrastre ---------- */
+
+  function decideGesture(g, dx, dy) {
+    riffleTarget = null;
+    if (reduceQuery.matches) return 'swipe';
+    if (fold && fold.mode === 'timed' && !fold.unpeeking) endFold(fold.completing);
+    const flips = flippedCount();
+    let index;
+    let mirror;
+
+    if (isSingle()) {
+      if (Math.abs(dx) < Math.abs(dy)) return 'none';
+      const onRight = page % 2 === 0;
+      if (onRight && dx < 0) { index = page / 2; mirror = false; }
+      else if (!onRight && dx > 0) { index = (page - 1) / 2; mirror = true; }
+      else return 'swipe';
+    } else {
+      const w = leaves[0].el.offsetWidth;
+      const forward = flips === 0 ? true : flips === LEAVES ? false : g.u0 >= w;
+      index = forward ? flips : flips - 1;
+      mirror = !forward;
+    }
+
+    const h = leaves[0].el.offsetHeight;
+    const f = beginFold(index, mirror, g.v0 < h / 2 ? 'top' : 'bottom');
+    f.mode = 'follow';
+    f.peek = false;
+    f.unpeeking = false;
+    return 'fold';
+  }
+
+  stage.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    if (event.target.closest('button, a')) return;
+    const rect = stage.getBoundingClientRect();
+    gesture = {
+      id: event.pointerId,
+      x0: event.clientX, y0: event.clientY,
+      u0: event.clientX - rect.left, v0: event.clientY - rect.top,
+      lastX: event.clientX, lastT: event.timeStamp, vx: 0,
+      type: null,
+    };
+  });
+
+  stage.addEventListener('pointermove', (event) => {
+    const g = gesture;
+    if (!g) {
+      if (event.pointerType === 'mouse') handleHover(event);
+      return;
+    }
+    if (event.pointerId !== g.id) return;
+    const dx = event.clientX - g.x0;
+    const dy = event.clientY - g.y0;
+    const dt = event.timeStamp - g.lastT;
+    if (dt > 0) {
+      g.vx = 0.6 * g.vx + 0.4 * ((event.clientX - g.lastX) / dt);
+      g.lastX = event.clientX;
+      g.lastT = event.timeStamp;
+    }
+    if (!g.type) {
+      if (Math.hypot(dx, dy) < 6) return;
+      g.type = decideGesture(g, dx, dy);
+      if (g.type === 'fold') {
+        try { stage.setPointerCapture(g.id); } catch (error) { /* puntero ya liberado */ }
+        stage.classList.add('dragging');
+      }
+    }
+    if (g.type === 'fold' && fold) fold.target = pointerToTarget(event.clientX, event.clientY, fold);
+  });
+
+  function endGesture(event, cancelled) {
+    const g = gesture;
+    if (!g || event.pointerId !== g.id) return;
+    gesture = null;
+    stage.classList.remove('dragging');
+    if (!g.type) return;
+
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 60);
+
+    if (g.type === 'fold' && fold) {
+      const f = fold;
+      const turn = clamp((f.w - f.P.x) / (2 * f.w), 0, 1);
+      const speed = f.mirror ? g.vx : -g.vx;   // velocidad en el sentido de completar
+      const complete = !cancelled && (turn > 0.3 || (speed > 0.45 && turn > 0.05));
+      animateFold(complete, 220 + 480 * (complete ? 1 - turn : turn), easeOut);
+    } else if (g.type === 'swipe' && !cancelled) {
+      const dx = event.clientX - g.x0;
+      const dy = event.clientY - g.y0;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
+    }
+  }
+  stage.addEventListener('pointerup', (event) => endGesture(event, false));
+  stage.addEventListener('pointercancel', (event) => endGesture(event, true));
+
+  /* ---------- esquina que se levanta al acercar el ratón ---------- */
+
+  function unpeek() {
+    if (!fold || !fold.peek) return;
+    fold.unpeeking = true;
+    animateFold(false, 200, easeOut);
+    fold.unpeeking = true;
+  }
+
+  function handleHover(event) {
+    if (isSingle() || reduceQuery.matches) return;
+    if (fold && fold.mode === 'timed' && !fold.unpeeking) return;
+
+    const rect = stage.getBoundingClientRect();
+    const u = event.clientX - rect.left;
+    const v = event.clientY - rect.top;
+    const w = leaves[0].el.offsetWidth;
+    const h = leaves[0].el.offsetHeight;
+    const flips = flippedCount();
+    const spine = w + (flips === 0 ? -w / 2 : flips === LEAVES ? w / 2 : 0);
+    const zone = Math.min(120, w * 0.32);
+
+    let want = null;
+    if (!event.target.closest('button, a')) {
+      const candidates = [];
+      if (flips < LEAVES) candidates.push({ x: spine + w, index: flips, mirror: false });
+      if (flips > 0) candidates.push({ x: spine - w, index: flips - 1, mirror: true });
+      candidates.forEach((c) => {
+        ['top', 'bottom'].forEach((corner) => {
+          if (Math.hypot(u - c.x, v - (corner === 'top' ? 0 : h)) < zone) {
+            want = { index: c.index, mirror: c.mirror, corner };
+          }
+        });
+      });
+    }
+
+    if (!want) { unpeek(); return; }
+    const same = fold && fold.index === want.index && fold.mirror === want.mirror && fold.corner === want.corner;
+    if (same && fold.peek) return;
+    if (fold && !same) endFold(false);
+    const f = beginFold(want.index, want.mirror, want.corner);
+    f.mode = 'follow';
+    f.peek = true;
+    f.unpeeking = false;
+    const size = Math.min(26, f.w * 0.07);
+    f.target = { x: f.w - size, y: f.cy === 0 ? size * 0.45 : f.h - size * 0.45 };
+  }
+  stage.addEventListener('pointerleave', () => { if (!gesture) unpeek(); });
+
+  /* ---------- clic, botones y teclado ---------- */
+
+  stage.addEventListener('click', (event) => {
+    if (suppressClick || event.target.closest('button, a')) return;
+    const rect = stage.getBoundingClientRect();
+    const corner = event.clientY - rect.top < rect.height / 2 ? 'top' : 'bottom';
+    if (page === 0) { userGo(1, { corner }); return; }
+    if (page === PAGES - 1) { userGo(-1, { corner }); return; }
+    const threshold = isSingle() ? 0.35 : 0.5;
+    userGo(event.clientX - rect.left > rect.width * threshold ? 1 : -1, { corner });
+  });
+
+  prevBtn.addEventListener('click', () => userGo(-1));
+  nextBtn.addEventListener('click', () => userGo(1));
+  $('releer').addEventListener('click', () => { $('rsvp').hidden = false; $('rsvpNote').hidden = true; goTo(0); });
+  $('rsvp').addEventListener('click', () => { $('rsvp').hidden = true; $('rsvpNote').hidden = false; });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    switch (event.key) {
+      case 'ArrowRight': case 'PageDown': event.preventDefault(); userGo(1); break;
+      case 'ArrowLeft': case 'PageUp': event.preventDefault(); userGo(-1); break;
+      case 'Home': event.preventDefault(); goTo(0); break;
+      case 'End': event.preventDefault(); goTo(PAGES - 1); break;
+      default:
+    }
+  });
+
+  // La nota ocupa el sitio del botón: en la página no cabe todo a la vez.
+
+  function onLayoutChange() {
+    riffleTarget = null;
+    if (fold) endFold(fold.mode === 'timed' && !fold.unpeeking ? fold.completing : false);
+    else syncRest();
+  }
+  singleQuery.addEventListener('change', onLayoutChange);
+  window.addEventListener('resize', onLayoutChange);
+
+  // El libro espera cerrado: lo abre quien mira, con un toque o arrastrando la tapa.
+  // Para comparar estilos: ?p=N abre el libro directamente en esa página.
+  const startPage = parseInt(new URLSearchParams(location.search).get('p'), 10);
+  if (startPage > 0) page = clamp(startPage, 0, PAGES - 1);
+
+  syncRest();
+})();
+</script>
+<script>
+/* ---------- acuarelas ----------
+   Cada lámina es un solo motivo pintado en un <canvas> al cargar y volcado en la <image> de su
+   página. Cada mancha es un polígono que se rellena muchas veces, casi transparente, con el borde
+   movido por un ruido continuo: el centro se carga de pigmento y el borde se deshace. Encima:
+   - el halo desigual del agua que se corre fuera de la forma (sangrado);
+   - cargas de otro color que se abren dentro de la mancha (mojado sobre mojado);
+   - zonas donde el lavado queda más claro o más cargado;
+   - el cerco de pigmento al secar, veladuras que se multiplican y blancos de papel reservados.
+   Debajo, papel de acuarela de grano fino; el pigmento no agarra en sus crestas.
+   Sin librerías. Semilla fija: siempre sale igual. */
+(() => {
+  'use strict';
+  const W = 264, H = 324, S = 3, TAU = Math.PI * 2, PI = Math.PI;
+
+  const rngOf = (seed) => () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const gaussOf = (rnd) => () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(TAU * rnd());
+
+  /* --- ruido continuo (de valor, con octavas) --- */
+  const hash = (x, y, s) => { let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1442695041)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  const vnoise = (x, y, s) => {
+    const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, u = fx * fx * (3 - 2 * fx), w = fy * fy * (3 - 2 * fy);
+    const a = hash(xi, yi, s), b = hash(xi + 1, yi, s), c = hash(xi, yi + 1, s), d = hash(xi + 1, yi + 1, s);
+    return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w;
+  };
+  const fbm = (x, y, s, oct = 3) => { let v = 0, amp = 0.5, tot = 0; for (let i = 0; i < oct; i++) { v += vnoise(x, y, s + i * 17) * amp; tot += amp; x *= 2; y *= 2; amp *= 0.5; } return v / tot; };
+  /** Desplaza un contorno siguiendo el ruido: puntos vecinos se mueven juntos, como un borde mojado. */
+  const wobble = (pts, amp, freq, s) => pts.map(([x, y]) => [x + (fbm(x * freq, y * freq, s) - 0.5) * 2 * amp, y + (fbm(x * freq + 31.7, y * freq + 11.3, s + 97) - 0.5) * 2 * amp]);
+
+  /* --- formas, en unidades de lámina (264 × 324) --- */
+  const turn = (pts, cx, cy, deg) => {
+    const a = (deg * PI) / 180, c = Math.cos(a), s = Math.sin(a);
+    return pts.map(([x, y]) => [cx + (x - cx) * c - (y - cy) * s, cy + (x - cx) * s + (y - cy) * c]);
+  };
+  const arc = (cx, cy, rx, ry, a0, a1, n = 14) => Array.from({ length: n + 1 }, (_, i) => { const a = (a0 + ((a1 - a0) * i) / n) * PI; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; });
+  const ell = (cx, cy, rx, ry, n = 22) => arc(cx, cy, rx, ry, 0, 2, n).slice(0, n);
+  const leaf = (x, y, len, wid, deg) => turn([[0, 0], [0.25, -0.5], [0.6, -0.5], [1, 0], [0.6, 0.42], [0.25, 0.4]].map(([u, v]) => [x + u * len, y + v * wid]), x, y, deg);
+  /** Trazo de pincel de ancho w a lo largo de una línea. */
+  const line = (pts, w) => {
+    const L = [], R = [];
+    pts.forEach((p, i) => {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      const nx = (-(b[1] - a[1]) / d) * w * 0.5, ny = ((b[0] - a[0]) / d) * w * 0.5;
+      L.push([p[0] + nx, p[1] + ny]); R.push([p[0] - nx, p[1] - ny]);
+    });
+    return L.concat(R.reverse());
+  };
+  /** Salpicaduras del pincel. */
+  const splat = (cx, cy, rx, ry, n, color, seed) => {
+    const r = rngOf(seed), out = [];
+    for (let i = 0; i < n; i++) { const a = r() * TAU, d = Math.sqrt(r()), k = r(); out.push([ell(cx + Math.cos(a) * d * rx, cy + Math.sin(a) * d * ry, 0.7 + k * k * 2.2, 0.7 + k * k * 2, 7), color, 0.55 + r() * 0.3, { v: 0.4, bleed: 0, vary: 0 }]); }
+    return out;
+  };
+  /** Flor sencilla de cinco pétalos, con el centro en ocre. */
+  const flower = (cx, cy, r, color, alpha, rot, o = {}) => {
+    const out = [];
+    for (let i = 0; i < 5; i++) { const a = rot + (i / 5) * 360; out.push([turn(ell(cx + r * 0.58, cy, r * 0.5, r * 0.36, 12), cx, cy, a), color, alpha, { v: 1, ...o }]); }
+    out.push([ell(cx, cy, r * 0.2, r * 0.18, 8), '#c8893a', 0.7, { v: 0.5, bleed: 0 }], ...splat(cx, cy, r * 0.3, r * 0.3, 5, '#a8672a', Math.round(cx * 7 + cy)));
+    return out;
+  };
+  /** Alianza en perspectiva: pared interior (al fondo), pared exterior (delante) y canto de arriba. */
+  const band = (cx, cy, rx, ry, t, h, deg, o = {}) => {
+    const T = (pts) => turn(pts, cx, cy, deg), ti = t * (ry / rx) * 1.4;
+    const inner = T(arc(cx, cy, rx - t, ry - ti, 1, 2).concat(arc(cx, cy + h * 0.2, rx - t, (ry - ti) * 0.3, 2, 1)));
+    const outer = T(arc(cx, cy, rx, ry, 0, 1).concat(arc(cx, cy + h, rx, ry, 1, 0)));
+    const rim = T(arc(cx, cy, rx, ry, 0, 2, 30).concat(arc(cx, cy, rx - t, ry - ti, 2, 0, 30)));
+    return [
+      [inner, '#b5822f', 0.62, { v: 1.2, bloom: 2, bloomColor: '#8a5a22', ...o }],
+      [outer, '#dcaa48', 0.66, { v: 1.3, bloom: 3, bloomColor: '#b0742a', ...o }],
+      [rim, '#efd08a', 0.55, { v: 0.9, ...o }],
+      [line(T(arc(cx, cy + h * 0.45, rx * 0.96, ry * 0.96, 0.56, 0.86, 8)), 2.2), '#faf2e0', 0.6, { lift: true }],
+      [line(T(arc(cx, cy + h * 0.55, rx * 0.97, ry * 0.97, 0.12, 0.3, 6)), 1.6), '#faf2e0', 0.45, { lift: true }],
+      [T(arc(cx, cy, rx, ry, 0, 2, 30)), '#7a4e22', 0.5, { ink: true, w: 0.45 }], [T(arc(cx, cy, rx - t, ry - ti, 0, 2, 30)), '#7a4e22', 0.4, { ink: true, w: 0.4 }],
+      [T(arc(cx, cy + h, rx, ry, 0.02, 0.98, 20)), '#7a4e22', 0.5, { ink: true, w: 0.45 }],
+    ];
+  };
+  const sprig = (cx, cy, list, c = ['#86a071', '#5f8058', '#a3b58a']) => list.map(([deg, len, wid, off = 0], i) => [leaf(cx + Math.cos((deg * PI) / 180) * off, cy + Math.sin((deg * PI) / 180) * off, len, wid, deg), c[i % 3], 0.56, { v: 1, bloom: 1, bloomColor: '#4f6f4a' }]);
+
+  const LIFT = { lift: true };
+  const INK = '#4a3a2e', ink = (pts, w = 0.5, a = 0.75) => [pts, INK, a, { ink: true, w }];
+
+  /** Copa de flauta con vino espumoso. */
+  const flute = (cx, y, h, deg) => {
+    const T = (pts) => turn(pts, cx, y, deg), g = [[-9, -h], [9, -h], [7, -h * 0.45], [1.2, -h * 0.38], [1.2, -6], [10, -2], [10, 0], [-10, 0], [-10, -2], [-1.2, -6], [-1.2, -h * 0.38], [-7, -h * 0.45]].map(([a, b]) => [cx + a, y + b]);
+    const wine = [[-8.4, -h * 0.88], [8.4, -h * 0.88], [6.6, -h * 0.47], [0, -h * 0.4], [-6.6, -h * 0.47]].map(([a, b]) => [cx + a, y + b]);
+    return [
+      [ell(cx + 16, y + 3, 26, 5), '#a99ec0', 0.3, { v: 2 }],
+      [T(g), '#b7c6d4', 0.24, { sharp: true, v: 0.9 }],
+      [T(wine), '#e8bf4e', 0.6, { v: 0.9, bloom: 2, bloomColor: '#d59a2e' }],
+      [line(T([[cx - 5.2, y - h * 0.84], [cx - 4.6, y - h * 0.56]]), 1.3), '#faf2e0', 0.7, LIFT],
+      ink(T(g.concat([g[0]])), 0.4, 0.55), ink(T(arc(cx, y - h, 9, 2.2, 0, 2, 12)), 0.35, 0.45),
+      ...splat(...T([[cx, y - h * 0.7]])[0], 4.5, h * 0.14, 5, '#fff7d6', Math.round(cx * 5 + h)).map((s) => [s[0], '#faf2e0', 0.7, { lift: true, v: 0.3 }]),
+    ];
+  };
+
+  /* Cada mancha: [polígono, color, opacidad, opciones]. Se pintan en orden, como capas de veladura. */
+  const LAMINAS = {
+    // El gran día: dos copas, flores y las alianzas sobre una mesa, con la luz entrando por un lado.
+    mesa: () => [
+      [ell(40, 150, 74, 124), '#f7dd9c', 0.22, { v: 7, vary: 0.9 }],
+      [ell(132, 274, 126, 24), '#e0cfb4', 0.38, { v: 5, bloom: 3, bloomColor: '#c6aa82', vary: 0.9 }],
+      ...sprig(196, 200, [[-124, 42, 15, 6], [-84, 46, 16, 8], [-44, 42, 15, 6], [8, 34, 13, 10], [-156, 36, 13, 6], [40, 28, 11, 12]]),
+      ...flower(190, 178, 21, '#e88fa2', 0.46, 10, { bloom: 1, bloomColor: '#cf5f7a' }), ...flower(218, 204, 16, '#f2b48c', 0.44, 40),
+      ...flower(170, 210, 14, '#e6dcef', 0.42, -10), ...flower(208, 158, 12, '#d9a6c8', 0.42, 25),
+      [line([[196, 214], [190, 250], [180, 268]], 2), '#6d8a5e', 0.5, { v: 0.7 }], [line([[204, 214], [206, 250], [200, 270]], 2), '#6d8a5e', 0.5, { v: 0.7 }],
+      ...flute(86, 264, 116, -5), ...flute(126, 268, 122, 5),
+      ...band(160, 282, 22, 8, 3.2, 8, 0), ...band(184, 276, 17, 10, 2.8, 7, -28, { knock: true }),
+      ...splat(106, 120, 60, 70, 8, '#e3b84e', 81), ...splat(200, 280, 40, 16, 5, '#e3b84e', 82),
+    ],
+  };
+
+  /* --- pintura --- */
+  const chaikin = (pts, n) => {
+    for (let k = 0; k < n; k++) {
+      const out = [];
+      pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length]; out.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]); });
+      pts = out;
+    }
+    return pts;
+  };
+  const subdivide = (pts, step) => {
+    const out = [];
+    pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length], n = Math.max(1, Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / step)); for (let k = 0; k < n; k++) out.push([a[0] + ((b[0] - a[0]) * k) / n, a[1] + ((b[1] - a[1]) * k) / n]); });
+    return out;
+  };
+  /** Mete un punto entre cada dos y lo desplaza al azar; cada vuelta, la mitad de fuerte. */
+  const deform = (pts, iters, v, gauss) => {
+    for (let k = 0; k < iters; k++, v *= 0.5) {
+      const out = [];
+      pts.forEach((a, i) => { const b = pts[(i + 1) % pts.length]; out.push(a, [(a[0] + b[0]) / 2 + gauss() * v, (a[1] + b[1]) / 2 + gauss() * v]); });
+      pts = out;
+    }
+    return pts;
+  };
+  const trace = (c, pts) => { c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath(); };
+
+  const make = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return cv; };
+  let grain = null, paper = null, tmp = null;
+  const mask = make(2, 2);
+  /** Papel de acuarela de grano fino y tono crema: un relieve de ruido iluminado desde arriba a la
+      izquierda. El mismo relieve dice dónde no agarra el pigmento (las crestas): la granulación. */
+  function makePaper() {
+    const w = W * S, h = H * S, rnd = rngOf(7), relief = new Float32Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) relief[y * w + x] = fbm(x / 4.2, y / 4.2, 3, 2) * 0.7 + rnd() * 0.3;
+    paper = make(w, h); grain = make(w, h);
+    const pc = paper.getContext('2d'), gc = grain.getContext('2d'), pi = pc.createImageData(w, h), gi = gc.createImageData(w, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x, r = relief[i], lit = (r - relief[Math.min(h - 1, y + 1) * w + Math.min(w - 1, x + 1)]) * 26, warm = (fbm(x / 170, y / 170, 71, 2) - 0.5) * 12;
+      pi.data[i * 4] = 240 + lit + warm * 0.3; pi.data[i * 4 + 1] = 233 + lit + warm * 0.2; pi.data[i * 4 + 2] = 216 + lit - warm * 0.8; pi.data[i * 4 + 3] = 255;
+      gi.data[i * 4 + 3] = Math.max(0, r - 0.58) * 260;
+    }
+    pc.putImageData(pi, 0, 0); gc.putImageData(gi, 0, 0);
+  }
+
+  function paint(name) {
+    const seed0 = name.length * 977 + name.charCodeAt(0) * 31, rnd = rngOf(seed0), gauss = gaussOf(rnd);
+    const main = make(W * S, H * S), mc = main.getContext('2d');
+    tmp = tmp || make(W * S, H * S); if (!paper) makePaper();
+    const tc = tmp.getContext('2d'), mk = mask.getContext('2d');
+    LAMINAS[name]().forEach(([shape, color, alphaIn, o = {}], n) => {
+      const sd = seed0 + n * 131;
+      if (o.ink) {
+        // pluma: dos pasadas finas que no coinciden del todo, con algún tramo en blanco
+        mc.setTransform(S, 0, 0, S, 0, 0); mc.globalCompositeOperation = 'source-over'; mc.strokeStyle = color; mc.lineCap = 'round'; mc.lineJoin = 'round';
+        [0, 1].forEach((pass) => {
+          const pts = wobble(subdivide(shape.concat([shape[shape.length - 1]]), 5).slice(0, -1), 0.9, 0.12, sd + pass * 9);
+          mc.lineWidth = (o.w || 0.5) * (pass ? 0.7 : 1); mc.globalAlpha = alphaIn * (pass ? 0.45 : 1); mc.beginPath();
+          let pen = false;
+          pts.forEach(([x, y], i) => { if (rnd() < 0.07) { pen = false; return; } if (pen) mc.lineTo(x, y); else { mc.moveTo(x, y); pen = true; } });
+          mc.stroke();
+        });
+        mc.globalAlpha = 1;
+        return;
+      }
+      const alpha = o.lift ? alphaIn : Math.min(0.92, alphaIn * 1.08);
+      const xs = shape.map((p) => p[0]), ys = shape.map((p) => p[1]);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), size = Math.min(x1 - x0, y1 - y0);
+      const v = Math.min(o.v || 2.2, Math.max(0.35, size * 0.09)), soft = !o.sharp && !o.lift && size > 5;
+      const pts = subdivide(o.sharp ? shape : chaikin(shape, 2), 3);
+      // la forma nunca es limpia: una deriva lenta la descuadra y otra, más fina, le riza el borde
+      const base = wobble(wobble(pts, soft ? Math.min(2.6, size * 0.07) : 0.5, 0.022, sd + 3), v * (o.sharp ? 0.7 : 1.3), 0.06, sd);
+      const LAYERS = 22, a = 1 - Math.pow(1 - alpha, 1 / LAYERS), bleed = soft && !o.knock ? (o.bleed === undefined ? 1 : o.bleed) : 0;
+      const pad = v * 5 + 6 + bleed * (v * 4 + 6), bx = Math.max(0, Math.floor((x0 - pad) * S)), by = Math.max(0, Math.floor((y0 - pad) * S));
+      const bw = Math.min(W * S, Math.ceil((x1 + pad) * S)) - bx, bh = Math.min(H * S, Math.ceil((y1 + pad) * S)) - by;
+      if (bw <= 0 || bh <= 0) return;
+      tc.setTransform(1, 0, 0, 1, 0, 0); tc.globalCompositeOperation = 'source-over'; tc.globalAlpha = 1; tc.clearRect(bx, by, bw, bh);
+      tc.setTransform(S, 0, 0, S, 0, 0); tc.fillStyle = color;
+      for (let i = 0; i < LAYERS; i++) { tc.globalAlpha = a; trace(tc, deform(wobble(base, v * 1.5, 0.09, sd + 7 + i), 1, v * 0.35, gauss)); tc.fill(); }
+      // sangrado: el agua se corre fuera de la forma, más por unos lados que por otros
+      for (let i = 0; i < 9 * bleed; i++) { tc.globalAlpha = a * 0.5; trace(tc, deform(wobble(base, v * 2.6 + 2.4 + i * 0.35, 0.03, sd + 60 + i), 1, v * 0.5, gauss)); tc.fill(); }
+      if (!o.lift) {
+        tc.save(); trace(tc, base); tc.clip();
+        // mojado sobre mojado: cargas de pigmento, a veces de otro color, que se abren dentro de la mancha
+        tc.fillStyle = o.bloomColor || color;
+        for (let j = 0; j < (o.bloom || 0); j++) {
+          const p = shape[Math.floor(rnd() * shape.length)], q = shape[Math.floor(rnd() * shape.length)], cx = (p[0] + q[0]) / 2, cy = (p[1] + q[1]) / 2;
+          const blob = ell(cx, cy, size * (0.2 + rnd() * 0.2), size * (0.16 + rnd() * 0.18), 12);
+          for (let i = 0; i < 12; i++) { tc.globalAlpha = 0.035; trace(tc, deform(wobble(blob, size * 0.14, 0.05, sd + 200 + j * 20 + i), 2, size * 0.05, gauss)); tc.fill(); }
+        }
+        // cerco: el pigmento se va al borde al secar
+        tc.strokeStyle = color; tc.lineJoin = 'round'; trace(tc, base);
+        [[4.2, 0.06], [2.2, 0.1], [1, 0.16]].forEach(([lw, la]) => { tc.lineWidth = Math.min(lw, size * 0.5); tc.globalAlpha = la * alpha; tc.stroke(); });
+        tc.restore();
+        tc.setTransform(1, 0, 0, 1, 0, 0); tc.globalAlpha = 1; tc.globalCompositeOperation = 'destination-out';
+        // el lavado no carga igual en todas partes: zonas más aguadas
+        const vary = o.vary === undefined ? 0.5 : o.vary;
+        if (vary && size > 8) {
+          const mw = Math.max(2, Math.ceil(bw / 20)), mh = Math.max(2, Math.ceil(bh / 20));
+          mask.width = mw; mask.height = mh;
+          const md = mk.createImageData(mw, mh);
+          for (let j = 0; j < mh; j++) for (let i = 0; i < mw; i++) md.data[(j * mw + i) * 4 + 3] = Math.max(0, Math.min(1, (fbm(i * 0.4, j * 0.4, sd + 500) - 0.4) * 2.6)) * 190 * vary;
+          mk.putImageData(md, 0, 0); tc.imageSmoothingEnabled = true; tc.drawImage(mask, 0, 0, mw, mh, bx, by, bw, bh);
+        }
+        tc.drawImage(grain, bx, by, bw, bh, bx, by, bw, bh);
+      }
+      if (o.knock) { mc.setTransform(S, 0, 0, S, 0, 0); mc.globalCompositeOperation = 'destination-out'; mc.globalAlpha = 0.96; mc.fillStyle = '#000'; trace(mc, base); mc.fill(); mc.globalAlpha = 1; }
+      mc.setTransform(1, 0, 0, 1, 0, 0);
+      mc.globalCompositeOperation = o.lift ? 'destination-out' : 'multiply'; mc.drawImage(tmp, bx, by, bw, bh, bx, by, bw, bh);
+    });
+    // el papel debajo y la pintura multiplicada encima: el grano se ve a través del color.
+    // Luego se recorta a la propia pintura (y se deshace hacia los bordes): fuera de la mancha no
+    // queda papel del lienzo, así que la acuarela queda pintada directamente sobre la página.
+    const sheet = make(W * S, H * S), sc = sheet.getContext('2d');
+    sc.drawImage(paper, 0, 0); sc.globalCompositeOperation = 'multiply'; sc.drawImage(main, 0, 0);
+    sc.globalCompositeOperation = 'destination-in'; sc.drawImage(main, 0, 0);
+    sc.drawImage(edgeMask(), 0, 0);
+    return sheet;
+  }
+
+  /** Borde irregular: la pintura se desvanece cerca del límite del lienzo, para que ninguna mancha
+      acabe en una línea recta. */
+  let edge = null;
+  function edgeMask() {
+    if (edge) return edge;
+    const w = W * S, h = H * S, band = Math.min(w, h) * 0.1;
+    edge = make(w, h);
+    const ec = edge.getContext('2d'), ei = ec.createImageData(w, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const d = Math.min(x, y, w - 1 - x, h - 1 - y) / band;
+      let t = d + (fbm(x / 38, y / 38, 113, 3) - 0.5) * 0.9;
+      t = Math.max(0, Math.min(1, t));
+      ei.data[(y * w + x) * 4 + 3] = t * t * (3 - 2 * t) * 255;
+    }
+    ec.putImageData(ei, 0, 0);
+    return edge;
+  }
+
+  // De una en una y cediendo el turno entre lámina y lámina, para no frenar la apertura del libro.
+  const targets = Array.from(document.querySelectorAll('image.acuarela[data-lamina]'));
+  const timing = (window.__acuarelas = []);
+  const next = () => {
+    const el = targets.shift();
+    if (!el) return;
+    const t0 = performance.now();
+    el.setAttribute('href', paint(el.dataset.lamina).toDataURL('image/png'));
+    timing.push(`${el.dataset.lamina} ${Math.round(performance.now() - t0)} ms`);
+    setTimeout(next, 0);
+  };
+  setTimeout(next, 0);
+})();
+
+/* Huecos de foto: se suelta una imagen del ordenador (o se elige tocando «Vuestra foto») y encaja
+   como polaroid entre las esquinas. La foto se queda en este navegador: no se sube a ningún sitio. */
+(() => {
+  'use strict';
+  const picker = Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*', hidden: true });
+  document.body.append(picker);
+  let target = null;
+
+  const frameOf = (slot, src, quiet) => {
+    const old = slot.querySelector('.polaroid');
+    if (old) { const o = old.querySelector('img').src; if (o.startsWith('blob:')) URL.revokeObjectURL(o); old.remove(); }
+    const frame = document.createElement('div');
+    frame.className = quiet ? 'polaroid quieta' : 'polaroid';
+    const img = new Image();
+    img.alt = '';
+    img.src = src;
+    frame.append(img);
+    slot.append(frame);
+    slot.setAttribute('aria-label', 'Foto de los novios.');
+    return frame;
+  };
+  const place = (slot, file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    frameOf(slot, URL.createObjectURL(file), false);
+  };
+  // fotos de ejemplo de la demo, ya puestas al abrir, con su fecha
+  document.querySelectorAll('.foto-hueco[data-foto]').forEach((slot) => {
+    const probe = new Image();
+    probe.onload = () => {
+      const frame = frameOf(slot, slot.dataset.foto, true);
+      if (!slot.dataset.fecha) return;
+      const f = document.createElement('span');
+      f.className = 'fecha';
+      f.setAttribute('aria-label', slot.dataset.fecha);
+      // posición, giro, tamaño y espaciado distintos en cada polaroid; siempre los mismos (semilla fija)
+      const n = [...document.querySelectorAll('.foto-hueco[data-foto]')].indexOf(slot);
+      const rnd = ((seed) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647))(97 + n * 131);
+      rnd(); rnd(); rnd();
+      const v = (a, b) => a + (b - a) * rnd();
+      f.style.cssText = `--x:${v(5, 34).toFixed(1)}%;--y:${v(2, 8).toFixed(1)}%;--r:${v(-7, 3).toFixed(1)}deg;--size:${v(6.8, 8).toFixed(2)}cqw;--ls:${v(-0.03, 0.04).toFixed(3)}em`;
+      [...slot.dataset.fecha].forEach((ch) => {
+        const c = document.createElement('span');
+        c.textContent = ch;
+        c.setAttribute('aria-hidden', 'true');
+        c.style.cssText = `--dy:${v(-0.06, 0.06).toFixed(3)}em;--dr:${v(-6, 6).toFixed(1)}deg;margin-right:${v(-0.04, 0.03).toFixed(3)}em`;
+        f.append(c);
+      });
+      frame.append(f);
+    };
+    probe.src = slot.dataset.foto;
+  });
+
+  document.querySelectorAll('.foto-hueco').forEach((slot) => {
+    slot.querySelector('.foto-hueco-txt').addEventListener('click', () => { target = slot; picker.value = ''; picker.click(); });
+    slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('encima'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('encima'));
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      slot.classList.remove('encima');
+      place(slot, e.dataTransfer.files[0]);
+    });
+  });
+  picker.addEventListener('change', () => { if (target) place(target, picker.files[0]); });
+  // fuera de un hueco, soltar una imagen no hace nada (el navegador no la abre en lugar del libro)
+  window.addEventListener('dragover', (e) => e.preventDefault());
+  window.addEventListener('drop', (e) => e.preventDefault());
+})();
+</script>
+</body>
+</html>
