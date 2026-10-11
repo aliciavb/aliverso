@@ -1,0 +1,94 @@
+---
+// src/pages/lab.astro — /lab: piezas pequeñas de diseño y código (2026-10-10).
+// Versión B · destacada, elegida por Alicia: la pieza en grande y el texto al lado, como bubbbly.com
+// (Ann Nguyen). La pieza va en vivo, sobre el fondo de la web (?fondo=transparente) y sin salir de la
+// página. Sin pestaña de código, como Kevin Ngo y Ann: el código se pide por correo, y así sabe a quién
+// le interesa. Poco texto (es una demo visual): fecha, nombre y una línea; el origen va en los posts.
+import VeladoLayout from "../layouts/VeladoLayout.astro";
+import "../styles/escueta.css";
+
+const intro = "Piezas pequeñas de diseño y código que salen de algo que me pasa: una boda, una amiga, algo que veo.";
+
+const piezas = [
+  {
+    nombre: "Nuestra historia",
+    fecha: "Octubre 2026",
+    linea: "La sección «Nuestra historia» de una web de boda, como un libro que se hojea cogiendo la esquina.",
+    demo: "/lab/nuestra-historia/?fondo=transparente",
+  },
+];
+const email = "hola@aliverso.me";
+---
+
+<VeladoLayout title="Lab · Alicia Viñals" description={intro}>
+  <div class="escueta lab">
+    <div class="wrap">
+      <header class="site">
+        <a class="brand" href="/">Alicia Viñals</a>
+        <nav class="site" aria-label="Principal">
+          <a href="/#trabajo">Trabajo</a>
+          <a href="/lab/" aria-current="page">Lab</a>
+          <a href="/#sobre-mi">Sobre mí</a>
+          <a href="/#hablemos">Hablemos</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="cabeza">
+          <h1 class="title">Lab</h1>
+          <p class="intro">{intro}</p>
+        </section>
+
+        {piezas.map((p) => (
+          <article class="pieza">
+            <div class="viva">
+              <iframe src={p.demo} title={`${p.nombre}: libro para hojear`}></iframe>
+            </div>
+
+            <div class="texto">
+              <p class="fecha mono">{p.fecha}</p>
+              <h2 class="nombre">{p.nombre}</h2>
+              <p class="linea">{p.linea}</p>
+              <p class="codigo">¿Quieres el código? <a href={`mailto:${email}?subject=${encodeURIComponent(`Código de ${p.nombre}`)}`}>Escríbeme</a></p>
+            </div>
+          </article>
+        ))}
+      </main>
+
+      <footer class="site">
+        <span>© 2026 Alicia Viñals</span>
+      </footer>
+    </div>
+  </div>
+</VeladoLayout>
+
+<style>
+  .lab { hyphens: none; }
+  /* Más ancho que la home: con menos de 720 px el libro solo enseña una página */
+  .lab .wrap { max-width: 80rem; }
+  .cabeza { padding-block: clamp(48px, 10vh, 112px) clamp(32px, 6vh, 64px); display: grid; gap: 20px; }
+  .cabeza h1 { margin: 0; }
+  .intro { margin: 0; max-width: 40ch; color: var(--ink-soft); font-size: clamp(1.125rem, 1.8vw, 1.375rem); line-height: 1.45; }
+
+  .pieza {
+    display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 56px); align-items: center;
+  }
+  .viva { height: clamp(520px, 74svh, 680px); }
+  .viva iframe { display: block; width: 100%; height: 100%; border: 0; background: transparent; }
+
+  .texto { display: grid; gap: 14px; align-content: start; }
+  .texto p { margin: 0; max-width: 46ch; }
+  .fecha { color: var(--ink-soft); }
+  .nombre { margin: 0; font-weight: 700; font-size: clamp(1.75rem, 3.4vw, 2.5rem); letter-spacing: -.02em; line-height: 1.05; }
+  .linea { font-size: 1.125rem; line-height: 1.45; }
+  .codigo { color: var(--ink-soft); font-size: .9375rem; padding-top: 4px; }
+  .codigo a { color: inherit; text-underline-offset: 4px; }
+
+  @media (max-width: 900px) {
+    .pieza { grid-template-columns: 1fr; }
+    .viva { height: min(78svh, 600px); }
+  }
+
+  footer.site { padding-block: clamp(96px, 14vh, 160px) 24px; color: var(--ink-soft); }
+</style>

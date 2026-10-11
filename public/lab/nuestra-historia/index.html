@@ -9,6 +9,15 @@
 <meta property="og:description" content="La sección «Nuestra historia» de una web de boda, hecha como un libro que se hojea cogiendo la esquina de la página.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://aliverso.me/lab/nuestra-historia/">
+<!-- Las fuentes de dentro del libro se piden ya: si no, se descargan al girar la primera hoja -->
+<link rel="preload" href="fonts/Outfit-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/AzeretMono-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/eb-garamond-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/caveat-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+  // Dentro de aliverso.me/lab el libro va sin escena propia, sobre el fondo de la página que lo contiene
+  if (new URLSearchParams(location.search).get('fondo') === 'transparente') document.documentElement.dataset.fondo = 'transparente';
+</script>
 <style>
 /* Fuentes en local (SIL Open Font License, ver fonts/OFL-*.txt) */
 @font-face {
@@ -74,7 +83,7 @@
   --title-style: italic;
   /* medidas y movimiento */
   --vh: 100vh;
-  --pw: max(260px, min(430px, calc((100vw - 48px) / 2), calc((var(--vh) - 90px) * .72)));
+  --pw: max(260px, min(430px, calc((100vw - 48px) / 2), calc((var(--vh) - 110px) * .72)));
   --ph: calc(var(--pw) / .72);
   --ceja: .55em;
   --dur: 950ms;
@@ -87,7 +96,7 @@
 }
 @supports (height: 100dvh) { :root { --vh: 100dvh; } }
 @media (max-width: 719px) {
-  :root { --pw: max(230px, min(400px, calc(100vw - 32px), calc((var(--vh) - 90px) * .72))); }
+  :root { --pw: max(230px, min(400px, calc(100vw - 32px), calc((var(--vh) - 110px) * .72))); }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -101,6 +110,8 @@
   --book-shadow: rgba(30, 24, 18, .6);
   color-scheme: dark;
 }
+:root[data-fondo="transparente"] { color-scheme: dark; /* el de aliverso.me: si no coincide, el navegador pinta un fondo opaco detrás */ --fg: #f1e6d0; --accent: #f1e6d0; }
+:root[data-fondo="transparente"] body { background: transparent; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { overflow-x: clip; }
@@ -216,7 +227,11 @@ body {
 /* al pasar por encima se levanta un poco; al pulsar, se hunde */
 .fin-btn:hover { filter: brightness(1.04); transform: translateY(-1px); }
 .fin-btn:active { transform: translateY(2px); box-shadow: inset 0 1px 3px rgba(30, 24, 18, .3), 0 2px 4px -2px rgba(30, 24, 18, .3); }
-.fin-nota { position: absolute; top: 100%; left: 0; right: 0; margin: .6em 0 0;  /* fuera del flujo: que el libro no suba al aparecer */ text-align: center; font-size: .9em; color: var(--ink-soft); }
+.fin-nota {  /* fuera del flujo: que el libro no suba al aparecer */
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: min(90vw, calc(var(--pw) * 2)); margin: .6em 0 0;
+  text-align: center; font-size: .9em; color: var(--fg);
+}
 @media (prefers-reduced-motion: reduce) { .fin, :root[data-fin="1"] .fin { transition: none; } }
 @media (max-width: 719px) {
   .stage { width: var(--pw); clip-path: inset(-30% -14px); touch-action: pan-y; }
@@ -616,7 +631,7 @@ body {
   <div class="fin" id="fin">
     <button class="fin-btn" id="releer" type="button">Volver a leer</button>
     <button class="fin-btn lleno" id="rsvp" type="button">Confirmar asistencia</button>
-    <p class="fin-nota" id="rsvpNote" hidden>Esto es una demo: aquí iría vuestro formulario.</p>
+    <p class="fin-nota" id="rsvpNote" hidden>Aquí iría vuestro formulario.</p>
   </div>
 
   <!-- Sin controles a la vista: el script los sigue usando y el estado se anuncia a lectores de pantalla. -->
@@ -946,6 +961,16 @@ body {
     return fold;
   }
 
+  // Sobre fondo transparente (dentro de aliverso.me/lab) el navegador dejaba restos del giro fuera del
+  // libro hasta el siguiente scroll: al acabar cada pliegue y cada desplazamiento se fuerza un repintado.
+  const labEl = document.querySelector('.lab');
+  const repintar = () => {
+    if (document.documentElement.dataset.fondo !== 'transparente') return;
+    labEl.style.backgroundColor = 'rgba(0, 0, 0, .004)';
+    requestAnimationFrame(() => requestAnimationFrame(() => { labEl.style.backgroundColor = ''; }));
+  };
+  book.addEventListener('transitionend', (event) => { if (event.target === book) repintar(); });
+
   function endFold(completed) {
     const f = fold;
     if (!f) return;
@@ -975,6 +1000,7 @@ body {
     if (completed) page = pageAfterFlip(f.index, f.mirror);
     syncRest();
     requestAnimationFrame(() => { if (!fold) book.classList.remove('no-anim'); });
+    repintar();
     if (f.onDone) f.onDone(completed);
   }
 
@@ -1279,8 +1305,10 @@ body {
    - zonas donde el lavado queda más claro o más cargado;
    - el cerco de pigmento al secar, veladuras que se multiplican y blancos de papel reservados.
    Debajo, papel de acuarela de grano fino; el pigmento no agarra en sus crestas.
-   Sin librerías. Semilla fija: siempre sale igual. */
-(() => {
+   Sin librerías. Semilla fija: siempre sale igual.
+   Se pinta en un worker, fuera del hilo de la página: en la página eran unos 400 ms al cargar, justo
+   cuando se abre el libro, y la primera vuelta de hoja iba a tirones. */
+function pintorAcuarelas() {
   'use strict';
   const W = 264, H = 324, S = 3, TAU = Math.PI * 2, PI = Math.PI;
 
@@ -1410,7 +1438,7 @@ body {
   };
   const trace = (c, pts) => { c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath(); };
 
-  const make = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return cv; };
+  const make = (w, h) => { if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(w, h); const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return cv; };
   let grain = null, paper = null, tmp = null;
   const mask = make(2, 2);
   /** Papel de acuarela de grano fino y tono crema: un relieve de ruido iluminado desde arriba a la
@@ -1521,18 +1549,46 @@ body {
     return edge;
   }
 
-  // De una en una y cediendo el turno entre lámina y lámina, para no frenar la apertura del libro.
+  return paint;
+}
+
+(() => {
+  'use strict';
   const targets = Array.from(document.querySelectorAll('image.acuarela[data-lamina]'));
   const timing = (window.__acuarelas = []);
-  const next = () => {
-    const el = targets.shift();
-    if (!el) return;
-    const t0 = performance.now();
-    el.setAttribute('href', paint(el.dataset.lamina).toDataURL('image/png'));
+  if (!targets.length) return;
+  const put = (el, blob, t0) => {
+    el.setAttribute('href', URL.createObjectURL(blob));
     timing.push(`${el.dataset.lamina} ${Math.round(performance.now() - t0)} ms`);
-    setTimeout(next, 0);
   };
-  setTimeout(next, 0);
+  // Sin worker: en la página, de una en una y cuando está ociosa, para no frenar la apertura del libro.
+  const enPagina = () => {
+    const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 0));
+    let paint = null;
+    const next = () => {
+      const el = targets.shift();
+      if (!el) return;
+      paint = paint || pintorAcuarelas();
+      const t0 = performance.now();
+      const c = paint(el.dataset.lamina);
+      const listo = (blob) => { put(el, blob, t0); idle(next); };
+      if (c.convertToBlob) c.convertToBlob().then(listo); else c.toBlob(listo);
+    };
+    idle(next);
+  };
+  try {
+    if (typeof OffscreenCanvas === 'undefined' || !OffscreenCanvas.prototype.convertToBlob) throw new Error('sin OffscreenCanvas');
+    const src = `const paint = (${pintorAcuarelas})();
+onmessage = async (e) => { const c = paint(e.data.lamina); postMessage({ i: e.data.i, blob: await c.convertToBlob() }); };`;
+    const worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    const t0 = performance.now();
+    let hechas = 0;
+    worker.onmessage = (e) => { put(targets[e.data.i], e.data.blob, t0); if (++hechas === targets.length) worker.terminate(); };
+    worker.onerror = () => { worker.terminate(); enPagina(); };
+    targets.forEach((el, i) => worker.postMessage({ i, lamina: el.dataset.lamina }));
+  } catch {
+    enPagina();
+  }
 })();
 
 /* Huecos de foto: se suelta una imagen del ordenador (o se elige tocando «Vuestra foto») y encaja
@@ -1563,7 +1619,9 @@ body {
   // fotos de ejemplo de la demo, ya puestas al abrir, con su fecha
   document.querySelectorAll('.foto-hueco[data-foto]').forEach((slot) => {
     const probe = new Image();
-    probe.onload = () => {
+    // descodificada antes de ponerla: si no, se descodifica al girar la hoja y la primera vuelta da tirones
+    // (con tope: en una pestaña que no se ve, decode() puede no acabar nunca)
+    probe.onload = () => Promise.race([probe.decode(), new Promise((r) => setTimeout(r, 800))]).catch(() => {}).then(() => {
       const frame = frameOf(slot, slot.dataset.foto, true);
       if (!slot.dataset.fecha) return;
       const f = document.createElement('span');
@@ -1583,7 +1641,7 @@ body {
         f.append(c);
       });
       frame.append(f);
-    };
+    });
     probe.src = slot.dataset.foto;
   });
 
