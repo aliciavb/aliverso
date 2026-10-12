@@ -15,8 +15,9 @@
 <link rel="preload" href="fonts/eb-garamond-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/caveat-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>
-  // Dentro de aliverso.me/lab el libro va sin escena propia, sobre el fondo de la página que lo contiene
-  if (new URLSearchParams(location.search).get('fondo') === 'transparente') document.documentElement.dataset.fondo = 'transparente';
+  // Dentro de aliverso.me/lab el libro va sin escena propia, sobre el fondo de la página que lo contiene;
+  // suelto, lleva ese mismo fondo de aliverso.me
+  document.documentElement.dataset.fondo = new URLSearchParams(location.search).get('fondo') === 'transparente' ? 'transparente' : 'web';
 </script>
 <style>
 /* Fuentes en local (SIL Open Font License, ver fonts/OFL-*.txt) */
@@ -110,8 +111,23 @@
   --book-shadow: rgba(30, 24, 18, .6);
   color-scheme: dark;
 }
-:root[data-fondo="transparente"] { color-scheme: dark; /* el de aliverso.me: si no coincide, el navegador pinta un fondo opaco detrás */ --fg: #f1e6d0; --accent: #f1e6d0; }
+:root[data-fondo] { color-scheme: dark; /* el de aliverso.me: si no coincide, el navegador pinta un fondo opaco detrás */ --fg: #f1e6d0; --accent: #f1e6d0; }
 :root[data-fondo="transparente"] body { background: transparent; }
+/* Suelto: el fondo de aliverso.me (src/styles/velado.css), con sus manchas de luz y la textura de papel */
+:root[data-fondo="web"] { background: #0a1410; }
+:root[data-fondo="web"] body {
+  background-color: #12241c;
+  background-image:
+    radial-gradient(60rem 40rem at 100% 100%, color-mix(in srgb, #e2553a 22%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 0% 70%, color-mix(in srgb, #4fb89a 16%, transparent), transparent 70%),
+    linear-gradient(180deg, #12241c 0%, #0a1410 100%);
+  background-attachment: fixed;
+}
+:root[data-fondo="web"] body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 5;
+  background: url("/assets/bg-noise.jpg") repeat 0 0 / 323px auto;
+  opacity: .55; mix-blend-mode: screen; filter: invert(1);
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 html { overflow-x: clip; }
