@@ -1,0 +1,13 @@
+{
+  "intro": "Piezas pequeñas de diseño y código que salen de algo rutinario que me inspira a crear.",
+  "email": "hola@aliverso.me",
+  "piezas": [
+    {
+      "publicado": true,
+      "nombre": "Nuestra historia",
+      "fecha": "Octubre 2026",
+      "linea": "La sección «Nuestra historia» de una web de boda, como un libro que se hojea arrastrando la esquina.",
+      "demo": "/lab/nuestra-historia/?fondo=transparente"
+    }
+  ]
+}

@@ -20,7 +20,7 @@ const [viva, ...siguientes] = piezas;
         <div class="ruler" aria-hidden="true"></div>
 
         <article class="pieza">
-          <div class="viva"><iframe src={viva.demo} title={`${viva.nombre}: libro para hojear`}></iframe></div>
+          <div class="viva"><iframe src={viva.demo} title={viva.nombre}></iframe></div>
           <div class="texto">
             <p class="mono soft">{viva.num} · {viva.fecha}</p>
             <h2>{viva.nombre}</h2>

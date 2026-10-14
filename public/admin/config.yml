@@ -103,3 +103,23 @@ collections:
             fields:
               - { name: title, label: Título, widget: string }
               - { name: text, label: Texto, widget: markdown, modes: [rich_text], buttons: [bold, italic, link], editor_components: [] }
+
+      - name: lab
+        label: Lab
+        file: src/data/lab.json
+        fields:
+          - { name: intro, label: Frase de arriba (junto a «Lab»), widget: text }
+          - { name: email, label: "Email al que se pide el código", widget: string }
+          - name: piezas
+            label: Piezas
+            label_singular: pieza
+            widget: list
+            hint: "La primera sale en grande y en vivo; las siguientes, más pequeñas debajo. El número (01, 02…) sale del orden. Arrastra para cambiarlo."
+            summary: "{{fields.nombre}} — {{fields.fecha}}"
+            collapsed: true
+            fields:
+              - { name: publicado, label: Sale en la web, widget: boolean, default: true, hint: "Apagado: se queda guardada aquí pero no se ve en la web." }
+              - { name: nombre, label: Nombre, widget: string }
+              - { name: fecha, label: Fecha, widget: string, hint: "Por ejemplo: Octubre 2026" }
+              - { name: linea, label: "Línea (qué es)", widget: text }
+              - { name: demo, label: "Dirección de la demo (no tocar si no sabes cuál es)", widget: string, required: false }
