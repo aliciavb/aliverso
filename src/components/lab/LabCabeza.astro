@@ -1,0 +1,38 @@
+---
+// src/components/lab/LabCabeza.astro — menú e intro de /lab, iguales en las versiones A, B y C (2026-10-14).
+// La intro va arriba, pegada al menú y en grande: que se lea como presentación de la página.
+import { intro } from "../../data/lab";
+---
+
+<header class="site">
+  <a class="brand" href="/">Alicia Viñals</a>
+  <nav class="site" aria-label="Principal">
+    <a href="/#trabajo">Trabajo</a>
+    <a href="/lab/" aria-current="page">Lab</a>
+    <a href="/#sobre-mi">Sobre mí</a>
+    <a href="/#hablemos">Hablemos</a>
+  </nav>
+</header>
+
+<section class="lab-cabeza">
+  <h1>Lab</h1>
+  <p>{intro}</p>
+</section>
+
+<style>
+  .lab-cabeza {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end;
+    gap: clamp(20px, 4vw, 64px); padding-block: clamp(24px, 6vh, 64px) clamp(40px, 7vh, 80px);
+  }
+  h1 {
+    margin: 0; font-family: var(--display); font-weight: 700;
+    font-size: clamp(4rem, 12vw, 9.5rem); line-height: .8; letter-spacing: -.045em;
+  }
+  p {
+    margin: 0; max-width: 26ch; text-wrap: pretty;
+    font-size: clamp(1.375rem, 2.6vw, 2.125rem); line-height: 1.22; letter-spacing: -.01em;
+  }
+  @media (max-width: 700px) {
+    .lab-cabeza { grid-template-columns: 1fr; gap: 20px; }
+  }
+</style>

@@ -1,63 +1,48 @@
 ---
-// src/pages/lab.astro — /lab: piezas pequeñas de diseño y código (2026-10-10).
-// Versión B · destacada, elegida por Alicia: la pieza en grande y el texto al lado, como bubbbly.com
-// (Ann Nguyen). La pieza va en vivo, sobre el fondo de la web (?fondo=transparente) y sin salir de la
-// página. Sin pestaña de código, como Kevin Ngo y Ann: el código se pide por correo, y así sabe a quién
-// le interesa. Poco texto (es una demo visual): fecha, nombre y una línea; el origen va en los posts.
+// src/pages/lab.astro — /lab: piezas pequeñas de diseño y código (2026-10-10; rehecha el 2026-10-14).
+// Versión A · Alfombrilla, elegida por Alicia entre tres (alfombrilla, carpeta y plano): las piezas van sobre
+// la misma alfombrilla de corte que la sección Trabajo de la home, la mesa donde se hacen. La primera, en
+// vivo y en grande; las siguientes, más pequeñas debajo. La intro va arriba y en grande (LabCabeza.astro).
+// Sin pestaña de código, como Kevin Ngo y Ann Nguyen: el código se pide por correo.
 import VeladoLayout from "../layouts/VeladoLayout.astro";
-import "../styles/escueta.css";
+import LabCabeza from "../components/lab/LabCabeza.astro";
+import { intro, piezas, mailCodigo } from "../data/lab";
 
-const intro = "Piezas pequeñas de diseño y código que salen de algo que me pasa: una boda, una amiga, algo que veo.";
-
-const piezas = [
-  {
-    nombre: "Nuestra historia",
-    fecha: "Octubre 2026",
-    linea: "La sección «Nuestra historia» de una web de boda, como un libro que se hojea cogiendo la esquina.",
-    demo: "/lab/nuestra-historia/?fondo=transparente",
-  },
-];
-const email = "hola@aliverso.me";
+const [viva, ...siguientes] = piezas;
 ---
 
 <VeladoLayout title="Lab · Alicia Viñals" description={intro}>
-  <div class="escueta lab">
+  <div class="lab">
     <div class="wrap">
-      <header class="site">
-        <a class="brand" href="/">Alicia Viñals</a>
-        <nav class="site" aria-label="Principal">
-          <a href="/#trabajo">Trabajo</a>
-          <a href="/lab/" aria-current="page">Lab</a>
-          <a href="/#sobre-mi">Sobre mí</a>
-          <a href="/#hablemos">Hablemos</a>
-        </nav>
-      </header>
+      <LabCabeza />
 
-      <main>
-        <section class="cabeza">
-          <h1 class="title">Lab</h1>
-          <p class="intro">{intro}</p>
-        </section>
+      <main class="mat">
+        <div class="ruler" aria-hidden="true"></div>
 
-        {piezas.map((p) => (
-          <article class="pieza">
-            <div class="viva">
-              <iframe src={p.demo} title={`${p.nombre}: libro para hojear`}></iframe>
-            </div>
+        <article class="pieza">
+          <div class="viva"><iframe src={viva.demo} title={`${viva.nombre}: libro para hojear`}></iframe></div>
+          <div class="texto">
+            <p class="mono soft">{viva.num} · {viva.fecha}</p>
+            <h2>{viva.nombre}</h2>
+            <p class="linea">{viva.linea}</p>
+            <p class="codigo">¿Quieres el código? <a href={mailCodigo(viva)}>Escríbeme</a></p>
+          </div>
+        </article>
 
-            <div class="texto">
-              <p class="fecha mono">{p.fecha}</p>
-              <h2 class="nombre">{p.nombre}</h2>
-              <p class="linea">{p.linea}</p>
-              <p class="codigo">¿Quieres el código? <a href={`mailto:${email}?subject=${encodeURIComponent(`Código de ${p.nombre}`)}`}>Escríbeme</a></p>
-            </div>
-          </article>
-        ))}
+        {siguientes.length > 0 && (
+          <div class="siguientes">
+            {siguientes.map((p) => (
+              <article class="otra">
+                <p class="mono soft">{p.num} · {p.fecha}</p>
+                <h2>{p.nombre}</h2>
+                <p class="linea">{p.linea}</p>
+              </article>
+            ))}
+          </div>
+        )}
       </main>
 
-      <footer class="site">
-        <span>© 2026 Alicia Viñals</span>
-      </footer>
+      <footer class="site"><span>© 2026 Alicia Viñals</span></footer>
     </div>
   </div>
 </VeladoLayout>
@@ -65,30 +50,46 @@ const email = "hola@aliverso.me";
 <style>
   .lab { hyphens: none; }
   /* Más ancho que la home: con menos de 720 px el libro solo enseña una página */
-  .lab .wrap { max-width: 80rem; }
-  .cabeza { padding-block: clamp(48px, 10vh, 112px) clamp(32px, 6vh, 64px); display: grid; gap: 20px; }
-  .cabeza h1 { margin: 0; }
-  .intro { margin: 0; max-width: 40ch; color: var(--ink-soft); font-size: clamp(1.125rem, 1.8vw, 1.375rem); line-height: 1.45; }
+  .lab .wrap { max-width: 84rem; }
 
-  .pieza {
-    display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    gap: clamp(28px, 4vw, 56px); align-items: center;
+  /* La alfombrilla de corte de la home (TrabajoMesa.astro) */
+  .mat {
+    position: relative; border-radius: 14px; overflow: hidden; display: grid; gap: clamp(32px, 5vw, 64px);
+    padding: clamp(40px, 5vw, 64px) clamp(16px, 3.5vw, 48px) clamp(24px, 4vw, 48px);
+    background-color: #16301f;
+    background-image:
+      linear-gradient(rgba(241, 230, 208, .11) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .11) 1px, transparent 1px),
+      linear-gradient(rgba(241, 230, 208, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(241, 230, 208, .045) 1px, transparent 1px);
+    background-size: 190px 190px, 190px 190px, 38px 38px, 38px 38px; background-position: 18px 18px;
+    box-shadow: 0 40px 70px -40px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(241, 230, 208, .08), inset 0 -4px 0 rgba(0, 0, 0, .25);
   }
-  .viva { height: clamp(520px, 74svh, 680px); }
+  .mat::before {
+    content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 1px; pointer-events: none;
+    background: rgba(241, 230, 208, .07); transform-origin: 0 0; transform: rotate(35deg);
+  }
+  .ruler { position: absolute; left: 18px; right: 0; top: 4px; height: 12px; pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgba(241, 230, 208, .3) 0 1px, transparent 1px 38px); }
+
+  .pieza { position: relative; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  .viva { height: clamp(520px, 72svh, 660px); }
   .viva iframe { display: block; width: 100%; height: 100%; border: 0; background: transparent; }
 
-  .texto { display: grid; gap: 14px; align-content: start; }
-  .texto p { margin: 0; max-width: 46ch; }
-  .fecha { color: var(--ink-soft); }
-  .nombre { margin: 0; font-weight: 700; font-size: clamp(1.75rem, 3.4vw, 2.5rem); letter-spacing: -.02em; line-height: 1.05; }
+  .texto, .otra { display: grid; gap: 12px; align-content: start; }
+  .texto p, .otra p { margin: 0; max-width: 40ch; }
+  h2 { margin: 0; font-weight: 700; font-size: clamp(1.75rem, 3.2vw, 2.5rem); letter-spacing: -.02em; line-height: 1.05; }
   .linea { font-size: 1.125rem; line-height: 1.45; }
   .codigo { color: var(--ink-soft); font-size: .9375rem; padding-top: 4px; }
   .codigo a { color: inherit; text-underline-offset: 4px; }
 
+  /* Las piezas siguientes, más pequeñas (de momento solo hay una) */
+  .siguientes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(16px, 3vw, 40px); }
+  .otra h2 { font-size: clamp(1.375rem, 2.2vw, 1.75rem); }
+
   @media (max-width: 900px) {
     .pieza { grid-template-columns: 1fr; }
-    .viva { height: min(78svh, 600px); }
+    .viva { height: min(76svh, 600px); }
+    .siguientes { grid-template-columns: 1fr; }
   }
 
-  footer.site { padding-block: clamp(96px, 14vh, 160px) 24px; color: var(--ink-soft); }
+  footer.site { padding-block: clamp(80px, 12vh, 140px) 24px; color: var(--ink-soft); }
 </style>
